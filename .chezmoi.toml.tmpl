@@ -93,3 +93,12 @@
 [git]
   autoCommit = true
   autoPush = false
+
+{{- if .features.enable_1password }}
+# 1Password 集成配置
+[onepassword]
+  prompt = false
+{{- end }}
+
+# 禁用加密 (我们使用 1Password 管理密钥)
+encryption = ""

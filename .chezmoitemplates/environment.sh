@@ -102,3 +102,10 @@ export HIST_STAMPS="yyyy-mm-dd"
 # 确保配置目录存在
 [[ ! -d "$CONFIG_DIR" ]] && mkdir -p "$CONFIG_DIR"
 [[ ! -d "$LOCAL_BIN" ]] && mkdir -p "$LOCAL_BIN"
+
+{{- if .features.enable_1password }}
+# 加载 1Password 密钥 (如果文件存在)
+if [[ -f "$USER_HOME/.secrets" ]]; then
+    source "$USER_HOME/.secrets"
+fi
+{{- end }}

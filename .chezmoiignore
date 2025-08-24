@@ -20,6 +20,9 @@ Thumbs.db
 .ssh/id_*
 .gnupg/
 .aws/credentials
+.secrets
+.env
+.env.*
 
 # 缓存目录
 .cache/
