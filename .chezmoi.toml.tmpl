@@ -1,0 +1,79 @@
+# Chezmoi 配置文件
+# 根据平台和环境动态生成配置
+
+[data]
+  # 基础系统信息
+  os = "{{ .chezmoi.os }}"
+  arch = "{{ .chezmoi.arch }}"
+  hostname = "{{ .chezmoi.hostname }}"
+  username = "{{ .chezmoi.username }}"
+  
+  # 环境类型检测
+  {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") }}
+  environment = "remote"
+  {{- else if and (stat "/proc/version") (regexMatch "microsoft" (cat "/proc/version")) }}
+  environment = "wsl"
+  {{- else if env "CONTAINER" }}
+  environment = "container"
+  {{- else }}
+  environment = "desktop"
+  {{- end }}
+  
+  # 包管理器检测
+  {{- if lookPath "apt" }}
+  package_manager = "apt"
+  {{- else if lookPath "yum" }}
+  package_manager = "yum"
+  {{- else if lookPath "brew" }}
+  package_manager = "brew"
+  {{- else }}
+  package_manager = "unknown"
+  {{- end }}
+
+[data.user]
+  name = "{{ .chezmoi.username }}"
+  email = "user@example.com"  # 需要用户自定义
+  
+[data.preferences]
+  shell = "zsh"
+  editor = "nvim"
+  theme = "dark"
+  
+[data.features]
+  enable_ai_tools = true
+  enable_proxy = true
+  enable_1password = true
+  enable_oh_my_zsh = false  # 暂时禁用，后续阶段启用
+  enable_starship = false   # 暂时禁用，后续阶段启用
+  enable_fzf = true         # 启用 fzf 模糊搜索
+  
+[data.packages]
+  # 核心工具包列表
+  brew = ["git", "curl", "wget", "fzf", "ripgrep", "fd", "bat", "eza"]
+  apt = ["git", "curl", "wget", "unzip", "build-essential", "fzf", "ripgrep", "fd-find"]
+  
+[data.paths]
+  dotfiles = "{{ .chezmoi.sourceDir }}"
+  projects = "{{ .chezmoi.homeDir }}/Projects"
+  config = "{{ .chezmoi.homeDir }}/.config"
+
+# 环境特定配置
+[data.environments.desktop]
+  packages = ["firefox", "code", "docker"]
+  services = ["docker", "ssh"]
+  
+[data.environments.server]
+  packages = ["htop", "tmux", "vim"]
+  services = ["ssh"]
+  
+[data.environments.container]
+  packages = ["curl", "git"]
+  services = []
+
+# Chezmoi 行为配置
+[edit]
+  command = "{{ if lookPath "code" }}code{{ else if lookPath "nvim" }}nvim{{ else }}vi{{ end }}"
+
+[git]
+  autoCommit = true
+  autoPush = false

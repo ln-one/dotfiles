@@ -1,0 +1,250 @@
+# ========================================
+# Bash Configuration (Chezmoi Template)
+# ========================================
+# 现代化的 Bash 配置，由 Chezmoi 管理
+# 支持跨平台 (Linux/macOS) 和多环境 (桌面/服务器)
+#
+# 生成时间: {{ now | date "2006-01-02 15:04:05" }}
+# 目标平台: {{ .chezmoi.os }}/{{ .chezmoi.arch }}
+# 环境类型: {{ .environment }}
+# ========================================
+
+# 非交互式 shell 直接退出
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+{{/* 基础环境设置 */}}
+# ========================================
+# 基础环境设置
+# ========================================
+# Dotfiles 目录设置
+export DOTFILES_DIR="{{ .paths.dotfiles }}"
+
+{{/* 跨平台路径配置 */}}
+{{- if eq .chezmoi.os "darwin" }}
+# macOS 特定路径
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+{{- if .features.enable_1password }}
+export SSH_AUTH_SOCK="~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+{{- end }}
+{{- else if eq .chezmoi.os "linux" }}
+# Linux 特定路径
+{{- if eq .package_manager "apt" }}
+export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+{{- end }}
+{{- if .features.enable_1password }}
+export SSH_AUTH_SOCK="~/.1password/agent.sock"
+{{- end }}
+{{- end }}
+
+# 用户项目目录
+export PROJECTS_DIR="{{ .paths.projects }}"
+
+{{/* 共享配置加载 */}}
+# ========================================
+# 加载共享配置 (向后兼容)
+# ========================================
+# 加载原有的共享 shell 配置 (如果存在)
+if [[ -f "$DOTFILES_DIR/.shellrc" ]]; then
+    source "$DOTFILES_DIR/.shellrc"
+elif [[ -f "$HOME/.shellrc" ]]; then
+    source "$HOME/.shellrc"
+fi
+
+# ========================================
+# Bash 历史配置
+# ========================================
+# 历史控制 - 忽略重复和空格开头的命令
+HISTCONTROL=ignoreboth
+
+# 追加到历史文件，不覆盖
+shopt -s histappend
+
+# 历史文件大小
+{{- if eq .environment "remote" }}
+# 远程环境 - 较小的历史文件
+HISTSIZE=500
+HISTFILESIZE=1000
+{{- else }}
+# 本地环境 - 较大的历史文件
+HISTSIZE=2000
+HISTFILESIZE=4000
+{{- end }}
+
+# 检查窗口大小并更新 LINES 和 COLUMNS
+shopt -s checkwinsize
+
+# 启用 ** 通配符 (Bash 4.0+)
+shopt -s globstar 2>/dev/null
+
+# ========================================
+# 提示符配置
+# ========================================
+# 设置 chroot 标识
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# 颜色提示符配置
+{{- if eq .environment "remote" }}
+# 远程环境 - 简单提示符
+color_prompt=yes
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+{{- else }}
+# 本地环境 - 增强提示符
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
+
+if [ "$color_prompt" = yes ]; then
+    # 彩色提示符，包含 git 分支信息
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]'
+    # 添加 git 分支显示 (如果在 git 仓库中)
+    if command -v git >/dev/null 2>&1; then
+        PS1="$PS1"'\[\033[01;33m\]$(__git_ps1 " (%s)")\[\033[00m\]'
+    fi
+    PS1="$PS1"'\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+{{- end }}
+
+unset color_prompt
+
+# 设置终端标题
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+{{/* 别名定义 */}}
+# ========================================
+# 加载共享配置
+# ========================================
+# 加载通用 shell 配置 (别名、函数、环境变量)
+{{ includeTemplate "shell-common.sh" . }}
+
+# Bash 特定别名补充
+{{- if eq .package_manager "apt" }}
+alias install='sudo apt install'
+alias update='sudo apt update && sudo apt upgrade'
+alias search='apt search'
+{{- end }}
+
+# ========================================
+# Bash 补全
+# ========================================
+# 加载 bash 别名文件
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# 启用可编程补全
+if ! shopt -oq posix; then
+{{- if eq .chezmoi.os "darwin" }}
+  # macOS Homebrew bash completion
+  if [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]]; then
+    . "/opt/homebrew/etc/profile.d/bash_completion.sh"
+  fi
+{{- else if eq .chezmoi.os "linux" }}
+  # Linux bash completion
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+{{- end }}
+fi
+
+{{/* 外部工具集成 */}}
+# ========================================
+# 外部工具集成
+# ========================================
+{{- if lookPath "fzf" }}
+# fzf 模糊搜索
+{{- if ne .environment "remote" }}
+# 桌面环境 - 完整 fzf 配置
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+{{- if lookPath "fd" }}
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+{{- end }}
+
+# 加载 fzf 键绑定
+{{- if eq .chezmoi.os "darwin" }}
+source /opt/homebrew/share/fzf/shell/key-bindings.bash 2>/dev/null
+{{- else if eq .chezmoi.os "linux" }}
+source /usr/share/fzf/key-bindings.bash 2>/dev/null || \
+source ~/.fzf/shell/key-bindings.bash 2>/dev/null
+{{- end }}
+{{- else }}
+# 远程环境 - 基础 fzf
+export FZF_DEFAULT_OPTS='--height 40%'
+{{- end }}
+{{- end }}
+
+{{/* 平台特定配置 */}}
+# ========================================
+# 平台特定配置
+# ========================================
+{{- if eq .chezmoi.os "darwin" }}
+# macOS 特定配置
+{{- if lookPath "brew" }}
+# Homebrew 环境
+eval "$(/opt/homebrew/bin/brew shellenv)"
+{{- end }}
+{{- else if eq .chezmoi.os "linux" }}
+# Linux 特定配置
+# 启用颜色支持
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+fi
+{{- end }}
+
+{{/* 实用函数 */}}
+# ========================================
+# Bash 特定函数
+# ========================================
+# 快速目录跳转到项目目录
+{{- if .paths.projects }}
+cdp() { cd "{{ .paths.projects }}/$1"; }
+{{- end }}
+
+# 系统更新函数 (Bash 版本)
+{{- if eq .chezmoi.os "darwin" }}
+full_update() {
+  brew update && brew upgrade && brew cleanup
+}
+{{- else if eq .chezmoi.os "linux" }}
+full_update() {
+{{- if eq .package_manager "apt" }}
+  sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
+{{- end }}
+}
+{{- end }}
+
+# ========================================
+# 长时间运行命令的通知
+# ========================================
+{{- if and (eq .chezmoi.os "linux") (eq .environment "desktop") }}
+# 添加 "alert" 别名用于长时间运行的命令
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+{{- end }}
+
+# ========================================
+# 本地自定义配置
+# ========================================
+# 加载本地自定义配置 (不在版本控制中)
+[[ -f ~/.bashrc.local ]] && source ~/.bashrc.local
+
+# Chezmoi 管理标记
+# 此文件由 Chezmoi 生成，请勿直接编辑
+# 要修改配置，请编辑: {{ .chezmoi.sourceDir }}/dot_bashrc.tmpl

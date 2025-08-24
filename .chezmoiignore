@@ -1,0 +1,40 @@
+# Chezmoi 忽略文件配置
+# 这些文件不会被 Chezmoi 管理
+
+# 临时文件
+*.tmp
+*.log
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE 文件
+.vscode/
+.idea/
+
+# 敏感文件 (应该用加密模板管理)
+.ssh/id_*
+.gnupg/
+.aws/credentials
+
+# 缓存目录
+.cache/
+.npm/
+.yarn/
+
+# 根据环境条件忽略
+{{- if ne .environment "desktop" }}
+# 非桌面环境忽略GUI相关配置
+.config/firefox/
+.config/code/
+{{- end }}
+
+{{- if eq .environment "remote" }}
+# SSH远程环境忽略本地工具配置
+.config/docker/
+.local/share/applications/
+{{- end }}
