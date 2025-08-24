@@ -46,6 +46,7 @@
   enable_oh_my_zsh = true   # 启用 Oh My Zsh
   enable_starship = true    # 启用 Starship 提示符
   enable_fzf = true         # 启用 fzf 模糊搜索
+  enable_zoxide = true      # 启用 zoxide 智能目录跳转
   
   # 开发语言支持
   enable_node = true
@@ -58,12 +59,12 @@
   
 [data.packages]
   # 核心工具包列表
-  brew = ["git", "curl", "wget", "fzf", "ripgrep", "fd", "bat", "eza"]
+  brew = ["git", "curl", "wget", "fzf", "ripgrep", "fd", "bat", "eza", "zoxide"]
   apt = ["git", "curl", "wget", "unzip", "build-essential", "fzf", "ripgrep", "fd-find"]
   
   # 必需工具列表 (按优先级分组)
   essential = ["git", "curl", "wget", "unzip"]
-  modern_cli = ["eza", "bat", "fd", "ripgrep", "fzf", "jq"]
+  modern_cli = ["eza", "bat", "fd", "ripgrep", "fzf", "jq", "zoxide"]
   development = ["neovim", "tmux", "htop", "tree"]
   
 [data.paths]

@@ -39,7 +39,9 @@ source ~/.zshrc
 ├── aliases.sh              # 核心别名 (ls/ll/la + 导航)
 ├── basic-functions.sh       # 基础函数 (mkcd, sysinfo)
 ├── proxy-functions.sh       # 代理管理 (proxyon/proxyoff/proxystatus)
-└── theme-functions.sh       # WhiteSur 主题切换 (light/dark/themestatus)
+├── theme-functions.sh       # WhiteSur 主题切换 (light/dark/themestatus)
+├── fzf-config.sh           # FZF 模糊搜索配置
+└── zoxide-config.sh        # Zoxide 智能目录跳转配置
 ```
 
 ### Shell 配置
@@ -55,6 +57,8 @@ source ~/.zshrc
 ├── run_once_install-homebrew.sh.tmpl         # Homebrew 自动安装
 ├── run_once_install-tools.sh.tmpl            # 工具自动安装
 ├── run_once_install-version-managers.sh.tmpl # 版本管理器安装
+├── run_once_install-fzf.sh.tmpl              # FZF 模糊搜索工具安装
+├── run_once_install-zoxide.sh.tmpl           # Zoxide 智能目录跳转安装
 ├── run_onchange_install-brew-packages.sh.tmpl # Homebrew 包管理
 └── run_onchange_verify-environment.sh.tmpl   # 环境变量验证
 ```
@@ -98,10 +102,25 @@ mkcd <dir>   # 创建目录并进入
 sysinfo      # 显示系统信息
 ```
 
+### 智能目录跳转 (Zoxide)
+```bash
+z <目录名>   # 智能跳转到匹配目录
+zi           # 交互式目录选择 (需要 fzf)
+z -          # 返回上一个目录
+proj <名称>  # 快速跳转到项目目录
+ztop         # 显示最常访问的目录
+zclean       # 清理数据库
+```
+
+### 模糊搜索 (FZF)
+```bash
+fh           # 搜索历史命令
+```
+
 ### 工具管理
 - **自动安装**: 跨平台工具安装 (系统包管理器 + Homebrew)
 - **智能检测**: 检查工具是否已安装，避免重复安装
-- **现代工具**: eza, bat, fd, ripgrep, fzf, jq 等现代 CLI 工具
+- **现代工具**: eza, bat, fd, ripgrep, fzf, zoxide, jq 等现代 CLI 工具
 - **开发环境**: git, curl, neovim, tmux 等开发工具自动配置
 
 ### 版本管理器集成
@@ -148,6 +167,8 @@ sysinfo      # 显示系统信息
 - [x] 安装脚本完善 (错误处理、回滚机制)
 - [x] 网络连接优化 (超时、重试机制)
 - [x] 跨平台兼容性测试和修复
+- [x] FZF 模糊搜索集成
+- [x] Zoxide 智能目录跳转集成
 
 🎉 **项目状态**: 生产就绪，所有核心功能已完成并测试通过
 

@@ -38,6 +38,9 @@ export PAGER="less"
 # 加载 fzf 模糊搜索配置
 {{ includeTemplate "fzf-config.sh" . }}
 
+# 加载 zoxide 智能目录跳转配置
+{{ includeTemplate "zoxide-config.sh" . }}
+
 # ========================================
 # Shell 配置完成
 # ========================================

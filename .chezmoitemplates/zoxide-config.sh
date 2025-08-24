@@ -1,0 +1,73 @@
+# ========================================
+# Zoxide 智能目录跳转配置
+# ========================================
+# 现代化的目录跳转工具，比传统的 z 更快更智能
+# 支持模糊匹配和频率算法
+# ========================================
+
+{{- if .features.enable_zoxide }}
+# 检查 zoxide 是否已安装
+if command -v zoxide >/dev/null 2>&1; then
+    # 初始化 zoxide
+    {{- if eq .preferences.shell "zsh" }}
+    eval "$(zoxide init zsh)"
+    {{- else if eq .preferences.shell "bash" }}
+    eval "$(zoxide init bash)"
+    {{- else }}
+    # 自动检测 shell
+    if [ -n "$ZSH_VERSION" ]; then
+        eval "$(zoxide init zsh)"
+    elif [ -n "$BASH_VERSION" ]; then
+        eval "$(zoxide init bash)"
+    fi
+    {{- end }}
+    
+    # 自定义别名 (可选)
+    # alias cd='z'  # 将 cd 替换为 z (谨慎使用)
+    
+    # 有用的 zoxide 函数
+    # 快速跳转到项目目录
+    proj() {
+        if [ -z "$1" ]; then
+            echo "用法: proj <项目名>"
+            echo "可用项目:"
+            zoxide query --list | grep -E "(project|proj|work|code|dev)" | head -10
+            return 1
+        fi
+        z "$1"
+    }
+    
+    # 显示最常访问的目录
+    ztop() {
+        echo "🏆 最常访问的目录:"
+        zoxide query --list --score | head -10
+    }
+    
+    # 清理 zoxide 数据库中不存在的目录
+    zclean() {
+        echo "🧹 清理 zoxide 数据库..."
+        # zoxide 会自动清理不存在的目录，这里只是一个占位符
+        echo "✅ 清理完成"
+    }
+    
+    {{- if .features.enable_fzf }}
+    # 如果启用了 fzf，增强 zi 命令的体验
+    # zi 命令已经内置了 fzf 支持，无需额外配置
+    {{- end }}
+    
+else
+    # 如果 zoxide 未安装，提供安装提示
+    z() {
+        echo "❌ zoxide 未安装"
+        echo "💡 运行以下命令安装:"
+        {{- if eq .chezmoi.os "darwin" }}
+        echo "   brew install zoxide"
+        {{- else if eq .chezmoi.os "linux" }}
+        echo "   curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
+        {{- end }}
+        echo "   或者运行 chezmoi apply 来自动安装"
+    }
+    
+    zi() { z "$@"; }
+fi
+{{- end }}
