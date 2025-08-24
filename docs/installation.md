@@ -1,42 +1,30 @@
-# 安装指南
+# 快速安装指南
 
-## 前置要求
-
-- Git
-- Curl 或 Wget
-- 1Password (推荐，用于 SSH 密钥管理)
-
-## 快速安装
-
-### 1. 安装 Chezmoi
+## 推荐方式：使用安装脚本
 
 ```bash
-# 使用官方安装脚本
+# 一键安装（推荐）
+curl -fsSL https://raw.githubusercontent.com/ln-one/dotfiles-chezmoi/main/install-chezmoi.sh | bash
+
+# 或者手动下载后运行
+wget https://raw.githubusercontent.com/ln-one/dotfiles-chezmoi/main/install-chezmoi.sh
+chmod +x install-chezmoi.sh
+./install-chezmoi.sh
+```
+
+## 手动安装
+
+如果你更喜欢手动控制安装过程：
+
+```bash
+# 1. 安装 Chezmoi
 sh -c "$(curl -fsLS get.chezmoi.io)"
 
-# 或者使用包管理器
-# Ubuntu/Debian
-sudo apt install chezmoi
-
-# macOS
-brew install chezmoi
-```
-
-### 2. 初始化配置
-
-```bash
-# 克隆并应用配置
+# 2. 初始化配置
 chezmoi init --apply https://github.com/ln-one/dotfiles-chezmoi.git
-```
 
-### 3. 重新加载 Shell
-
-```bash
-# Zsh
-source ~/.zshrc
-
-# Bash
-source ~/.bashrc
+# 3. 重新加载 Shell
+source ~/.zshrc  # 或 source ~/.bashrc
 ```
 
 ## 自动化安装

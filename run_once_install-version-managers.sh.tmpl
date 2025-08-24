@@ -86,21 +86,15 @@ install_nvm() {
     local install_script="https://raw.githubusercontent.com/nvm-sh/nvm/${nvm_version}/install.sh"
     
     log_info "下载 NVM 安装脚本..."
-    if curl -o- "$install_script" | bash; then
+    if curl --connect-timeout 30 --max-time 300 --retry 3 --retry-delay 5 -o- "$install_script" | bash; then
         log_success "✅ NVM 安装成功"
         
         # 重新加载 shell 环境
         export NVM_DIR="$HOME_DIR/.nvm"
         [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
         
-        # 安装最新的 LTS Node.js
-        if command -v nvm >/dev/null 2>&1; then
-            log_info "安装 Node.js LTS 版本..."
-            nvm install --lts
-            nvm use --lts
-            nvm alias default lts/*
-            log_success "✅ Node.js LTS 安装完成"
-        fi
+        # 跳过自动安装 Node.js，让用户手动安装
+        log_info "NVM 已安装，可以使用 'nvm install --lts' 安装 Node.js LTS 版本"
         
         return 0
     else
@@ -140,27 +134,28 @@ install_pyenv() {
             ;;
     esac
     
-    # 使用 pyenv-installer 安装
-    log_info "下载 pyenv 安装脚本..."
-    if curl https://pyenv.run | bash; then
-        log_success "✅ pyenv 安装成功"
+    # 使用 git 直接安装 pyenv (更可靠的方法)
+    log_info "使用 git 克隆 pyenv..."
+    if git clone https://github.com/pyenv/pyenv.git "$HOME_DIR/.pyenv"; then
+        log_success "✅ pyenv 克隆成功"
+        
+        # 克隆 pyenv-virtualenv 插件
+        git clone https://github.com/pyenv/pyenv-virtualenv.git "$HOME_DIR/.pyenv/plugins/pyenv-virtualenv" || true
         
         # 设置环境变量
         export PYENV_ROOT="$HOME_DIR/.pyenv"
         export PATH="$PYENV_ROOT/bin:$PATH"
         
+        # 编译 pyenv (可选，提高性能)
+        cd "$HOME_DIR/.pyenv" && src/configure && make -C src || log_warn "pyenv 编译失败，将使用解释模式"
+        
         # 初始化 pyenv
         if command -v pyenv >/dev/null 2>&1; then
             eval "$(pyenv init -)"
+            log_success "✅ pyenv 安装成功"
             
-            # 安装最新的 Python 稳定版
-            log_info "安装 Python 最新稳定版..."
-            local python_version=$(pyenv install --list | grep -E '^\s*3\.[0-9]+\.[0-9]+$' | tail -1 | tr -d ' ')
-            if [[ -n "$python_version" ]]; then
-                pyenv install "$python_version"
-                pyenv global "$python_version"
-                log_success "✅ Python $python_version 安装完成"
-            fi
+            # 跳过自动安装 Python，让用户手动安装
+            log_info "pyenv 已安装，可以使用 'pyenv install <version>' 安装 Python 版本"
         fi
         
         return 0
@@ -226,7 +221,7 @@ install_mise() {
     
     # 使用官方安装脚本
     log_info "下载 mise 安装脚本..."
-    if curl https://mise.run | sh; then
+    if curl --connect-timeout 30 --max-time 300 --retry 3 --retry-delay 5 https://mise.run | sh; then
         log_success "✅ mise 安装成功"
         
         # 设置环境变量
@@ -302,7 +297,7 @@ verify_version_managers() {
         
         if check_version_manager_installed "$manager"; then
             echo "✅ $manager - $description"
-            ((installed_count++))
+            installed_count=$((installed_count + 1))
             
             # 显示版本信息
             case "$manager" in
@@ -410,10 +405,10 @@ main() {
     local failed_installations=0
     
     # 安装各个版本管理器 (根据需要启用/禁用)
-    install_nvm || ((failed_installations++))
-    install_pyenv || ((failed_installations++))
-    # install_rbenv || ((failed_installations++))  # 可选
-    # install_mise || ((failed_installations++))   # 可选
+    install_nvm || failed_installations=$((failed_installations + 1))
+    install_pyenv || failed_installations=$((failed_installations + 1))
+    # install_rbenv || failed_installations=$((failed_installations + 1))  # 可选
+    # install_mise || failed_installations=$((failed_installations + 1))   # 可选
     
     # 创建配置文件
     create_version_manager_configs

@@ -52,13 +52,13 @@ declare -A MODERN_CLI_TOOLS=(
     ["eza"]="现代化 ls 替代品"
     ["bat"]="现代化 cat 替代品" 
     ["fd"]="现代化 find 替代品"
-    ["ripgrep"]="现代化 grep 替代品"
+    ["rg"]="现代化 grep 替代品"
     ["fzf"]="模糊搜索工具"
     ["jq"]="JSON 处理工具"
 )
 
 declare -A DEVELOPMENT_TOOLS=(
-    ["neovim"]="现代化编辑器"
+    ["nvim"]="现代化编辑器"
     ["tmux"]="终端复用器"
     ["htop"]="系统监控工具"
     ["tree"]="目录树显示"
@@ -81,11 +81,33 @@ declare -A PYTHON_TOOLS=(
 # 检查工具是否已安装
 check_tool_installed() {
     local tool="$1"
-    if command -v "$tool" >/dev/null 2>&1; then
-        return 0
-    else
-        return 1
-    fi
+    
+    # 特殊处理某些工具的别名
+    case "$tool" in
+        "bat")
+            # Ubuntu 中 bat 可能叫 batcat，或者通过符号链接可用
+            if command -v bat >/dev/null 2>&1 || command -v batcat >/dev/null 2>&1; then
+                return 0
+            else
+                return 1
+            fi
+            ;;
+        "fd")
+            # Ubuntu 中 fd 可能叫 fdfind，或者通过符号链接可用
+            if command -v fd >/dev/null 2>&1 || command -v fdfind >/dev/null 2>&1; then
+                return 0
+            else
+                return 1
+            fi
+            ;;
+        *)
+            if command -v "$tool" >/dev/null 2>&1; then
+                return 0
+            else
+                return 1
+            fi
+            ;;
+    esac
 }
 
 # 获取工具版本信息
@@ -101,8 +123,28 @@ get_tool_version() {
         "python3")
             python3 --version 2>/dev/null || echo "未知版本"
             ;;
-        "neovim")
+        "nvim")
             nvim --version 2>/dev/null | head -n1 || echo "未知版本"
+            ;;
+        "bat")
+            # 尝试 bat 或 batcat
+            if command -v bat >/dev/null 2>&1; then
+                bat --version 2>/dev/null | head -n1 || echo "已安装"
+            elif command -v batcat >/dev/null 2>&1; then
+                batcat --version 2>/dev/null | head -n1 || echo "已安装"
+            else
+                echo "未安装"
+            fi
+            ;;
+        "fd")
+            # 尝试 fd 或 fdfind
+            if command -v fd >/dev/null 2>&1; then
+                fd --version 2>/dev/null | head -n1 || echo "已安装"
+            elif command -v fdfind >/dev/null 2>&1; then
+                fdfind --version 2>/dev/null | head -n1 || echo "已安装"
+            else
+                echo "未安装"
+            fi
             ;;
         *)
             $tool --version 2>/dev/null | head -n1 || echo "已安装"
@@ -131,9 +173,9 @@ install_with_system_package_manager() {
                     fi
                     ;;
                 "bat")
-                    sudo apt-get install -y batcat || return 1
-                    # 创建 bat 别名指向 batcat
-                    if [[ ! -L "$HOME/.local/bin/bat" ]]; then
+                    sudo apt-get install -y bat || return 1
+                    # 创建 bat 别名指向 batcat (如果需要)
+                    if [[ -f "/usr/bin/batcat" ]] && [[ ! -L "$HOME/.local/bin/bat" ]]; then
                         mkdir -p "$HOME/.local/bin"
                         ln -sf /usr/bin/batcat "$HOME/.local/bin/bat"
                     fi
@@ -146,10 +188,10 @@ install_with_system_package_manager() {
                         ln -sf /usr/bin/fdfind "$HOME/.local/bin/fd"
                     fi
                     ;;
-                "ripgrep")
+                "rg")
                     sudo apt-get install -y ripgrep || return 1
                     ;;
-                "neovim")
+                "nvim")
                     sudo apt-get install -y neovim || return 1
                     ;;
                 *)
@@ -258,7 +300,7 @@ install_tool_group() {
         local description="${tools_ref[$tool]}"
         
         if install_tool "$tool" "$description" "$install_method"; then
-            ((installed_count++))
+            installed_count=$((installed_count + 1))
         else
             failed_tools+=("$tool")
         fi
@@ -357,7 +399,7 @@ verify_installation() {
         if check_tool_installed "$tool"; then
             local version=$(get_tool_version "$tool")
             echo "✅ $tool - $version"
-            ((installed_count++))
+            installed_count=$((installed_count + 1))
         else
             echo "❌ $tool - 未安装"
         fi

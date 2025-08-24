@@ -4,9 +4,20 @@
 
 ## 🚀 快速开始
 
+### 全新安装
+```bash
+# 下载并运行安装脚本
+curl -fsSL https://raw.githubusercontent.com/ln-one/dotfiles-chezmoi/main/install-chezmoi.sh | bash
+
+# 或者手动安装
+git clone https://github.com/ln-one/dotfiles-chezmoi.git ~/.local/share/chezmoi
+cd ~/.local/share/chezmoi
+./install-chezmoi.sh
+```
+
 ### 应用配置
 ```bash
-chezmoi apply
+chezmoi apply --force
 ```
 
 ### 重新加载 Shell
@@ -132,10 +143,13 @@ sysinfo      # 显示系统信息
 - [x] 版本管理器集成 (NVM, pyenv, rbenv, mise)
 - [x] SSH 和 Git 配置迁移
 
-🚧 **Phase 3 进行中**:
-- [ ] 配置简化和性能优化
-- [ ] 社区工具集成 (Oh My Zsh, Starship, fzf)
-- [ ] 跨平台兼容性测试
+✅ **Phase 3 已完成**:
+- [x] 配置简化和性能优化
+- [x] 安装脚本完善 (错误处理、回滚机制)
+- [x] 网络连接优化 (超时、重试机制)
+- [x] 跨平台兼容性测试和修复
+
+🎉 **项目状态**: 生产就绪，所有核心功能已完成并测试通过
 
 ## 🔗 相关文件
 
