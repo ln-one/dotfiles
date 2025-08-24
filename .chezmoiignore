@@ -29,6 +29,19 @@ Thumbs.db
 # 旧配置系统 (仅作参考，不被 Chezmoi 管理)
 dotfiles/
 
+# 项目文件 (只应存在于源目录，不应复制到家目录)
+README.md
+docs/
+tests/
+install-*.sh
+setup-*.sh
+verify-*.sh
+*.md
+.git/
+.gitignore
+.kiro/
+Brewfile
+
 # 根据环境条件忽略
 {{- if ne .environment "desktop" }}
 # 非桌面环境忽略GUI相关配置
