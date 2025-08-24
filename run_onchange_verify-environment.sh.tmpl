@@ -1,0 +1,221 @@
+#!/bin/bash
+# 环境变量验证脚本
+# 由 Chezmoi 管理，在配置变更时运行以验证环境设置
+
+set -euo pipefail
+
+echo "🔍 验证环境变量配置..."
+
+# 验证基础路径变量 (Requirements: 2.4)
+echo ""
+echo "📁 基础路径变量:"
+check_var() {
+    local var_name="$1"
+    local var_value="${!var_name:-}"
+    local expected="$2"
+    
+    if [[ -n "$var_value" ]]; then
+        if [[ "$var_value" == "$expected" ]]; then
+            echo "  ✅ $var_name = $var_value"
+        else
+            echo "  ⚠️  $var_name = $var_value (期望: $expected)"
+        fi
+    else
+        echo "  ❌ $var_name 未设置 (期望: $expected)"
+    fi
+}
+
+check_var "USER_HOME" "{{ .chezmoi.homeDir }}"
+check_var "CONFIG_DIR" "{{ .paths.config }}"
+check_var "LOCAL_BIN" "{{ .chezmoi.homeDir }}/.local/bin"
+
+# 验证目录是否存在
+echo ""
+echo "📂 目录存在性检查:"
+check_dir() {
+    local dir_name="$1"
+    local dir_path="$2"
+    
+    if [[ -d "$dir_path" ]]; then
+        echo "  ✅ $dir_name: $dir_path"
+    else
+        echo "  ⚠️  $dir_name 不存在: $dir_path"
+        mkdir -p "$dir_path" && echo "     已创建目录"
+    fi
+}
+
+check_dir "CONFIG_DIR" "{{ .paths.config }}"
+check_dir "LOCAL_BIN" "{{ .chezmoi.homeDir }}/.local/bin"
+
+# 验证 PATH 配置
+echo ""
+echo "🛤️  PATH 配置检查:"
+if [[ ":$PATH:" == *":{{ .chezmoi.homeDir }}/.local/bin:"* ]]; then
+    echo "  ✅ LOCAL_BIN 已在 PATH 中"
+else
+    echo "  ⚠️  LOCAL_BIN 不在 PATH 中"
+fi
+
+{{- if eq .chezmoi.os "darwin" }}
+{{- if stat "/opt/homebrew" }}
+if [[ ":$PATH:" == *":/opt/homebrew/bin:"* ]]; then
+    echo "  ✅ Homebrew bin 已在 PATH 中"
+else
+    echo "  ⚠️  Homebrew bin 不在 PATH 中"
+fi
+{{- end }}
+{{- else if eq .chezmoi.os "linux" }}
+{{- if stat "/home/linuxbrew/.linuxbrew" }}
+if [[ ":$PATH:" == *":/home/linuxbrew/.linuxbrew/bin:"* ]]; then
+    echo "  ✅ Homebrew bin 已在 PATH 中"
+else
+    echo "  ⚠️  Homebrew bin 不在 PATH 中"
+fi
+{{- end }}
+{{- end }}
+
+# 验证编辑器配置
+echo ""
+echo "✏️  编辑器配置:"
+check_var "EDITOR" "{{ .preferences.editor }}"
+check_var "VISUAL" "{{ .preferences.editor }}"
+
+if command -v "{{ .preferences.editor }}" >/dev/null 2>&1; then
+    echo "  ✅ 编辑器 {{ .preferences.editor }} 可用"
+else
+    echo "  ⚠️  编辑器 {{ .preferences.editor }} 不可用"
+fi
+
+# 验证语言和区域配置 (Requirements: 2.4)
+echo ""
+echo "🌐 语言和区域配置:"
+check_var "LANG" "en_US.UTF-8"
+check_var "LC_ALL" "en_US.UTF-8"
+check_var "LC_CTYPE" "en_US.UTF-8"
+
+# 验证当前 locale 设置
+if command -v locale >/dev/null 2>&1; then
+    current_lang=$(locale | grep "LANG=" | cut -d= -f2 | tr -d '"')
+    if [[ "$current_lang" == "en_US.UTF-8" ]]; then
+        echo "  ✅ 系统 LANG 设置正确: $current_lang"
+    else
+        echo "  ⚠️  系统 LANG 设置: $current_lang (期望: en_US.UTF-8)"
+    fi
+fi
+
+{{- if .features.enable_1password }}
+# 验证 SSH Agent 配置 (Requirements: 7.2)
+echo ""
+echo "🔐 SSH Agent 配置 (1Password):"
+{{- if eq .chezmoi.os "darwin" }}
+SSH_AGENT_EXPECTED="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+{{- else if eq .chezmoi.os "linux" }}
+SSH_AGENT_EXPECTED="$HOME/.1password/agent.sock"
+{{- end }}
+check_var "SSH_AUTH_SOCK" "$SSH_AGENT_EXPECTED"
+
+if [[ -S "$SSH_AGENT_EXPECTED" ]]; then
+    echo "  ✅ SSH Agent 套接字存在"
+    
+    # 测试 SSH Agent 连接
+    if ssh-add -l >/dev/null 2>&1; then
+        echo "  ✅ SSH Agent 连接正常"
+        key_count=$(ssh-add -l | wc -l)
+        echo "  ℹ️  已加载 $key_count 个 SSH 密钥"
+    else
+        echo "  ⚠️  SSH Agent 连接失败"
+    fi
+else
+    echo "  ⚠️  SSH Agent 套接字不存在: $SSH_AGENT_EXPECTED"
+fi
+{{- end }}
+
+# 验证平台特定配置
+echo ""
+echo "🖥️  平台特定配置:"
+echo "  平台: {{ .chezmoi.os }}/{{ .chezmoi.arch }}"
+echo "  环境: {{ .environment }}"
+echo "  包管理器: {{ .package_manager }}"
+
+{{- if eq .chezmoi.os "darwin" }}
+{{- if stat "/opt/homebrew" }}
+echo "  Homebrew 前缀: /opt/homebrew"
+if [[ -x "/opt/homebrew/bin/brew" ]]; then
+    echo "  ✅ Homebrew 可用"
+else
+    echo "  ⚠️  Homebrew 不可用"
+fi
+{{- end }}
+{{- else if eq .chezmoi.os "linux" }}
+{{- if stat "/home/linuxbrew/.linuxbrew" }}
+echo "  Homebrew 前缀: /home/linuxbrew/.linuxbrew"
+if [[ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
+    echo "  ✅ Homebrew 可用"
+else
+    echo "  ⚠️  Homebrew 不可用"
+fi
+{{- end }}
+{{- end }}
+
+# 验证 Shell 特定配置
+echo ""
+echo "🐚 Shell 配置:"
+echo "  当前 Shell: $SHELL"
+echo "  首选 Shell: {{ .preferences.shell }}"
+
+{{- if eq .preferences.shell "zsh" }}
+if [[ -n "${ZSH_VERSION:-}" ]]; then
+    echo "  ✅ 运行在 Zsh 中"
+    echo "  Zsh 版本: $ZSH_VERSION"
+    
+    # 检查 Zsh 特定变量
+    if [[ -n "${HISTFILE:-}" ]]; then
+        echo "  ✅ HISTFILE 已设置: $HISTFILE"
+    fi
+else
+    echo "  ℹ️  当前不在 Zsh 中运行"
+fi
+{{- end }}
+
+# 性能检查
+echo ""
+echo "⚡ 性能配置:"
+{{- if eq .environment "remote" }}
+echo "  环境类型: 远程 (性能优化模式)"
+if [[ "${SHELLRC_FAST_MODE:-}" == "true" ]]; then
+    echo "  ✅ 快速模式已启用"
+fi
+{{- else }}
+echo "  环境类型: 本地 (完整功能模式)"
+{{- end }}
+
+echo ""
+echo "🎉 环境变量验证完成"
+
+# 生成配置摘要
+echo ""
+echo "📋 配置摘要:"
+echo "  用户主目录: {{ .chezmoi.homeDir }}"
+echo "  配置目录: {{ .paths.config }}"
+echo "  本地二进制目录: {{ .chezmoi.homeDir }}/.local/bin"
+echo "  编辑器: {{ .preferences.editor }}"
+echo "  语言: en_US.UTF-8"
+{{- if .features.enable_1password }}
+{{- if eq .chezmoi.os "darwin" }}
+echo "  SSH Agent: 1Password ($HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock)"
+{{- else if eq .chezmoi.os "linux" }}
+echo "  SSH Agent: 1Password ($HOME/.1password/agent.sock)"
+{{- end }}
+{{- end }}
+echo "  平台: {{ .chezmoi.os }}"
+echo "  环境: {{ .environment }}"
+
+# 检查是否需要重新加载 shell
+if [[ "${USER_HOME:-}" != "{{ .chezmoi.homeDir }}" ]] || \
+   [[ "${CONFIG_DIR:-}" != "{{ .paths.config }}" ]] || \
+   [[ "${EDITOR:-}" != "{{ .preferences.editor }}" ]]; then
+    echo ""
+    echo "⚠️  检测到环境变量不匹配，建议重新加载 shell 配置:"
+    echo "   source ~/.zshrc  # 或"
+    echo "   source ~/.bashrc"
+fi

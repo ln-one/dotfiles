@@ -23,20 +23,34 @@ source ~/.zshrc
 ### 核心模板
 ```
 .chezmoitemplates/
+├── environment.sh           # 环境变量管理 (路径、SSH、语言配置)
+├── shell-common.sh          # 别名、函数、颜色配置
 ├── aliases.sh              # 核心别名 (ls/ll/la + 导航)
 ├── basic-functions.sh       # 基础函数 (mkcd, sysinfo)
 ├── proxy-functions.sh       # 代理管理 (proxyon/proxyoff/proxystatus)
-├── theme-functions.sh       # WhiteSur 主题切换 (light/dark/themestatus)
-└── shell-common.sh          # 模块加载器
+└── theme-functions.sh       # WhiteSur 主题切换 (light/dark/themestatus)
 ```
 
 ### Shell 配置
 ```
 ├── dot_bashrc.tmpl         # Bash 配置模板
-└── dot_zshrc.tmpl          # Zsh 配置模板
+├── dot_zshrc.tmpl          # Zsh 配置模板
+└── run_onchange_verify-environment.sh.tmpl  # 环境验证脚本
+```
+
+### 自动化脚本
+```
+├── run_once_setup-1password-ssh.sh.tmpl    # 1Password SSH Agent 设置
+└── run_onchange_verify-environment.sh.tmpl # 环境变量验证
 ```
 
 ## 🔧 功能特性
+
+### 环境变量管理
+- **路径配置**: `USER_HOME`, `CONFIG_DIR`, `LOCAL_BIN` 自动设置
+- **SSH Agent**: 1Password SSH Agent 跨平台集成
+- **语言配置**: UTF-8 区域设置和编辑器配置
+- **平台检测**: 自动检测 Linux/macOS 并应用相应配置
 
 ### 别名功能
 - **智能 ls**: 自动检测并使用 `eza` > `exa` > `ls`
@@ -73,11 +87,21 @@ sysinfo      # 显示系统信息
 ## 📋 迁移状态
 
 ✅ **已完成**:
+- [x] Chezmoi 基础环境设置
+- [x] 核心配置模板 (Zsh/Bash)
+- [x] 环境变量管理系统
+- [x] 1Password SSH Agent 集成
+- [x] 跨平台兼容性 (Linux/macOS)
 - [x] 核心别名系统
 - [x] 代理管理功能
 - [x] WhiteSur 主题切换
 - [x] 基础实用函数
 - [x] 模块化架构
+
+🚧 **进行中**:
+- [ ] 工具管理现代化 (Homebrew 集成)
+- [ ] 版本管理器集成 (NVM, pyenv)
+- [ ] 配置简化和性能优化
 
 ## 🔗 相关文件
 

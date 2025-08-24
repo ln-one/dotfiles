@@ -33,29 +33,18 @@ export SKIP_FZF_KEYBINDINGS="true"
 {{- end }}
 
 # ========================================
+# 环境变量配置 (Requirements: 2.4, 7.2)
+# ========================================
+# 加载 Chezmoi 管理的环境变量
+{{ includeTemplate "environment.sh" . }}
+
+# ========================================
 # 基础路径和环境设置
 # ========================================
 # Dotfiles 目录设置
 export DOTFILES_DIR="{{ .paths.dotfiles }}"
 
-{{/* 跨平台路径配置 */}}
-{{- if eq .chezmoi.os "darwin" }}
-# macOS 特定路径
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-{{- if .features.enable_1password }}
-export SSH_AUTH_SOCK="~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-{{- end }}
-{{- else if eq .chezmoi.os "linux" }}
-# Linux 特定路径
-{{- if eq .package_manager "apt" }}
-export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
-{{- end }}
-{{- if .features.enable_1password }}
-export SSH_AUTH_SOCK="~/.1password/agent.sock"
-{{- end }}
-{{- end }}
-
-# 用户项目目录
+# 用户项目目录 (environment.sh 已处理基础路径)
 export PROJECTS_DIR="{{ .paths.projects }}"
 
 {{/* 共享配置加载 */}}

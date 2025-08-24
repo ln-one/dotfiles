@@ -20,7 +20,7 @@
   - 迁移主题切换功能 (light/dark/themestatus)
   - _Requirements: 6.1, 6.2_
 
-- [ ] 4. 配置环境变量管理
+- [x] 4. 配置环境变量管理
   - 设置基础路径变量 (USER_HOME, CONFIG_DIR)
   - 配置 SSH Agent 集成 (1Password)
   - 设置语言和区域配置
