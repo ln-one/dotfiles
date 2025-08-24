@@ -1,50 +1,61 @@
 # ========================================
-# Simplified Aliases Template
+# 别名配置模板
 # ========================================
-# Chezmoi-managed aliases with only essential functionality
+# 现代化的命令别名，支持图标和颜色
 
-# ========================================
-# Essential File Operations (ls/ll/la only)
-# ========================================
+# 检查可用的 ls 替代工具
+if command -v eza &> /dev/null; then
+    # 使用 eza (exa 的现代替代品)
+    alias ls='eza --color=auto --icons'
+    alias ll='eza -alF --color=auto --icons --git'
+    alias la='eza -a --color=auto --icons'
+    alias l='eza -F --color=auto --icons'
+    alias tree='eza --tree --color=auto --icons'
+elif command -v exa &> /dev/null; then
+    # 使用 exa
+    alias ls='exa --color=auto --icons'
+    alias ll='exa -alF --color=auto --icons --git'
+    alias la='exa -a --color=auto --icons'
+    alias l='exa -F --color=auto --icons'
+    alias tree='exa --tree --color=auto --icons'
+else
+    # 回退到传统 ls
+    alias ls='ls --color=auto'
+    alias ll='ls -alF --color=auto'
+    alias la='ls -A --color=auto'
+    alias l='ls -CF --color=auto'
+fi
 
-{{- if lookPath "eza" }}
-# Use eza as modern ls replacement
-alias ls='eza --icons'
-alias ll='eza --icons -l'
-alias la='eza --icons -la'
-{{- else if lookPath "exa" }}
-# Use exa as ls replacement
-alias ls='exa --icons'
-alias ll='exa --icons -l'
-alias la='exa --icons -la'
-{{- else }}
-# Use system default ls with colors
-{{- if eq .chezmoi.os "linux" }}
-alias ls='ls --color=auto'
-alias ll='ls -alF --color=auto'
-alias la='ls -A --color=auto'
-{{- else if eq .chezmoi.os "darwin" }}
-alias ls='ls -G'
-alias ll='ls -alF -G'
-alias la='ls -A -G'
-{{- end }}
-{{- end }}
-
-# ========================================
-# Quick Navigation
-# ========================================
-
+# 目录导航
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
-alias ~='cd ~'
-alias -- -='cd -'
 
-# ========================================
-# Safe File Operations
-# ========================================
+# Git 别名
+alias g='git'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git pull'
+alias gd='git diff'
+alias gb='git branch'
+alias gco='git checkout'
 
+# 实用工具
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias df='df -h'
+alias du='du -h'
+alias free='free -h'
+
+# 安全别名
+alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
-alias rm='rm -i'
-alias mkdir='mkdir -p'
+
+{{- if .features.enable_zoxide }}
+# Zoxide 别名
+alias cd='z'
+{{- end }}

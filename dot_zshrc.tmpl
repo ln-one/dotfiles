@@ -1,92 +1,24 @@
 # ========================================
-# Zsh Configuration (Chezmoi Template)
-# ========================================
-# 现代化 Zsh 配置，充分利用 chezmoi 模块化设计
-# 生成时间: {{ now | date "2006-01-02 15:04:05" }}
-# 目标平台: {{ .chezmoi.os }}/{{ .chezmoi.arch }}
-# 环境类型: {{ .environment }}
+# Zsh 配置文件 (Chezmoi 管理)
 # ========================================
 
-# ========================================
-# 加载环境变量模块
-# ========================================
-{{ includeTemplate "environment.sh" . }}
+# 性能监控 (开发时使用)
+# zmodload zsh/zprof
 
-# ========================================
-# Zsh 基础配置
-# ========================================
-# 历史配置
-HISTSIZE=10000
-SAVEHIST=10000
-HISTFILE=~/.zsh_history
-setopt HIST_IGNORE_DUPS
-setopt HIST_IGNORE_SPACE
-setopt SHARE_HISTORY
-setopt APPEND_HISTORY
-setopt INC_APPEND_HISTORY
+# 加载环境变量配置
+{{- template "environment.sh" . }}
 
-# 自动补全
-autoload -Uz compinit
-compinit
+# 加载 Oh My Zsh 配置
+{{- template "oh-my-zsh-config.sh" . }}
 
-# 目录导航
-setopt AUTO_CD
-setopt AUTO_PUSHD
-setopt PUSHD_IGNORE_DUPS
+# 加载性能优化
+{{- template "zsh-performance-tweaks.sh" . }}
 
-# 其他有用选项
-setopt CORRECT
-setopt EXTENDED_GLOB
+# 加载 Starship 提示符配置
+{{- template "starship-config.sh" . }}
 
-# ========================================
-# 社区工具集成
-# ========================================
+# 加载共享 Shell 配置 (包含所有功能模块)
+{{- template "shell-common.sh" . }}
 
-# Oh My Zsh 配置 (如果启用)
-{{ includeTemplate "oh-my-zsh-config.sh" . }}
-
-# Starship 提示符配置 (如果启用)
-{{ includeTemplate "starship-config.sh" . }}
-
-# 如果没有启用社区提示符，使用默认配置
-{{- if and (not .features.enable_oh_my_zsh) (not .features.enable_starship) }}
-# ========================================
-# 默认彩色提示符配置
-# ========================================
-{{- if eq .environment "remote" }}
-# 远程环境 - 简洁但有颜色的提示符
-PS1='%F{green}%n@%m%f:%F{blue}%~%f%# '
-{{- else }}
-# 本地环境 - 丰富的彩色提示符 (类似 agnoster 但更简洁)
-autoload -Uz vcs_info
-precmd() { vcs_info }
-
-# Git 信息配置
-zstyle ':vcs_info:git:*' formats ' (%F{yellow}%b%f)'
-zstyle ':vcs_info:*' enable git
-
-setopt PROMPT_SUBST
-PS1='%F{green}%n@%m%f:%F{blue}%~%f${vcs_info_msg_0_}%# '
-{{- end }}
-{{- end }}
-
-# ========================================
-# 加载共享配置模块
-# ========================================
-{{ includeTemplate "shell-common.sh" . }}
-
-# ========================================
-# Zsh 特定函数
-# ========================================
-# 重新加载 zsh 配置
-reload() { 
-    source ~/.zshrc && echo "✅ Zsh 配置已重新加载"; 
-}
-
-# ========================================
-# 本地自定义配置
-# ========================================
-[ -f ~/.zshrc.local ] && source ~/.zshrc.local
-
-# Chezmoi 管理标记 - 请勿直接编辑此文件
-# 要修改配置，请编辑: {{ .chezmoi.sourceDir }}/dot_zshrc.tmpl
+# 性能监控结果 (开发时使用)
+# zprof

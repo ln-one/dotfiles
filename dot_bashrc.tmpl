@@ -2,7 +2,6 @@
 # Bash Configuration (Chezmoi Template)
 # ========================================
 # 现代化 Bash 配置，充分利用 chezmoi 模块化设计
-# 生成时间: {{ now | date "2006-01-02 15:04:05" }}
 # 目标平台: {{ .chezmoi.os }}/{{ .chezmoi.arch }}
 # 环境类型: {{ .environment }}
 # ========================================
@@ -21,10 +20,12 @@ esac
 # ========================================
 # Bash 特定配置
 # ========================================
-# 历史配置
+# 历史配置 (和 zsh 保持一致)
 HISTCONTROL=ignoreboth
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=50000
+HISTFILESIZE=50000
+
+# Bash 选项
 shopt -s histappend
 shopt -s checkwinsize
 shopt -s globstar 2>/dev/null

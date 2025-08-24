@@ -8,17 +8,21 @@
 {{- if .features.enable_zoxide }}
 # 检查 zoxide 是否已安装
 if command -v zoxide >/dev/null 2>&1; then
-    # 初始化 zoxide
-    {{- if eq .preferences.shell "zsh" }}
-    eval "$(zoxide init zsh)"
-    {{- else if eq .preferences.shell "bash" }}
+    # 初始化 zoxide (根据当前 shell 自动检测)
+    # 在模板中，我们需要根据文件类型来决定初始化方式
+    {{- if eq (base .chezmoi.targetFile) ".bashrc" }}
     eval "$(zoxide init bash)"
+    {{- else if eq (base .chezmoi.targetFile) ".zshrc" }}
+    eval "$(zoxide init zsh)"
     {{- else }}
-    # 自动检测 shell
+    # 运行时检测 shell 类型
     if [ -n "$ZSH_VERSION" ]; then
         eval "$(zoxide init zsh)"
     elif [ -n "$BASH_VERSION" ]; then
         eval "$(zoxide init bash)"
+    else
+        # 默认使用 POSIX 兼容模式
+        eval "$(zoxide init posix --cmd z)"
     fi
     {{- end }}
     
