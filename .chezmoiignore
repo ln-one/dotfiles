@@ -20,7 +20,6 @@ Thumbs.db
 .ssh/id_*
 .gnupg/
 .aws/credentials
-.secrets
 .env
 .env.*
 
