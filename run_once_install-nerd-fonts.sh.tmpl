@@ -18,7 +18,7 @@ mkdir -p "$FONT_DIR"
 if fc-list | grep -i "nerd\|powerline" >/dev/null 2>&1; then
     echo "✅ Nerd Fonts 已安装"
     echo "已安装的 Nerd Fonts:"
-    fc-list | grep -i "nerd\|powerline" | head -3
+    fc-list | grep -i "nerd\|powerline" | head -3 || true
     exit 0
 fi
 
@@ -110,7 +110,7 @@ if [ $installed_count -gt 0 ]; then
     
     echo ""
     echo "✨ 安装的字体:"
-    fc-list | grep -i "nerd" | head -5
+    fc-list | grep -i "nerd" | head -5 || true
 else
     echo "❌ 没有字体安装成功，请检查网络连接"
 fi
