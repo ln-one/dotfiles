@@ -24,16 +24,31 @@ dark() {
     # 备用方案：直接设置 WhiteSur 暗色主题
     if [[ -d "$THEME_DIR" ]] && command -v gsettings >/dev/null 2>&1; then
         echo "设置 WhiteSur 暗色主题..."
-        gsettings set org.gnome.desktop.interface gtk-theme 'WhiteSur-Dark-blue' 2>/dev/null || true
-        gsettings set org.gnome.shell.extensions.user-theme name 'WhiteSur-Dark-blue' 2>/dev/null || true
-        gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
         
-        # 更新 fcitx5 主题（如果存在）
-        local fcitx5_config="$HOME/.config/fcitx5/conf/classicui.conf"
-        if command -v fcitx5 >/dev/null 2>&1 && [[ -f "$fcitx5_config" ]]; then
-            sed -i "s/^Theme=.*/Theme=macOS-dark/" "$fcitx5_config" 2>/dev/null || true
-            fcitx5 -r 2>/dev/null || true
-        fi
+        # 进入主题目录并执行完整的主题切换流程
+        (
+            cd "$THEME_DIR" || { echo "❌ 无法进入主题目录"; return 1; }
+            
+            # 设置 GTK 和 Shell 主题
+            gsettings set org.gnome.desktop.interface gtk-theme 'WhiteSur-Dark-blue' 2>/dev/null || true
+            gsettings set org.gnome.shell.extensions.user-theme name 'WhiteSur-Dark-blue' 2>/dev/null || true
+            
+            # 运行主题安装脚本以应用链接
+            if [[ -x "./install.sh" ]]; then
+                echo "运行主题安装脚本..."
+                ./install.sh -l 2>/dev/null || echo "⚠️  主题安装脚本执行失败"
+            fi
+            
+            # 设置系统配色方案
+            gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
+            
+            # 更新 fcitx5 主题（如果存在）
+            local fcitx5_config="$HOME/.config/fcitx5/conf/classicui.conf"
+            if command -v fcitx5 >/dev/null 2>&1 && [[ -f "$fcitx5_config" ]]; then
+                sed -i "s/^Theme=.*/Theme=macOS-dark/" "$fcitx5_config" 2>/dev/null || true
+                fcitx5 -r 2>/dev/null || true
+            fi
+        )
         
         echo "✅ 已切换到 WhiteSur 暗色主题"
     else
@@ -57,16 +72,31 @@ light() {
     # 备用方案：直接设置 WhiteSur 亮色主题
     if [[ -d "$THEME_DIR" ]] && command -v gsettings >/dev/null 2>&1; then
         echo "设置 WhiteSur 亮色主题..."
-        gsettings set org.gnome.desktop.interface gtk-theme 'WhiteSur-Light-blue' 2>/dev/null || true
-        gsettings set org.gnome.shell.extensions.user-theme name 'WhiteSur-Light-blue' 2>/dev/null || true
-        gsettings set org.gnome.desktop.interface color-scheme 'prefer-light' 2>/dev/null || true
         
-        # 更新 fcitx5 主题（如果存在）
-        local fcitx5_config="$HOME/.config/fcitx5/conf/classicui.conf"
-        if command -v fcitx5 >/dev/null 2>&1 && [[ -f "$fcitx5_config" ]]; then
-            sed -i "s/^Theme=.*/Theme=macOS-light/" "$fcitx5_config" 2>/dev/null || true
-            fcitx5 -r 2>/dev/null || true
-        fi
+        # 进入主题目录并执行完整的主题切换流程
+        (
+            cd "$THEME_DIR" || { echo "❌ 无法进入主题目录"; return 1; }
+            
+            # 设置 GTK 和 Shell 主题
+            gsettings set org.gnome.desktop.interface gtk-theme 'WhiteSur-Light-blue' 2>/dev/null || true
+            gsettings set org.gnome.shell.extensions.user-theme name 'WhiteSur-Light-blue' 2>/dev/null || true
+            
+            # 运行主题安装脚本以应用链接（亮色模式）
+            if [[ -x "./install.sh" ]]; then
+                echo "运行主题安装脚本..."
+                ./install.sh -l -c light 2>/dev/null || echo "⚠️  主题安装脚本执行失败"
+            fi
+            
+            # 设置系统配色方案
+            gsettings set org.gnome.desktop.interface color-scheme 'prefer-light' 2>/dev/null || true
+            
+            # 更新 fcitx5 主题（如果存在）
+            local fcitx5_config="$HOME/.config/fcitx5/conf/classicui.conf"
+            if command -v fcitx5 >/dev/null 2>&1 && [[ -f "$fcitx5_config" ]]; then
+                sed -i "s/^Theme=.*/Theme=macOS-light/" "$fcitx5_config" 2>/dev/null || true
+                fcitx5 -r 2>/dev/null || true
+            fi
+        )
         
         echo "✅ 已切换到 WhiteSur 亮色主题"
     else
