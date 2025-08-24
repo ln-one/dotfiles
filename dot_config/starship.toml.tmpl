@@ -1,0 +1,14 @@
+# ========================================
+# Starship 提示符配置 (Chezmoi 管理)
+# ========================================
+# 使用 Starship 官方预设的现代化配置
+# 针对 {{ .environment }} 环境优化
+
+{{- if .features.enable_starship }}
+
+# 使用 Starship 默认配置，只禁用提示符前的空行
+add_newline = false
+
+{{- else }}
+# Starship 功能已禁用
+{{- end }}

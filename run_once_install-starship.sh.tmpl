@@ -1,0 +1,68 @@
+#!/bin/bash
+# ========================================
+# Starship 提示符安装脚本 (Chezmoi 管理)
+# ========================================
+# 安装现代化的跨 Shell 提示符
+
+{{- if .features.enable_starship }}
+
+set -euo pipefail
+
+echo "🚀 开始安装 Starship 提示符..."
+
+# 检查是否已安装
+if command -v starship >/dev/null 2>&1; then
+    echo "✅ Starship 已安装，版本: $(starship --version)"
+    exit 0
+fi
+
+# 检查必需工具
+if ! command -v curl >/dev/null 2>&1; then
+    echo "❌ 错误: 需要 curl 来下载 Starship"
+    exit 1
+fi
+
+# 根据平台选择安装方法
+{{- if eq .chezmoi.os "darwin" }}
+# macOS: 优先使用 Homebrew
+if command -v brew >/dev/null 2>&1; then
+    echo "📦 使用 Homebrew 安装 Starship..."
+    brew install starship || {
+        echo "⚠️  Homebrew 安装失败，尝试官方安装脚本..."
+        curl -sS https://starship.rs/install.sh | sh -s -- --yes
+    }
+else
+    echo "📥 使用官方安装脚本..."
+    curl -sS https://starship.rs/install.sh | sh -s -- --yes
+fi
+{{- else if eq .chezmoi.os "linux" }}
+# Linux: 检查包管理器
+if command -v brew >/dev/null 2>&1; then
+    echo "📦 使用 Homebrew 安装 Starship..."
+    brew install starship
+elif command -v apt >/dev/null 2>&1; then
+    echo "📦 尝试使用 apt 安装 Starship..."
+    if apt list --installed starship 2>/dev/null | grep -q starship; then
+        sudo apt install -y starship
+    else
+        echo "📥 apt 中无 Starship，使用官方安装脚本..."
+        curl -sS https://starship.rs/install.sh | sh -s -- --yes
+    fi
+else
+    echo "📥 使用官方安装脚本..."
+    curl -sS https://starship.rs/install.sh | sh -s -- --yes
+fi
+{{- end }}
+
+# 验证安装
+if command -v starship >/dev/null 2>&1; then
+    echo "✅ Starship 安装成功，版本: $(starship --version)"
+    echo "🎉 Starship 配置完成！重新启动终端来应用更改"
+else
+    echo "❌ Starship 安装失败"
+    exit 1
+fi
+
+{{- else }}
+echo "ℹ️  Starship 功能已禁用，跳过安装"
+{{- end }}

@@ -1,0 +1,140 @@
+#!/bin/bash
+# ========================================
+# 社区工具统一安装脚本 (Chezmoi 管理)
+# ========================================
+# 协调安装所有启用的社区工具
+
+set -euo pipefail
+
+echo "🚀 开始安装社区工具集成..."
+
+# 检查基础依赖
+echo "🔍 检查基础依赖..."
+missing_deps=()
+
+if ! command -v curl >/dev/null 2>&1; then
+    missing_deps+=("curl")
+fi
+
+if ! command -v git >/dev/null 2>&1; then
+    missing_deps+=("git")
+fi
+
+if [ ${#missing_deps[@]} -gt 0 ]; then
+    echo "❌ 缺少必需依赖: ${missing_deps[*]}"
+    echo "请先安装这些工具后重试"
+    exit 1
+fi
+
+# 安装计数器
+installed_count=0
+total_tools=0
+
+{{- if .features.enable_fzf }}
+total_tools=$((total_tools + 1))
+{{- end }}
+{{- if .features.enable_oh_my_zsh }}
+total_tools=$((total_tools + 1))
+{{- end }}
+{{- if .features.enable_starship }}
+total_tools=$((total_tools + 1))
+{{- end }}
+
+echo "📋 计划安装 $total_tools 个社区工具"
+
+# 安装 fzf (优先安装，其他工具可能依赖它)
+{{- if .features.enable_fzf }}
+echo ""
+echo "📦 [1/$total_tools] 安装 fzf 模糊搜索..."
+# 直接运行 fzf 安装逻辑，而不是调用外部脚本
+if command -v fzf >/dev/null 2>&1; then
+    echo "✅ fzf 已安装，版本: $(fzf --version)"
+    installed_count=$((installed_count + 1))
+else
+    echo "📦 开始安装 fzf..."
+    if command -v brew >/dev/null 2>&1; then
+        brew install fzf && installed_count=$((installed_count + 1))
+    elif command -v apt >/dev/null 2>&1; then
+        sudo apt update && sudo apt install -y fzf && installed_count=$((installed_count + 1))
+    else
+        echo "❌ 无法找到合适的包管理器安装 fzf"
+    fi
+fi
+{{- end }}
+
+# 安装 Oh My Zsh
+{{- if .features.enable_oh_my_zsh }}
+echo ""
+echo "📦 [2/$total_tools] 安装 Oh My Zsh..."
+if [ -d "$HOME/.oh-my-zsh" ]; then
+    echo "✅ Oh My Zsh 已安装"
+    installed_count=$((installed_count + 1))
+else
+    echo "📦 开始安装 Oh My Zsh..."
+    if RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"; then
+        echo "✅ Oh My Zsh 安装成功"
+        installed_count=$((installed_count + 1))
+        
+        # 安装插件
+        if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
+            git clone https://github.com/zsh-users/zsh-autosuggestions.git "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+        fi
+        if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
+            git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+        fi
+    else
+        echo "❌ Oh My Zsh 安装失败"
+    fi
+fi
+{{- end }}
+
+# 安装 Starship
+{{- if .features.enable_starship }}
+echo ""
+echo "📦 [3/$total_tools] 安装 Starship 提示符..."
+if command -v starship >/dev/null 2>&1; then
+    echo "✅ Starship 已安装，版本: $(starship --version)"
+    installed_count=$((installed_count + 1))
+else
+    echo "📦 开始安装 Starship..."
+    if command -v brew >/dev/null 2>&1; then
+        brew install starship && installed_count=$((installed_count + 1))
+    else
+        curl -sS https://starship.rs/install.sh | sh -s -- --yes && installed_count=$((installed_count + 1))
+    fi
+fi
+{{- end }}
+
+# 安装总结
+echo ""
+echo "=========================================="
+echo "🎉 社区工具安装完成！"
+echo "成功安装: $installed_count/$total_tools 个工具"
+
+if [ $installed_count -eq $total_tools ]; then
+    echo "✅ 所有工具安装成功"
+    echo ""
+    echo "📝 下一步操作:"
+    echo "1. 重新启动终端或运行 'source ~/.zshrc'"
+    echo "2. 运行 'chezmoi apply' 应用最新配置"
+    echo "3. 享受现代化的 Shell 体验！"
+    
+    # 显示已安装工具的快速使用提示
+    echo ""
+    echo "🔧 快速使用指南:"
+    {{- if .features.enable_fzf }}
+    echo "• fzf: Ctrl+T (文件搜索), Ctrl+R (历史搜索), Alt+C (目录搜索)"
+    {{- end }}
+    {{- if .features.enable_oh_my_zsh }}
+    echo "• Oh My Zsh: 输入 'omz' 查看可用命令"
+    {{- end }}
+    {{- if .features.enable_starship }}
+    echo "• Starship: 自动显示 Git 状态和项目信息"
+    {{- end }}
+    
+else
+    echo "⚠️  部分工具安装失败，请检查上面的错误信息"
+    echo "可以稍后手动重新运行安装脚本"
+fi
+
+echo "=========================================="

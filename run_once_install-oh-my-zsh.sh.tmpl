@@ -1,0 +1,64 @@
+#!/bin/bash
+# ========================================
+# Oh My Zsh 安装脚本 (Chezmoi 管理)
+# ========================================
+# 自动安装和配置 Oh My Zsh 框架
+# 只在启用 Oh My Zsh 功能时运行
+
+{{- if .features.enable_oh_my_zsh }}
+
+set -euo pipefail
+
+echo "🚀 开始安装 Oh My Zsh..."
+
+# 检查是否已安装
+if [ -d "$HOME/.oh-my-zsh" ]; then
+    echo "✅ Oh My Zsh 已安装，跳过安装步骤"
+    exit 0
+fi
+
+# 检查必需工具
+if ! command -v curl >/dev/null 2>&1; then
+    echo "❌ 错误: 需要 curl 来下载 Oh My Zsh"
+    exit 1
+fi
+
+if ! command -v zsh >/dev/null 2>&1; then
+    echo "❌ 错误: 需要先安装 zsh"
+    exit 1
+fi
+
+# 下载并安装 Oh My Zsh (无人值守模式)
+echo "📥 下载 Oh My Zsh 安装脚本..."
+RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || {
+    echo "❌ Oh My Zsh 安装失败"
+    exit 1
+}
+
+echo "✅ Oh My Zsh 安装完成"
+
+# 安装常用插件
+echo "📦 安装 Oh My Zsh 插件..."
+
+# zsh-autosuggestions
+if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions.git \
+        "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" || {
+        echo "⚠️  警告: zsh-autosuggestions 插件安装失败"
+    }
+fi
+
+# zsh-syntax-highlighting
+if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
+        "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" || {
+        echo "⚠️  警告: zsh-syntax-highlighting 插件安装失败"
+    }
+fi
+
+echo "✅ Oh My Zsh 插件安装完成"
+echo "🎉 Oh My Zsh 配置完成！重新启动终端或运行 'source ~/.zshrc' 来应用更改"
+
+{{- else }}
+echo "ℹ️  Oh My Zsh 功能已禁用，跳过安装"
+{{- end }}

@@ -35,7 +35,16 @@ if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
 fi
 
 # ========================================
-# 彩色提示符配置
+# 社区工具集成 (Bash)
+# ========================================
+
+# Starship 提示符配置 (如果启用且支持 Bash)
+{{ includeTemplate "starship-config.sh" . }}
+
+# 如果没有启用 Starship，使用默认 Bash 提示符
+{{- if not .features.enable_starship }}
+# ========================================
+# 默认彩色提示符配置
 # ========================================
 {{- if eq .environment "remote" }}
 # 远程环境 - 简洁但有颜色的提示符
@@ -64,6 +73,7 @@ fi
 {{- end }}
 
 unset color_prompt
+{{- end }}
 
 # 设置终端标题
 case "$TERM" in

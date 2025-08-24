@@ -35,6 +35,9 @@ export PAGER="less"
 # 加载主题管理模块 (仅 Linux 桌面)
 {{ includeTemplate "theme-functions.sh" . }}
 
+# 加载 fzf 模糊搜索配置
+{{ includeTemplate "fzf-config.sh" . }}
+
 # ========================================
 # Shell 配置完成
 # ========================================

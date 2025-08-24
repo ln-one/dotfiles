@@ -39,7 +39,19 @@ setopt CORRECT
 setopt EXTENDED_GLOB
 
 # ========================================
-# 彩色提示符配置
+# 社区工具集成
+# ========================================
+
+# Oh My Zsh 配置 (如果启用)
+{{ includeTemplate "oh-my-zsh-config.sh" . }}
+
+# Starship 提示符配置 (如果启用)
+{{ includeTemplate "starship-config.sh" . }}
+
+# 如果没有启用社区提示符，使用默认配置
+{{- if and (not .features.enable_oh_my_zsh) (not .features.enable_starship) }}
+# ========================================
+# 默认彩色提示符配置
 # ========================================
 {{- if eq .environment "remote" }}
 # 远程环境 - 简洁但有颜色的提示符
@@ -55,6 +67,7 @@ zstyle ':vcs_info:*' enable git
 
 setopt PROMPT_SUBST
 PS1='%F{green}%n@%m%f:%F{blue}%~%f${vcs_info_msg_0_}%# '
+{{- end }}
 {{- end }}
 
 # ========================================
