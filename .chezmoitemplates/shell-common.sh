@@ -36,21 +36,6 @@ export PAGER="less"
 {{ includeTemplate "theme-functions.sh" . }}
 
 # ========================================
-# 基础实用函数 (保留核心功能)
+# Shell 配置完成
 # ========================================
-
-# 创建目录并进入
-mkcd() {
-    mkdir -p "$1" && cd "$1"
-}
-
-# 系统信息 (简化版)
-sysinfo() {
-    echo "=== System Information ==="
-    echo "OS: {{ .chezmoi.os }}"
-    echo "Architecture: {{ .chezmoi.arch }}"
-    echo "Hostname: {{ .chezmoi.hostname }}"
-    echo "Shell: $SHELL"
-    echo "User: $USER"
-    echo "=========================="
-}
+# 所有功能模块已通过 includeTemplate 加载

@@ -1,0 +1,104 @@
+# Brewfile - Homebrew 包管理配置
+# 通过 Chezmoi 模板管理跨平台工具安装
+# Requirements: 4.1, 4.2, 8.1
+
+# 更新 Homebrew
+update
+
+# 核心开发工具
+brew "git"              # 版本控制
+brew "curl"             # HTTP 客户端
+brew "wget"             # 文件下载工具
+brew "unzip"            # 压缩文件处理
+brew "tree"             # 目录树显示
+
+# 现代化 CLI 工具 (替代传统工具)
+brew "eza"              # 现代化的 ls 替代品
+brew "bat"              # 现代化的 cat 替代品
+brew "fd"               # 现代化的 find 替代品
+brew "ripgrep"          # 现代化的 grep 替代品
+brew "fzf"              # 模糊搜索工具
+brew "jq"               # JSON 处理工具
+
+# Shell 和终端工具
+brew "zsh"              # 现代 Shell
+brew "tmux"             # 终端复用器
+brew "starship"         # 跨 Shell 提示符
+
+# 编辑器和开发工具
+brew "neovim"           # 现代化的 Vim
+brew "htop"             # 系统监控工具
+
+{{- if eq .chezmoi.os "darwin" }}
+# macOS 特定工具
+brew "mas"              # Mac App Store CLI
+brew "mackup"           # macOS 应用配置备份
+
+# macOS 应用程序 (通过 Homebrew Cask)
+cask "visual-studio-code"
+cask "iterm2"
+cask "docker"
+cask "1password"
+cask "1password-cli"
+
+{{- else if eq .chezmoi.os "linux" }}
+# Linux 特定工具
+brew "gcc"              # 编译器
+brew "make"             # 构建工具
+
+{{- end }}
+
+{{- if .features.enable_ai_tools }}
+# AI 开发工具 (可选)
+brew "gh"               # GitHub CLI
+brew "glab"             # GitLab CLI
+
+{{- end }}
+
+{{- if .features.enable_proxy }}
+# 代理和网络工具 (可选)
+brew "proxychains-ng"   # 代理链工具
+
+{{- end }}
+
+{{- if eq .environment "desktop" }}
+# 桌面环境工具
+{{- if eq .chezmoi.os "darwin" }}
+cask "firefox"
+cask "google-chrome"
+cask "slack"
+cask "zoom"
+{{- end }}
+
+{{- else if eq .environment "server" }}
+# 服务器环境工具
+brew "fail2ban"         # 安全工具 (如果可用)
+
+{{- end }}
+
+# 开发语言和运行时管理
+{{- if .features.enable_node }}
+brew "node"             # Node.js
+brew "npm"              # Node 包管理器
+{{- end }}
+
+{{- if .features.enable_python }}
+brew "python@3.11"      # Python 3.11
+brew "pipx"             # Python 应用安装器
+{{- end }}
+
+{{- if .features.enable_go }}
+brew "go"               # Go 语言
+{{- end }}
+
+{{- if .features.enable_rust }}
+brew "rust"             # Rust 语言
+{{- end }}
+
+# 容器和虚拟化工具
+{{- if .features.enable_docker }}
+{{- if eq .chezmoi.os "linux" }}
+brew "docker"           # Docker (Linux)
+brew "docker-compose"   # Docker Compose
+{{- end }}
+{{- end }}

@@ -40,8 +40,16 @@ source ~/.zshrc
 
 ### 自动化脚本
 ```
-├── run_once_setup-1password-ssh.sh.tmpl    # 1Password SSH Agent 设置
-└── run_onchange_verify-environment.sh.tmpl # 环境变量验证
+├── run_once_setup-1password-ssh.sh.tmpl      # 1Password SSH Agent 设置
+├── run_once_install-homebrew.sh.tmpl         # Homebrew 自动安装
+├── run_onchange_install-brew-packages.sh.tmpl # Homebrew 包管理
+└── run_onchange_verify-environment.sh.tmpl   # 环境变量验证
+```
+
+### 包管理
+```
+├── Brewfile.tmpl                            # Homebrew 包配置模板
+└── docs/homebrew-integration.md             # Homebrew 集成文档
 ```
 
 ## 🔧 功能特性
@@ -77,6 +85,12 @@ mkcd <dir>   # 创建目录并进入
 sysinfo      # 显示系统信息
 ```
 
+### 包管理 (Homebrew)
+- **自动安装**: 跨平台 Homebrew 安装 (Linux/macOS)
+- **智能包管理**: 基于平台和功能开关的条件安装
+- **现代工具**: eza, bat, fd, ripgrep, fzf 等现代 CLI 工具
+- **开发环境**: Node.js, Python, Docker 等开发工具自动配置
+
 ## 🎯 设计原则
 
 - **模块化**: 每个功能独立的模板文件
@@ -98,8 +112,10 @@ sysinfo      # 显示系统信息
 - [x] 基础实用函数
 - [x] 模块化架构
 
+✅ **已完成**:
+- [x] Homebrew 包管理集成
+
 🚧 **进行中**:
-- [ ] 工具管理现代化 (Homebrew 集成)
 - [ ] 版本管理器集成 (NVM, pyenv)
 - [ ] 配置简化和性能优化
 
