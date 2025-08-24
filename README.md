@@ -172,6 +172,37 @@ fh           # 搜索历史命令
 
 🎉 **项目状态**: 生产就绪，所有核心功能已完成并测试通过
 
+## 🧪 跨平台测试
+
+本项目包含完整的跨平台兼容性测试套件，确保配置在不同环境下都能正常工作。
+
+### 支持的平台
+- ✅ **Ubuntu 24.04 LTS** - 完整支持，包括 apt 包管理器集成
+- ✅ **macOS 12.0+** - 完整支持，包括 Homebrew 集成
+- ✅ **SSH 远程服务器** - 优化的远程环境配置
+
+### 运行测试
+```bash
+# 测试当前平台
+./tests/test-cross-platform-compatibility.sh --current
+
+# 测试所有平台 (根据当前环境)
+./tests/test-cross-platform-compatibility.sh --all
+
+# 查看测试选项
+./tests/test-cross-platform-compatibility.sh --help
+```
+
+### 测试内容
+- **系统环境检测** - 操作系统、架构、包管理器
+- **Chezmoi 模板渲染** - 配置文件生成和语法验证
+- **Shell 配置兼容性** - Bash/Zsh 配置语法检查
+- **工具可用性** - 现代 CLI 工具安装和功能测试
+- **性能测试** - Shell 启动时间和响应性能
+- **网络连接** - 远程环境的网络和下载能力
+
+详细测试文档请参考: [tests/README.md](tests/README.md)
+
 ## 🔗 相关文件
 
 - **配置**: `.chezmoi.toml.tmpl` - Chezmoi 主配置
