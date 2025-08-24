@@ -8,7 +8,7 @@
 # Only load proxy functions on Linux desktop environments
 
 # Clash 代理配置
-CLASH_DIR="${CLASH_DIR:-$HOME/.config/clash}"
+CLASH_DIR="${CLASH_DIR:-$HOME/.Clash}"
 PROXY_HOST="${PROXY_HOST:-127.0.0.1}"
 PROXY_HTTP_PORT="${PROXY_HTTP_PORT:-7890}"
 PROXY_SOCKS_PORT="${PROXY_SOCKS_PORT:-7891}"
@@ -20,7 +20,7 @@ proxyon() {
     # 1. 启动 Clash 代理服务
     if [[ -n "$CLASH_DIR" ]] && [[ -d "$CLASH_DIR" ]] && [[ -f "$CLASH_DIR/clash" ]]; then
         echo "启动 Clash 代理服务..."
-        cd "$CLASH_DIR" && ./clash -d . &
+        (cd "$CLASH_DIR" && ./clash -d . &)
         sleep 2  # 等待 Clash 启动
         
         # 设置环境变量代理

@@ -14,7 +14,7 @@
   - 实现跨平台条件逻辑 (Linux/macOS)
   - _Requirements: 2.1, 2.2, 2.3_
 
-- [ ] 3. 迁移保留的 Shell 功能
+- [x] 3. 迁移保留的 Shell 功能
   - 创建简化的别名模板 (只保留 ls/ll/la)
   - 迁移代理管理功能 (proxyon/proxyoff)
   - 迁移主题切换功能 (light/dark/themestatus)
@@ -28,13 +28,13 @@
 
 ## Phase 2: 工具管理现代化
 
-- [ ] 5. 集成 Homebrew 包管理
+- [x] 5. 集成 Homebrew 包管理
   - 创建 run_once_install-homebrew.sh 脚本
   - 配置跨平台 Homebrew 支持 (Linux/macOS)
   - 创建 Brewfile 管理核心工具
   - _Requirements: 4.1, 4.2, 8.1_
 
-- [ ] 6. 实现工具自动安装
+- [x] 6. 实现工具自动安装
   - 创建工具安装脚本模板
   - 配置必需工具列表 (git, curl, eza 等)
   - 实现条件安装逻辑 (检查工具是否已存在)

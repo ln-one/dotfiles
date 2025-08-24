@@ -43,7 +43,7 @@
   enable_ai_tools = true
   enable_proxy = true
   enable_1password = true
-  enable_oh_my_zsh = false  # 暂时禁用，后续阶段启用
+  enable_oh_my_zsh = true   # 启用 Oh My Zsh
   enable_starship = false   # 暂时禁用，后续阶段启用
   enable_fzf = true         # 启用 fzf 模糊搜索
   
@@ -60,6 +60,11 @@
   # 核心工具包列表
   brew = ["git", "curl", "wget", "fzf", "ripgrep", "fd", "bat", "eza"]
   apt = ["git", "curl", "wget", "unzip", "build-essential", "fzf", "ripgrep", "fd-find"]
+  
+  # 必需工具列表 (按优先级分组)
+  essential = ["git", "curl", "wget", "unzip"]
+  modern_cli = ["eza", "bat", "fd", "ripgrep", "fzf", "jq"]
+  development = ["neovim", "tmux", "htop", "tree"]
   
 [data.paths]
   dotfiles = "{{ .chezmoi.sourceDir }}"

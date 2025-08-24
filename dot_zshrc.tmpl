@@ -1,276 +1,79 @@
 # ========================================
 # Zsh Configuration (Chezmoi Template)
 # ========================================
-# 现代化的 Zsh 配置，由 Chezmoi 管理
-# 支持跨平台 (Linux/macOS) 和多环境 (桌面/服务器)
-#
+# 现代化 Zsh 配置，充分利用 chezmoi 模块化设计
 # 生成时间: {{ now | date "2006-01-02 15:04:05" }}
 # 目标平台: {{ .chezmoi.os }}/{{ .chezmoi.arch }}
 # 环境类型: {{ .environment }}
 # ========================================
 
-{{/* 性能优化设置 */}}
 # ========================================
-# Performance Optimizations
+# 加载环境变量模块
 # ========================================
-{{- if eq .environment "remote" }}
-# SSH 远程环境优化 - 快速启动
-export SHELLRC_FAST_MODE="true"
-export SHELLRC_SKIP_HEAVY_MODULES="true"
-export SHELLRC_ENABLE_OPTIMIZATIONS="true"
-{{- else }}
-# 桌面环境 - 平衡性能和功能
-export SHELLRC_FAST_MODE="false"
-export SHELLRC_SKIP_HEAVY_MODULES="false"
-export SHELLRC_ENABLE_OPTIMIZATIONS="true"
-{{- end }}
-
-# 跳过昂贵的操作 (远程环境)
-{{- if eq .environment "remote" }}
-export SKIP_HOMEBREW_SHELLENV="true"
-export SKIP_OP_CHECK="true"
-export SKIP_FZF_KEYBINDINGS="true"
-{{- end }}
-
-# ========================================
-# 环境变量配置 (Requirements: 2.4, 7.2)
-# ========================================
-# 加载 Chezmoi 管理的环境变量
 {{ includeTemplate "environment.sh" . }}
 
 # ========================================
-# 基础路径和环境设置
+# Zsh 基础配置
 # ========================================
-# Dotfiles 目录设置
-export DOTFILES_DIR="{{ .paths.dotfiles }}"
+# 历史配置
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE=~/.zsh_history
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt SHARE_HISTORY
+setopt APPEND_HISTORY
+setopt INC_APPEND_HISTORY
 
-# 用户项目目录 (environment.sh 已处理基础路径)
-export PROJECTS_DIR="{{ .paths.projects }}"
+# 自动补全
+autoload -Uz compinit
+compinit
 
-{{/* 共享配置加载 */}}
+# 目录导航
+setopt AUTO_CD
+setopt AUTO_PUSHD
+setopt PUSHD_IGNORE_DUPS
+
+# 其他有用选项
+setopt CORRECT
+setopt EXTENDED_GLOB
+
 # ========================================
-# 加载共享配置 (向后兼容)
+# 彩色提示符配置
 # ========================================
-# 加载原有的共享 shell 配置 (如果存在)
-if [[ -f "$DOTFILES_DIR/.shellrc" ]]; then
-    source "$DOTFILES_DIR/.shellrc"
-elif [[ -f "$HOME/.shellrc" ]]; then
-    source "$HOME/.shellrc"
-fi
-
-{{/* Powerlevel10k 配置 (仅桌面环境) */}}
-{{- if and (ne .environment "remote") (ne .environment "container") }}
-# ========================================
-# Powerlevel10k Instant Prompt
-# ======================================== 
-# 配置 instant prompt 为安静模式
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
-
-# Enable Powerlevel10k instant prompt
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-{{- end }}
-
-{{/* Oh My Zsh 配置 */}}
-# ========================================
-# Oh My Zsh Configuration
-# ======================================== 
-{{- if .features.enable_oh_my_zsh }}
-export ZSH="${ZSH:-$HOME/.oh-my-zsh}"
-{{- if and (ne .environment "remote") (ne .environment "container") }}
-ZSH_THEME="powerlevel10k/powerlevel10k"
-{{- else }}
-# 远程环境使用简单主题
-ZSH_THEME="robbyrussell"
-{{- end }}
-
-# 插件配置 (根据环境调整)
 {{- if eq .environment "remote" }}
-# 远程环境 - 最小插件集
-plugins=(git)
+# 远程环境 - 简洁但有颜色的提示符
+PS1='%F{green}%n@%m%f:%F{blue}%~%f%# '
 {{- else }}
-# 桌面环境 - 完整插件集
-plugins=(git docker kubectl)
+# 本地环境 - 丰富的彩色提示符 (类似 agnoster 但更简洁)
+autoload -Uz vcs_info
+precmd() { vcs_info }
+
+# Git 信息配置
+zstyle ':vcs_info:git:*' formats ' (%F{yellow}%b%f)'
+zstyle ':vcs_info:*' enable git
+
+setopt PROMPT_SUBST
+PS1='%F{green}%n@%m%f:%F{blue}%~%f${vcs_info_msg_0_}%# '
 {{- end }}
 
-# 加载 Oh My Zsh (如果存在)
-if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
-    source "$ZSH/oh-my-zsh.sh"
-fi
-{{- else }}
-# 不使用 Oh My Zsh - 简单提示符
-{{- if eq .environment "remote" }}
-# 远程环境简单提示符
-PS1='%n@%m:%~$ '
-{{- else }}
-# 本地环境彩色提示符
-PS1='%F{green}%n@%m%f:%F{blue}%~%f$ '
-{{- end }}
-{{- end }}
-
-{{/* 别名重新定义 (覆盖 Oh My Zsh) */}}
 # ========================================
-# 加载共享配置
-# ======================================== 
-# 加载通用 shell 配置 (别名、函数、环境变量)
+# 加载共享配置模块
+# ========================================
 {{ includeTemplate "shell-common.sh" . }}
 
-{{/* Zinit 插件管理器 (仅桌面环境) */}}
-{{- if and (ne .environment "remote") (ne .environment "container") }}
-# ========================================
-# Zinit Plugin Manager
-# ======================================== 
-export ZINIT_HOME="${ZINIT_HOME:-$HOME/.local/share/zinit}"
-export ZINIT_BIN="$ZINIT_HOME/zinit.git/zinit.zsh"
-
-# 安装 Zinit (如果不存在)
-if [[ ! -f "$ZINIT_BIN" ]]; then
-    print -P "%F{33}Installing Zinit Plugin Manager...%f"
-    command mkdir -p "$ZINIT_HOME" && command chmod g-rwX "$ZINIT_HOME"
-    command git clone https://github.com/zdharma-continuum/zinit "$ZINIT_HOME/zinit.git" && \
-        print -P "%F{33}Installation successful.%f" || \
-        print -P "%F{160}Installation failed.%f"
-fi
-
-# 加载 Zinit 和插件
-if [[ -f "$ZINIT_BIN" ]]; then
-    source "$ZINIT_BIN"
-
-    # 核心插件 - 立即加载
-    zinit wait lucid for \
-        atload"!_zsh_autosuggest_start" \
-            zsh-users/zsh-autosuggestions \
-        blockf \
-            zsh-users/zsh-completions
-
-    # 延迟加载非关键插件
-    zinit wait"1" lucid for \
-        OMZP::docker \
-        OMZP::kubectl
-
-    # 语法高亮 - 最后加载
-    zinit lucid for \
-            zdharma-continuum/fast-syntax-highlighting
-fi
-{{- end }}
-
-{{/* 外部工具集成 */}}
-# ========================================
-# 外部工具集成
-# ======================================== 
-{{- if lookPath "fzf" }}
-# fzf 模糊搜索
-{{- if ne .environment "remote" }}
-# 桌面环境 - 完整 fzf 配置
-export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
-{{- if lookPath "fd" }}
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-{{- end }}
-
-# 加载 fzf 键绑定
-{{- if eq .chezmoi.os "darwin" }}
-source /opt/homebrew/share/fzf/shell/key-bindings.zsh 2>/dev/null
-{{- else if eq .chezmoi.os "linux" }}
-source /usr/share/fzf/key-bindings.zsh 2>/dev/null || \
-source ~/.fzf/shell/key-bindings.zsh 2>/dev/null
-{{- end }}
-{{- else }}
-# 远程环境 - 基础 fzf
-export FZF_DEFAULT_OPTS='--height 40%'
-{{- end }}
-{{- end }}
-
-{{/* 平台特定配置 */}}
-# ========================================
-# 平台特定配置
-# ======================================== 
-{{- if eq .chezmoi.os "darwin" }}
-# macOS 特定配置
-{{- if lookPath "brew" }}
-# Homebrew 环境
-eval "$(/opt/homebrew/bin/brew shellenv)"
-{{- end }}
-
-# macOS 别名
-alias finder='open -a Finder'
-alias preview='open -a Preview'
-{{- else if eq .chezmoi.os "linux" }}
-# Linux 特定配置
-{{- if eq .package_manager "apt" }}
-# Ubuntu/Debian 别名
-alias install='sudo apt install'
-alias update='sudo apt update && sudo apt upgrade'
-alias search='apt search'
-{{- end }}
-
-# Linux 别名
-alias open='xdg-open'
-{{- if eq .environment "desktop" }}
-alias pbcopy='xclip -selection clipboard'
-alias pbpaste='xclip -selection clipboard -o'
-{{- end }}
-{{- end }}
-
-{{/* 自定义函数 */}}
 # ========================================
 # Zsh 特定函数
 # ========================================
-# 快速目录跳转到项目目录
-{{- if .paths.projects }}
-cdp() { cd "{{ .paths.projects }}/$1"; }
-{{- end }}
-
-# 系统更新函数 (Zsh 版本，包含 Oh My Zsh)
-{{- if eq .chezmoi.os "darwin" }}
-full_update() {
-  brew update && brew upgrade && brew cleanup
-{{- if .features.enable_oh_my_zsh }}
-  omz update
-{{- end }}
+# 重新加载 zsh 配置
+reload() { 
+    source ~/.zshrc && echo "✅ Zsh 配置已重新加载"; 
 }
-{{- else if eq .chezmoi.os "linux" }}
-full_update() {
-{{- if eq .package_manager "apt" }}
-  sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
-{{- end }}
-{{- if .features.enable_oh_my_zsh }}
-  omz update
-{{- end }}
-}
-{{- end }}
-
-# Zsh 特定的补全重新加载
-reload_completions() {
-  rm -f ~/.zcompdump*
-  compinit
-  echo "Zsh completions reloaded"
-}
-
-{{/* 环境特定的最终配置 */}}
-# ========================================
-# 最终配置
-# ======================================== 
-{{- if and (ne .environment "remote") (ne .environment "container") }}
-# Powerlevel10k 提示符配置 (桌面环境)
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-{{- end }}
-
-{{/* 性能分析 (调试用) */}}
-{{- if env "ZSH_PROFILE" }}
-# ========================================
-# 性能分析 (调试模式)
-# ========================================
-zmodload zsh/zprof
-# 在 shell 结束时显示: zprof
-{{- end }}
 
 # ========================================
 # 本地自定义配置
 # ========================================
-# 加载本地自定义配置 (不在版本控制中)
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
-# Chezmoi 管理标记
-# 此文件由 Chezmoi 生成，请勿直接编辑
+# Chezmoi 管理标记 - 请勿直接编辑此文件
 # 要修改配置，请编辑: {{ .chezmoi.sourceDir }}/dot_zshrc.tmpl

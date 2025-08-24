@@ -2,10 +2,6 @@
 # 通过 Chezmoi 模板管理跨平台工具安装
 # Requirements: 4.1, 4.2, 8.1
 
-# Brewfile - Homebrew 包管理配置
-# 通过 Chezmoi 模板管理跨平台工具安装
-# Requirements: 4.1, 4.2, 8.1
-
 # 核心开发工具
 brew "git"              # 版本控制
 brew "curl"             # HTTP 客户端
@@ -53,13 +49,11 @@ brew "make"             # 构建工具
 # AI 开发工具 (可选)
 brew "gh"               # GitHub CLI
 brew "glab"             # GitLab CLI
-
 {{- end }}
 
 {{- if .features.enable_proxy }}
 # 代理和网络工具 (可选)
 brew "proxychains-ng"   # 代理链工具
-
 {{- end }}
 
 {{- if eq .environment "desktop" }}
@@ -70,11 +64,9 @@ cask "google-chrome"
 cask "slack"
 cask "zoom"
 {{- end }}
-
 {{- else if eq .environment "server" }}
 # 服务器环境工具
 brew "fail2ban"         # 安全工具 (如果可用)
-
 {{- end }}
 
 # 开发语言和运行时管理
