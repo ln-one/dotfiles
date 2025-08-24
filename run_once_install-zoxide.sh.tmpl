@@ -23,9 +23,20 @@ fi
 
 {{- else if eq .chezmoi.os "linux" }}
 # Linux 系统安装
-if command -v curl >/dev/null 2>&1; then
+# 首先检查是否已经安装
+if command -v zoxide >/dev/null 2>&1; then
+    echo "✅ zoxide 已经安装，跳过安装步骤"
+elif command -v curl >/dev/null 2>&1; then
     echo "📦 使用官方安装脚本安装 zoxide..."
-    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+    # 添加超时和错误处理
+    if timeout 60 curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash; then
+        echo "✅ 安装脚本执行完成"
+    else
+        echo "⚠️  安装脚本超时或失败，尝试手动安装..."
+        # 备用安装方法：直接下载二进制文件
+        mkdir -p "$HOME/.local/bin"
+        curl -sS -L "https://github.com/ajeetdsouza/zoxide/releases/latest/download/zoxide-x86_64-unknown-linux-musl.tar.gz" | tar -xz -C "$HOME/.local/bin"
+    fi
     
     # 确保二进制文件在 PATH 中
     if [ -f "$HOME/.local/bin/zoxide" ]; then
