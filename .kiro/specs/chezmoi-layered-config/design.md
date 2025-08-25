@@ -150,9 +150,9 @@ diagnose_config() → report
 │   ├── desktop.sh       # 提取桌面环境特定配置
 │   ├── remote.sh        # 提取远程环境特定配置
 │   └── container.sh     # 提取容器环境特定配置
-├── local/               # 用户本地配置层 (新建)
-│   ├── user-overrides.sh # 用户个人配置覆盖
-│   └── local-config.sh  # 本地环境特定配置
+├── local/               # 用户本地配置层 (待实现)
+│   ├── user-overrides.sh # 用户个人配置覆盖 (待创建)
+│   └── local-config.sh  # 本地环境特定配置 (待创建)
 └── shell-common.sh      # 重构为分层加载器
 ```
 
@@ -446,9 +446,49 @@ detect_environment_with_fallback() {
 3. **容器环境** - 最小化配置验证
 4. **macOS 迁移** - 跨平台迁移验证
 
+## 当前实现状态
+
+### 已完成的组件
+
+1. **分层目录结构** ✅
+   - 创建了完整的四层配置目录结构
+   - `core/`, `platforms/linux/`, `platforms/darwin/`, `environments/`
+
+2. **核心配置层** ✅
+   - 所有通用配置文件已移动到 `core/` 目录
+   - 包含环境变量、别名、基础函数、工具配置等
+
+3. **平台配置层** ✅
+   - Linux 特定功能 (代理管理、主题管理) 移动到 `platforms/linux/`
+   - macOS 特定配置创建在 `platforms/darwin/`
+
+4. **环境配置层** ✅
+   - 桌面环境配置 (`environments/desktop.sh`)
+   - 远程环境轻量化配置 (`environments/remote.sh`)
+   - 容器环境最小化配置 (`environments/container.sh`)
+   - WSL 环境混合配置 (`environments/wsl.sh`)
+
+5. **增强环境检测** ✅
+   - 实现了容器、WSL、SSH、桌面环境的智能检测
+   - 包含检测失败的回退机制
+
+### 待实现的组件
+
+1. **分层加载器重构** (下一步)
+   - 重构 `shell-common.sh` 为分层配置加载器
+   - 更新所有 `includeTemplate` 路径引用
+
+2. **用户配置层** (待实现)
+   - 创建 `local/` 目录和用户配置模板
+   - 实现外部配置文件支持
+
+3. **配置验证和诊断** (待实现)
+   - 配置语法验证器
+   - 配置诊断和调试工具
+
 ## Implementation Plan
 
-### Phase 1: 文件重新组织 (重组配置文件)
+### Phase 1: 文件重新组织 (重组配置文件) ✅ 已完成
 1. 创建目录结构:
    - `.chezmoitemplates/core/`, `platforms/linux/`, `platforms/darwin/`, `environments/`, `local/`
 2. 保持安装脚本在根目录 (chezmoi 执行要求)

@@ -17,7 +17,7 @@
   - 验证文件内容保持不变
   - _Requirements: 1.3, 1.4_
 
-- [ ] 3. 移动平台特定配置文件
+- [x] 3. 移动平台特定配置文件
 - [x] 3.1 移动 Linux 特定配置到 platforms/linux
   - 移动 `proxy-functions.sh` 到 `platforms/linux/`
   - 移动 `theme-functions.sh` 到 `platforms/linux/`
@@ -28,34 +28,34 @@
   - 从现有配置中提取 macOS 特定功能
   - _Requirements: 2.2, 2.4_
 
-- [ ] 4. 实现增强的环境检测功能
-- [ ] 4.1 创建环境检测模块
+- [x] 4. 实现增强的环境检测功能
+- [x] 4.1 创建环境检测模块
   - 在 `core/` 中创建 `environment-detection.sh`
   - 实现容器、WSL、SSH、桌面环境的检测逻辑
   - _Requirements: 5.1, 5.2_
 
-- [ ] 4.2 添加环境检测失败处理
+- [x] 4.2 添加环境检测失败处理
   - 实现检测失败时的回退机制
   - 添加手动环境指定支持
   - _Requirements: 5.3, 5.4_
 
-- [ ] 5. 创建环境特定配置文件
-- [ ] 5.1 创建桌面环境配置
+- [x] 5. 创建环境特定配置文件
+- [x] 5.1 创建桌面环境配置
   - 创建 `environments/desktop.sh`
   - 配置完整的开发工具和 GUI 相关功能
   - _Requirements: 3.1_
 
-- [ ] 5.2 创建远程环境轻量化配置
+- [x] 5.2 创建远程环境轻量化配置
   - 创建 `environments/remote.sh`
   - 实现轻量化配置，跳过 GUI 和重型工具
   - _Requirements: 3.2, 7.1, 7.2_
 
-- [ ] 5.3 创建容器环境最小化配置
+- [x] 5.3 创建容器环境最小化配置
   - 创建 `environments/container.sh`
   - 实现最小化配置，优化启动速度
   - _Requirements: 3.3, 7.4_
 
-- [ ] 5.4 创建 WSL 环境混合配置
+- [x] 5.4 创建 WSL 环境混合配置
   - 创建 `environments/wsl.sh`
   - 实现 WSL 优化的混合配置
   - _Requirements: 3.4_

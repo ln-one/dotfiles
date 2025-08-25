@@ -29,13 +29,24 @@ source ~/.bashrc
 source ~/.zshrc
 ```
 
-## 🧩 分层配置架构
+## 🧩 四层分层配置架构
 
-### 核心模板 (跨平台通用)
+本项目采用智能的四层配置架构，实现环境自适应和配置分离：
+
+### 配置加载顺序 (优先级从低到高)
+```
+1. 核心配置层 (Core Layer)     - 所有环境通用的基础功能
+2. 平台配置层 (Platform Layer) - Linux/macOS 特定配置
+3. 环境配置层 (Environment Layer) - 桌面/远程/容器/WSL 特定配置
+4. 用户配置层 (User Layer)     - 个人定制和本地覆盖
+```
+
+### 文件结构
 ```
 .chezmoitemplates/
-├── core/                    # 核心功能模块
+├── core/                    # 🔧 核心配置层 (跨平台通用)
 │   ├── environment.sh       # 环境变量管理 (路径、SSH、语言配置)
+│   ├── environment-detection.sh # 智能环境检测 (容器/WSL/SSH/桌面)
 │   ├── aliases.sh          # 核心别名 (ls/ll/la + 导航)
 │   ├── basic-functions.sh   # 基础函数 (mkcd, sysinfo)
 │   ├── fzf-config.sh       # FZF 模糊搜索配置
@@ -43,16 +54,47 @@ source ~/.zshrc
 │   ├── oh-my-zsh-config.sh # Oh My Zsh 配置和性能优化
 │   ├── starship-config.sh  # Starship 提示符配置
 │   └── zsh-performance-tweaks.sh # Zsh 性能优化
-├── platforms/               # 平台特定功能
+├── platforms/               # 🖥️ 平台配置层 (操作系统特定)
 │   ├── linux/              # Linux 特定配置
 │   │   ├── proxy-functions.sh    # 代理管理 (Clash + GNOME)
 │   │   └── theme-functions.sh    # WhiteSur 主题切换
 │   └── darwin/             # macOS 特定配置
 │       └── macos-specific.sh     # macOS 系统管理和应用
-├── environments/            # 环境特定配置 (预留)
-├── local/                   # 本地自定义配置 (预留)
-└── shell-common.sh         # 模块加载器和颜色配置
+├── environments/            # 🌍 环境配置层 (使用场景特定)
+│   ├── desktop.sh          # 桌面环境 - 完整功能配置
+│   ├── remote.sh           # 远程环境 - 轻量化配置
+│   ├── container.sh        # 容器环境 - 最小化配置
+│   └── wsl.sh              # WSL 环境 - 混合优化配置
+├── local/                   # 👤 用户配置层 (个人定制，待实现)
+│   ├── user-overrides.sh   # 用户个人配置覆盖
+│   └── local-config.sh     # 本地环境特定配置
+└── shell-common.sh         # 🔄 分层配置加载器
 ```
+
+### 智能环境检测
+系统会自动检测运行环境并加载相应配置：
+
+- **🖥️ 桌面环境** (`desktop`): 检测到 GUI 环境时，加载完整的开发工具和图形界面相关配置
+- **🌐 远程环境** (`remote`): 检测到 SSH 连接时，加载轻量化配置，跳过 GUI 工具
+- **📦 容器环境** (`container`): 检测到容器环境时，加载最小化配置，优化启动速度
+- **🪟 WSL 环境** (`wsl`): 检测到 WSL 时，加载 Windows 集成优化配置
+
+### 分层架构优势
+
+🎯 **智能适配**: 根据运行环境自动选择最适合的配置组合
+- VPS 远程服务器使用轻量化配置，响应更快
+- 本地开发环境使用完整功能，提升效率
+- 容器环境使用最小化配置，优化启动速度
+
+🔧 **易于维护**: 配置职责清晰分离，便于管理和扩展
+- 核心功能统一管理，确保一致性
+- 平台特定功能独立维护，避免冲突
+- 用户定制不影响系统更新
+
+🚀 **性能优化**: 按需加载配置，避免不必要的资源消耗
+- 远程环境跳过 GUI 相关配置
+- 容器环境减少启动时间
+- 桌面环境提供完整功能体验
 
 ### Shell 配置
 ```
@@ -209,15 +251,20 @@ fh           # 搜索历史命令
 - [x] FZF 模糊搜索集成
 - [x] Zoxide 智能目录跳转集成
 
-✅ **分层配置架构重构**:
+✅ **分层配置架构重构 (Phase 4)**:
 - [x] 实现四层分层配置架构 (core/platforms/environments/local)
+- [x] 智能环境检测系统 (容器/WSL/SSH/桌面自动识别)
 - [x] 平台特定配置分离 (Linux 代理/主题管理，macOS 系统管理)
-- [x] 修复模板路径引用问题
-- [x] 优化配置加载逻辑和性能
-- [x] 清理测试文件和无用代码
-- [x] 完善跨平台兼容性
+- [x] 环境特定配置实现 (桌面/远程/容器/WSL 差异化配置)
+- [x] 文件结构重新组织和清理
+- [x] 配置文档更新和完善
 
-🎉 **项目状态**: 生产就绪，分层架构完成，所有功能测试通过
+🚧 **进行中**:
+- [ ] 分层配置加载器重构 (shell-common.sh)
+- [ ] 用户本地配置层实现
+- [ ] 配置验证和诊断工具
+
+🎯 **项目状态**: 分层架构基础完成，核心功能稳定，正在完善高级特性
 
 ## 🧪 跨平台测试
 
