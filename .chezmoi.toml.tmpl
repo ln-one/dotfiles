@@ -56,6 +56,44 @@
   
   # 容器和虚拟化
   enable_docker = true
+
+# 代理配置 - 优先使用环境变量，其次使用 Clash 配置
+[data.proxy]
+{{- $http_proxy := env "http_proxy" | default (env "HTTP_PROXY") }}
+{{- $https_proxy := env "https_proxy" | default (env "HTTPS_PROXY") }}
+{{- $socks_proxy := env "socks_proxy" | default (env "SOCKS_PROXY") }}
+
+{{- if or $http_proxy $https_proxy $socks_proxy }}
+# 使用环境变量中的代理配置
+enabled = true
+source = "environment"
+  {{- if $http_proxy }}
+http_proxy = "{{ $http_proxy }}"
+  {{- end }}
+  {{- if $https_proxy }}
+https_proxy = "{{ $https_proxy }}"
+  {{- end }}
+  {{- if $socks_proxy }}
+socks_proxy = "{{ $socks_proxy }}"
+  {{- end }}
+{{- else if or (eq .chezmoi.os "linux") (eq .chezmoi.os "windows") }}
+  {{- $clash_config := joinPath .chezmoi.homeDir ".config/clash/config.yaml" }}
+  {{- if stat $clash_config }}
+    {{- $clash := include $clash_config | fromYaml }}
+# 使用 Clash 配置文件
+enabled = true
+source = "clash"
+host = "127.0.0.1"
+http_port = {{ $clash.port }}
+socks_port = {{ index $clash "socks-port" }}
+  {{- else }}
+# 没有找到代理配置
+enabled = false
+  {{- end }}
+{{- else }}
+# macOS 或其他系统，且无环境变量
+enabled = false
+{{- end }}
   
 [data.packages]
   # 核心工具包列表

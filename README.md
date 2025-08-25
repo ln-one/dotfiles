@@ -129,6 +129,7 @@ source ~/.zshrc
 - **SSH Agent**: 1Password SSH Agent 跨平台集成
 - **语言配置**: UTF-8 区域设置和编辑器配置
 - **平台检测**: 自动检测 Linux/macOS 并应用相应配置
+- **代理配置**: 自动检测 Clash 配置或环境变量，统一设置代理
 
 ### 别名功能
 - **智能 ls**: 自动检测并使用 `eza` > `exa` > `ls`
@@ -138,12 +139,18 @@ source ~/.zshrc
 ### 平台特定功能
 
 #### Linux 桌面环境
-**代理管理** (Clash + GNOME 集成):
+**代理管理** (智能检测 + GNOME 集成):
 ```bash
 proxyon      # 启用代理 (Clash + 环境变量 + GNOME 系统代理)
 proxyoff     # 关闭代理 (停止 Clash + 清除环境变量)
 proxystatus  # 显示代理状态 (进程、环境变量、网络测试)
 ```
+
+**代理自动配置**:
+- 优先检测环境变量 (`http_proxy`, `https_proxy`, `socks_proxy`)
+- 其次读取 Clash 配置文件 (`~/.config/clash/config.yaml`)
+- 自动设置 SSH 代理和终端代理环境变量
+- 支持 Linux/Windows 系统，macOS 默认禁用
 
 **主题切换** (WhiteSur + GNOME):
 ```bash
@@ -212,6 +219,7 @@ fh           # 搜索历史命令
 
 ### SSH 和 Git 配置
 - **SSH 配置**: 集成 1Password SSH Agent，支持多主机配置
+- **SSH 代理**: 自动检测并配置 SOCKS5 代理 (GitHub, GitLab 等)
 - **Git 配置**: SSH 签名、代理配置、用户信息管理
 - **安全**: SSH 密钥通过 1Password 管理，支持 YubiKey
 
@@ -251,6 +259,7 @@ fh           # 搜索历史命令
 - [x] 跨平台兼容性测试和修复
 - [x] FZF 模糊搜索集成
 - [x] Zoxide 智能目录跳转集成
+- [x] 智能代理配置系统 (Clash + 环境变量检测)
 
 ✅ **分层配置架构重构 (Phase 4)**:
 - [x] 实现四层分层配置架构 (core/platforms/environments/local)

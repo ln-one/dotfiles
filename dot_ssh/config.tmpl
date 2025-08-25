@@ -14,8 +14,10 @@ Host github.com
     User git
     Port 443
     IdentityAgent ~/.1password/agent.sock
-{{- if .features.enable_proxy }}
-    ProxyCommand nc -X 5 -x 127.0.0.1:7891 %h %p
+{{- if and .features.enable_proxy .proxy.enabled }}
+    {{- if hasKey .proxy "socks_port" }}
+    ProxyCommand nc -X 5 -x {{ .proxy.host }}:{{ .proxy.socks_port }} %h %p
+    {{- end }}
 {{- end }}
 
 # ===============================

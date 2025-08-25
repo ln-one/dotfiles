@@ -82,12 +82,22 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 export OPENAI_API_BASE="${OPENAI_API_BASE:-}"
 {{- end }}
 
-{{- if .features.enable_proxy }}
-# 代理配置 (如果启用)
-# 这些变量可以通过 proxyon/proxyoff 函数动态设置
-# export HTTP_PROXY=""
-# export HTTPS_PROXY=""
-# export NO_PROXY="localhost,127.0.0.1"
+{{- if and .features.enable_proxy .proxy.enabled }}
+# 代理配置
+{{- if .proxy.http_port }}
+export HTTP_PROXY="http://{{ .proxy.host }}:{{ .proxy.http_port }}"
+export HTTPS_PROXY="http://{{ .proxy.host }}:{{ .proxy.http_port }}"
+{{- end }}
+{{- if .proxy.socks_port }}
+export SOCKS_PROXY="socks5://{{ .proxy.host }}:{{ .proxy.socks_port }}"
+{{- end }}
+export NO_PROXY="localhost,127.0.0.1,::1,.local"
+
+# 小写版本
+export http_proxy="$HTTP_PROXY"
+export https_proxy="$HTTPS_PROXY"
+export socks_proxy="$SOCKS_PROXY"
+export no_proxy="$NO_PROXY"
 {{- end }}
 
 # 性能优化配置
