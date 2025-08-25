@@ -18,10 +18,18 @@ Thumbs.db
 
 # 敏感文件 (应该用加密模板管理)
 .ssh/id_*
+.ssh/*.key
+.ssh/*.pem
 .gnupg/
 .aws/credentials
 .env
 .env.*
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.*
+.secrets
 
 # 缓存目录
 .cache/

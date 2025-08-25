@@ -1,6 +1,6 @@
 [user]
-	email = ln1.opensource@gmail.com
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAArnT6GyU/LYU9KVReTALHT5FYoBmoyVqI+Ko7HnGbm
+	email = "{{ onepasswordRead "op://Work/Git Signing Key/email" }}"
+	signingkey = "{{ onepasswordRead "op://Work/Git Signing Key/public key" }}"
 	name = ln-one
 
 [commit]
