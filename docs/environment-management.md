@@ -39,8 +39,8 @@
 
 ### 其他配置文件的职责分离
 
-#### `oh-my-zsh-config.sh` - Shell 框架配置
-- Oh My Zsh 主题和插件管理
+#### `zim-config.sh` - Shell 框架配置
+- Zim 模块和插件管理
 - 补全系统优化
 - 性能调优设置
 - **移除了**: 历史配置 (已移至 environment.sh)
@@ -72,7 +72,7 @@
 ## 重构前后对比
 
 ### 重构前问题
-- fnm 配置分散在 `oh-my-zsh-config.sh`
+- fnm 配置分散在 shell 框架配置中
 - fzf 环境变量在 `fzf-config.sh` 中
 - 历史配置重复定义
 - 启动时有多余输出信息
@@ -87,7 +87,7 @@
 ## 加载顺序
 
 1. **`environment.sh`** - 环境变量和基础配置
-2. **`oh-my-zsh-config.sh`** - Shell 框架配置
+2. **`zim-config.sh`** - Shell 框架配置
 3. **功能特定配置文件** - fzf, starship, zoxide 等
 
 ## 最佳实践

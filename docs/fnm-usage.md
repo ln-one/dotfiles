@@ -87,7 +87,7 @@ fnm 已经在你的 shell 配置中自动设置，支持：
 - 目录切换时自动版本切换
 - 快速启动
 
-配置位置：`.chezmoitemplates/core/oh-my-zsh-config.sh`
+配置位置：`.chezmoitemplates/core/environment.sh`
 
 ## 常用命令速查
 

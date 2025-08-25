@@ -1,34 +1,36 @@
 # 社区工具集成指南
 
-本文档介绍 Chezmoi 重构项目中集成的社区工具，包括 Oh My Zsh、Starship 提示符和 fzf 模糊搜索。
+本文档介绍 Chezmoi 配置项目中集成的社区工具，包括 Zim 框架、Starship 提示符和 fzf 模糊搜索。
 
 ## 概述
 
 为了提供现代化的 Shell 体验，我们集成了以下经过社区验证的成熟工具：
 
-- **Oh My Zsh**: Zsh 框架和插件管理系统
+- **Zim**: 轻量级高性能 Zsh 框架和模块管理系统
 - **Starship**: 跨 Shell 的现代化提示符
 - **fzf**: 强大的模糊搜索工具
 
 ## 功能特性
 
-### Oh My Zsh 集成
+### Zim 框架集成
 
 **功能**:
-- 自动安装 Oh My Zsh 框架
-- 预配置常用插件 (git, docker, npm, python 等)
+- 自动安装 Zim 框架
+- 模块化插件系统，性能优化
+- 预配置核心模块 (environment, input, utility, completion)
 - 自动安装 zsh-autosuggestions 和 zsh-syntax-highlighting
-- 根据环境类型优化插件配置
+- 根据环境类型优化模块配置
 
 **配置位置**:
-- 安装脚本: `run_once_install-oh-my-zsh.sh.tmpl`
-- 配置模板: `.chezmoitemplates/oh-my-zsh-config.sh`
+- 安装脚本: `run_once_install-zim.sh.tmpl`
+- 配置模板: `.chezmoitemplates/core/zim-config.sh`
+- 模块配置: `dot_zimrc.tmpl`
 
 **启用/禁用**:
 ```toml
 # .chezmoi.toml.tmpl
 [data.features]
-  enable_oh_my_zsh = true  # 设为 false 禁用
+  enable_zim = true  # 设为 false 禁用
 ```
 
 ### Starship 提示符
@@ -96,8 +98,8 @@ chezmoi init --apply
 ### 手动安装单个工具
 
 ```bash
-# 只安装 Oh My Zsh
-./run_once_install-oh-my-zsh.sh
+# 只安装 Zim
+./run_once_install-zim.sh
 
 # 只安装 Starship
 ./run_once_install-starship.sh
@@ -111,8 +113,8 @@ chezmoi init --apply
 重新启动终端或运行以下命令来验证安装：
 
 ```bash
-# 验证 Oh My Zsh
-echo $ZSH_VERSION && ls $ZSH
+# 验证 Zim
+echo $ZSH_VERSION && ls $ZIM_HOME
 
 # 验证 Starship
 starship --version
@@ -138,16 +140,20 @@ fzf --version
 - `fgb`: 搜索 Git 分支并切换 (在 Git 仓库中)
 - `fgl`: 搜索 Git 提交历史 (在 Git 仓库中)
 
-### Oh My Zsh 插件
+### Zim 模块
 
-启用的插件根据环境自动配置：
+启用的模块根据环境自动配置：
 
-**桌面环境**:
-- git, docker, npm, fnm, python, pip, fzf
-- zsh-autosuggestions, zsh-syntax-highlighting
+**核心模块** (所有环境):
+- environment: 环境变量和路径管理
+- input: 输入配置和键绑定
+- utility: Git 别名和实用工具
+- completion: 智能补全系统
 
-**远程/服务器环境**:
-- git, fzf, zsh-autosuggestions, zsh-syntax-highlighting
+**可选模块** (根据特性标志):
+- fzf: 模糊搜索集成 (如果启用 fzf)
+- zsh-autosuggestions: 命令自动建议
+- zsh-syntax-highlighting: 语法高亮
 
 ### Starship 配置
 
@@ -158,19 +164,19 @@ Starship 提示符会根据环境显示不同信息：
 
 ## 自定义配置
 
-### 修改 Oh My Zsh 配置
+### 修改 Zim 配置
 
-编辑 `.chezmoitemplates/oh-my-zsh-config.sh`:
+编辑 `dot_zimrc.tmpl` 添加自定义模块:
 
 ```bash
-# 添加自定义插件
-plugins=(
-    git
-    your-custom-plugin  # 添加你的插件
-    zsh-autosuggestions
-    zsh-syntax-highlighting
-)
+# 添加自定义模块
+zmodule your-custom-module
+
+# 或者添加第三方模块
+zmodule sorin-ionescu/prezto --root modules/git --name git-prezto
 ```
+
+编辑 `.chezmoitemplates/core/zim-config.sh` 进行高级配置。
 
 ### 修改 Starship 配置
 
@@ -216,10 +222,10 @@ export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --height 60%"
 
 ### 常见问题
 
-1. **Oh My Zsh 安装失败**
+1. **Zim 安装失败**
    - 检查网络连接
-   - 确保 curl 和 git 已安装
-   - 手动运行: `sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"`
+   - 确保 curl 或 wget 已安装
+   - 手动运行: `curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh | zsh`
 
 2. **Starship 提示符不显示**
    - 确保 Starship 已安装: `starship --version`
@@ -235,8 +241,8 @@ export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --height 60%"
 
 如果 Shell 启动变慢，可以：
 
-1. 禁用不需要的 Oh My Zsh 插件
-2. 使用 Starship 替代 Oh My Zsh 主题
+1. 禁用不需要的 Zim 模块
+2. 使用 Starship 替代默认主题
 3. 在远程环境禁用重型功能
 
 ### 回滚到默认配置
@@ -245,7 +251,7 @@ export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --height 60%"
 
 ```toml
 [data.features]
-  enable_oh_my_zsh = false
+  enable_zim = false
   enable_starship = false
   enable_fzf = false
 ```
@@ -258,7 +264,7 @@ chezmoi apply
 
 ## 更多资源
 
-- [Oh My Zsh 官方文档](https://ohmyz.sh/)
+- [Zim 官方文档](https://zimfw.sh/)
 - [Starship 官方文档](https://starship.rs/)
 - [fzf GitHub 仓库](https://github.com/junegunn/fzf)
 - [Chezmoi 官方文档](https://www.chezmoi.io/)
