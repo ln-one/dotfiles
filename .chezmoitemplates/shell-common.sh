@@ -29,19 +29,23 @@ export PAGER="less"
 # 基础函数库
 {{ includeTemplate "core/basic-functions.sh" . }}
 
-# Shell 性能优化
-{{ includeTemplate "core/zsh-performance-tweaks.sh" . }}
+# Shell 特定配置 (仅在对应 shell 中加载)
+if [ -n "$ZSH_VERSION" ]; then
+    # Zsh 特定配置
+    # Shell 性能优化
+    {{ includeTemplate "core/zsh-performance-tweaks.sh" . }}
+    
+    # Oh My Zsh 配置
+    {{ includeTemplate "core/oh-my-zsh-config.sh" . }}
+fi
 
-# 提示符配置 (Starship)
+# 提示符配置 (Starship) - 支持多种 shell
 {{ includeTemplate "core/starship-config.sh" . }}
 
-# Oh My Zsh 配置
-{{ includeTemplate "core/oh-my-zsh-config.sh" . }}
-
-# 模糊搜索工具 (fzf)
+# 模糊搜索工具 (fzf) - 支持多种 shell
 {{ includeTemplate "core/fzf-config.sh" . }}
 
-# 智能目录跳转 (zoxide)
+# 智能目录跳转 (zoxide) - 支持多种 shell
 {{ includeTemplate "core/zoxide-config.sh" . }}
 
 # ========================================

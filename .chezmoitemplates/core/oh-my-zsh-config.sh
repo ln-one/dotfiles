@@ -2,11 +2,14 @@
 # Oh My Zsh 配置模板
 # ========================================
 # 现代化的 Oh My Zsh 配置，优化性能和功能
+# 仅在 zsh 中执行
 
 {{- if .features.enable_oh_my_zsh }}
 
-# Oh My Zsh 安装路径
-export ZSH="$HOME/.oh-my-zsh"
+# 确保只在 zsh 中执行 Oh My Zsh 配置
+if [ -n "$ZSH_VERSION" ]; then
+    # Oh My Zsh 安装路径
+    export ZSH="$HOME/.oh-my-zsh"
 
 # 主题配置
 {{- if .features.enable_starship }}
@@ -73,6 +76,8 @@ source $ZSH/oh-my-zsh.sh
 
 # 执行补全优化
 _optimize_completions
+
+fi  # 结束 zsh 检测
 
 {{- else }}
 # Oh My Zsh 功能已禁用
