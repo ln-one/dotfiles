@@ -1,0 +1,24 @@
+data:
+  chezmoi:
+    os: darwin
+    arch: amd64
+    hostname: test-mac
+    homeDir: /Users/testuser
+    targetFile: .zshrc
+  features:
+    enable_zoxide: true
+    enable_1password: true
+    enable_ai_tools: false
+    enable_proxy: false
+    enable_docker: true
+    enable_fzf: true
+    enable_starship: true
+    enable_oh_my_zsh: true
+    enable_node: false
+    enable_python: false
+  preferences:
+    editor: nvim
+    shell: zsh
+  paths:
+    config: /Users/testuser/.config
+  environment: desktop

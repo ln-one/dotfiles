@@ -6,16 +6,16 @@
 # zmodload zsh/zprof
 
 # 加载环境变量配置
-{{- template "environment.sh" . }}
+{{- template "core/environment.sh" . }}
 
 # 加载 Oh My Zsh 配置
-{{- template "oh-my-zsh-config.sh" . }}
+{{- template "core/oh-my-zsh-config.sh" . }}
 
 # 加载性能优化
-{{- template "zsh-performance-tweaks.sh" . }}
+{{- template "core/zsh-performance-tweaks.sh" . }}
 
 # 加载 Starship 提示符配置
-{{- template "starship-config.sh" . }}
+{{- template "core/starship-config.sh" . }}
 
 # 加载共享 Shell 配置 (包含所有功能模块)
 {{- template "shell-common.sh" . }}

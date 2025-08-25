@@ -15,7 +15,7 @@ esac
 # ========================================
 # 加载环境变量模块
 # ========================================
-{{ includeTemplate "environment.sh" . }}
+{{ includeTemplate "core/environment.sh" . }}
 
 # ========================================
 # Bash 特定配置
@@ -40,7 +40,7 @@ fi
 # ========================================
 
 # Starship 提示符配置 (如果启用且支持 Bash)
-{{ includeTemplate "starship-config.sh" . }}
+{{ includeTemplate "core/starship-config.sh" . }}
 
 # 如果没有启用 Starship，使用默认 Bash 提示符
 {{- if not .features.enable_starship }}

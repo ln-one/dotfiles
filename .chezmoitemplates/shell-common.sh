@@ -24,22 +24,26 @@ export PAGER="less"
 # ========================================
 
 # 加载核心别名模块
-{{ includeTemplate "aliases.sh" . }}
+{{ includeTemplate "core/aliases.sh" . }}
 
 # 加载基础函数模块
-{{ includeTemplate "basic-functions.sh" . }}
+{{ includeTemplate "core/basic-functions.sh" . }}
 
-# 加载代理管理模块 (仅 Linux 桌面)
-{{ includeTemplate "proxy-functions.sh" . }}
-
-# 加载主题管理模块 (仅 Linux 桌面)
-{{ includeTemplate "theme-functions.sh" . }}
+# 加载平台特定配置
+{{- if eq .chezmoi.os "linux" }}
+# Linux 平台特定功能
+{{ includeTemplate "platforms/linux/proxy-functions.sh" . }}
+{{ includeTemplate "platforms/linux/theme-functions.sh" . }}
+{{- else if eq .chezmoi.os "darwin" }}
+# macOS 平台特定功能
+{{ includeTemplate "platforms/darwin/macos-specific.sh" . }}
+{{- end }}
 
 # 加载 fzf 模糊搜索配置
-{{ includeTemplate "fzf-config.sh" . }}
+{{ includeTemplate "core/fzf-config.sh" . }}
 
 # 加载 zoxide 智能目录跳转配置
-{{ includeTemplate "zoxide-config.sh" . }}
+{{ includeTemplate "core/zoxide-config.sh" . }}
 
 # ========================================
 # Shell 配置完成
