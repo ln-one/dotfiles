@@ -1,0 +1,163 @@
+#!/bin/bash
+# ========================================
+# Evalcache 安装脚本
+# ========================================
+# 安装 evalcache 插件以加速 shell 启动
+# GitHub: https://github.com/mroth/evalcache
+
+{{- if .features.enable_evalcache }}
+
+set -euo pipefail
+
+# 颜色定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# 日志函数
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# 检查是否为 zsh
+if [[ -z "${ZSH_VERSION:-}" ]]; then
+    log_warning "evalcache 主要为 zsh 设计，当前 shell: $SHELL"
+fi
+
+# 安装目录
+EVALCACHE_DIR="$HOME/.evalcache"
+EVALCACHE_REPO="https://github.com/mroth/evalcache.git"
+
+log_info "开始安装 evalcache..."
+
+# 检查是否已安装
+if [[ -d "$EVALCACHE_DIR" ]]; then
+    log_info "evalcache 已存在，检查更新..."
+    
+    cd "$EVALCACHE_DIR"
+    
+    # 检查是否为 git 仓库
+    if [[ -d ".git" ]]; then
+        log_info "更新 evalcache..."
+        git fetch origin
+        
+        # 检查是否有更新
+        LOCAL=$(git rev-parse @)
+        REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "")
+        
+        if [[ -n "$REMOTE" ]] && [[ "$LOCAL" != "$REMOTE" ]]; then
+            log_info "发现更新，正在拉取最新版本..."
+            git pull origin main || git pull origin master
+            log_success "✅ evalcache 已更新到最新版本"
+        else
+            log_info "evalcache 已是最新版本"
+        fi
+    else
+        log_warning "evalcache 目录存在但不是 git 仓库，重新安装..."
+        rm -rf "$EVALCACHE_DIR"
+    fi
+fi
+
+# 全新安装
+if [[ ! -d "$EVALCACHE_DIR" ]]; then
+    log_info "克隆 evalcache 仓库..."
+    
+    if command -v git >/dev/null 2>&1; then
+        git clone "$EVALCACHE_REPO" "$EVALCACHE_DIR"
+        log_success "✅ evalcache 克隆完成"
+    else
+        log_error "❌ Git 未安装，无法克隆 evalcache"
+        exit 1
+    fi
+fi
+
+# 验证安装
+if [[ -f "$EVALCACHE_DIR/evalcache.plugin.zsh" ]]; then
+    log_success "✅ evalcache 插件文件存在"
+else
+    log_error "❌ evalcache 插件文件未找到"
+    exit 1
+fi
+
+# 创建缓存目录
+CACHE_DIR="$HOME/.cache/evalcache"
+if [[ ! -d "$CACHE_DIR" ]]; then
+    mkdir -p "$CACHE_DIR"
+    log_info "创建缓存目录: $CACHE_DIR"
+fi
+
+# 设置权限
+chmod +x "$EVALCACHE_DIR/evalcache.plugin.zsh" 2>/dev/null || true
+
+log_success "🎉 evalcache 安装完成！"
+
+# 显示使用说明
+echo ""
+log_info "📖 使用说明:"
+echo "  evalcache 将在下次启动 shell 时自动激活"
+echo "  使用 evalcache-status 查看缓存状态"
+echo "  使用 evalcache-clear 清理缓存"
+echo "  使用 evalcache-benchmark 测试性能提升"
+
+# 显示预期的性能提升
+echo ""
+log_info "🚀 预期性能提升:"
+echo "  • Starship 初始化: ~50-100ms → ~1-5ms"
+echo "  • pyenv/rbenv 初始化: ~100-200ms → ~1-5ms"  
+echo "  • fzf 初始化: ~20-50ms → ~1-5ms"
+echo "  • zoxide 初始化: ~10-30ms → ~1-5ms"
+echo "  • 总体 shell 启动时间可减少 200-500ms"
+
+# 检查当前 shell 配置
+echo ""
+log_info "🔧 配置检查:"
+
+# 检查 zsh 配置文件
+ZSH_CONFIG_FILES=("$HOME/.zshrc" "$HOME/.zshenv")
+for config_file in "${ZSH_CONFIG_FILES[@]}"; do
+    if [[ -f "$config_file" ]]; then
+        if grep -q "evalcache" "$config_file" 2>/dev/null; then
+            log_success "✅ $config_file 已包含 evalcache 配置"
+        else
+            log_info "ℹ️  $config_file 将通过 chezmoi 模板自动配置"
+        fi
+    fi
+done
+
+# 提供手动配置选项（如果需要）
+echo ""
+log_info "🛠️  手动配置 (可选):"
+echo "如果需要手动配置，在 ~/.zshrc 中添加:"
+echo ""
+echo "# 加载 evalcache"
+echo "source ~/.evalcache/evalcache.plugin.zsh"
+echo ""
+echo "# 使用 _evalcache 替代 eval"
+echo "_evalcache starship init zsh"
+echo "_evalcache zoxide init zsh"
+echo "# ... 其他工具"
+
+# 性能测试建议
+echo ""
+log_info "📊 性能测试建议:"
+echo "安装完成后，可以运行以下命令测试性能:"
+echo "  time zsh -i -c exit  # 测试启动时间"
+echo "  evalcache-benchmark  # 对比缓存前后的性能"
+
+{{- else }}
+echo "evalcache 功能已禁用，跳过安装"
+{{- end }}

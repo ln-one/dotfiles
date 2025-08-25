@@ -16,13 +16,20 @@ if command -v zoxide >/dev/null 2>&1; then
     eval "$(zoxide init zsh)"
     {{- else }}
     # 运行时检测 shell 类型
+    # 注意: evalcache 配置在 evalcache-config.sh 中处理
     if [ -n "$ZSH_VERSION" ]; then
-        eval "$(zoxide init zsh)"
+        if ! command -v _evalcache >/dev/null 2>&1; then
+            eval "$(zoxide init zsh)"
+        fi
     elif [ -n "$BASH_VERSION" ]; then
-        eval "$(zoxide init bash)"
+        if ! command -v _evalcache >/dev/null 2>&1; then
+            eval "$(zoxide init bash)"
+        fi
     else
         # 默认使用 POSIX 兼容模式
-        eval "$(zoxide init posix --cmd z)"
+        if ! command -v _evalcache >/dev/null 2>&1; then
+            eval "$(zoxide init posix --cmd z)"
+        fi
     fi
     {{- end }}
     

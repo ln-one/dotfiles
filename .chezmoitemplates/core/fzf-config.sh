@@ -11,10 +11,15 @@ if command -v fzf >/dev/null 2>&1; then
     # 检查 fzf 版本是否支持新的集成选项
     if fzf --help 2>/dev/null | grep -q -- '--zsh'; then
         # 使用新的 fzf 集成方式 (fzf 0.48.0+)
+        # 注意: evalcache 配置在 evalcache-config.sh 中处理
         if [ -n "$ZSH_VERSION" ]; then
-            eval "$(fzf --zsh)"
+            if ! command -v _evalcache >/dev/null 2>&1; then
+                eval "$(fzf --zsh)"
+            fi
         elif [ -n "$BASH_VERSION" ]; then
-            eval "$(fzf --bash)"
+            if ! command -v _evalcache >/dev/null 2>&1; then
+                eval "$(fzf --bash)"
+            fi
         fi
     else
         # 回退到传统的集成方式 (旧版本 fzf)

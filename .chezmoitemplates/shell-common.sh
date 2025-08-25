@@ -59,6 +59,9 @@ if [ -n "$ZSH_VERSION" ]; then
     {{ includeTemplate "core/aliases.sh" . }}
 fi
 
+# Evalcache 配置 - 缓存 eval 语句以加速启动 (优先加载)
+{{ includeTemplate "core/evalcache-config.sh" . }}
+
 # 提示符配置 (Starship) - 支持多种 shell
 {{ includeTemplate "core/starship-config.sh" . }}
 
