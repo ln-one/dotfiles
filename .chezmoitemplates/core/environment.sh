@@ -119,14 +119,11 @@ export HIST_STAMPS="yyyy-mm-dd"
 
 # Node.js 版本管理器配置
 {{- if .features.enable_node }}
-# fnm (Fast Node Manager) 环境配置
+# fnm (Fast Node Manager) 路径配置
+# 注意: fnm 的实际初始化在 evalcache-config.sh 中处理（支持 defer）
 export FNM_PATH="$USER_HOME/.local/share/fnm"
 if [[ -d "$FNM_PATH" ]]; then
     export PATH="$FNM_PATH:$PATH"
-    # 静默初始化 fnm，避免启动时的输出信息
-    if command -v fnm >/dev/null 2>&1; then
-        eval "$(fnm env --use-on-cd --log-level=quiet)" >/dev/null 2>&1
-    fi
 fi
 {{- end }}
 

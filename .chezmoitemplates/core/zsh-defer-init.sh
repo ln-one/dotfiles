@@ -10,11 +10,9 @@ if [[ -n "${ZSH_VERSION}" ]]; then
     if [[ -f "${ZIM_HOME}/modules/zsh-defer/zsh-defer.plugin.zsh" ]]; then
         source "${ZIM_HOME}/modules/zsh-defer/zsh-defer.plugin.zsh"
         
-        # 验证 zsh-defer 是否可用
-        if command -v zsh-defer >/dev/null 2>&1; then
-            echo "✅ zsh-defer initialized successfully"
-        else
-            echo "❌ zsh-defer failed to initialize"
+        # 验证 zsh-defer 是否可用 (静默检查)
+        if ! command -v zsh-defer >/dev/null 2>&1; then
+            echo "❌ zsh-defer failed to initialize" >&2
         fi
     else
         echo "⚠️  zsh-defer not found, please run 'zimfw install'"

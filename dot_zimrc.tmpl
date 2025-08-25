@@ -18,8 +18,8 @@ zmodule asciiship
 {{- end }}
 
 {{- if .features.enable_fzf }}
-# fzf 模糊搜索集成（需要 fzf 已安装）
-zmodule fzf
+# fzf 模糊搜索集成 - 由自定义配置管理，不使用 Zim 模块以支持 defer
+# 注意: fzf 初始化在 fzf-config.sh 中处理（支持 zsh-defer）
 {{- end }}
 
 # 补全系统配置

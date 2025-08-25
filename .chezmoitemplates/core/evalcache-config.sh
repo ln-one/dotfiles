@@ -107,9 +107,16 @@ if command -v _evalcache >/dev/null 2>&1; then
     # ========================================
     
     {{- if eq .chezmoi.os "linux" }}
-    # Linux Homebrew 环境设置 (通常很慢)
-    if [[ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
-        _evalcache /home/linuxbrew/.linuxbrew/bin/brew shellenv
+    # Linux Homebrew 环境设置 - 使用 zsh-defer 延迟加载
+    if command -v zsh-defer >/dev/null 2>&1; then
+        if [[ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
+            zsh-defer _evalcache /home/linuxbrew/.linuxbrew/bin/brew shellenv
+        fi
+    else
+        # 回退到原来的 evalcache 方式
+        if [[ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
+            _evalcache /home/linuxbrew/.linuxbrew/bin/brew shellenv
+        fi
     fi
     {{- end }}
     
@@ -149,9 +156,16 @@ if command -v _evalcache >/dev/null 2>&1; then
     # 其他开发工具 (按需缓存)
     # ========================================
     
-    # thefuck 命令纠错工具 (通常较慢，值得缓存)
-    if command -v thefuck >/dev/null 2>&1; then
-        _evalcache thefuck --alias
+    # thefuck 命令纠错工具 - 使用 zsh-defer 延迟加载
+    if command -v zsh-defer >/dev/null 2>&1; then
+        if command -v thefuck >/dev/null 2>&1; then
+            zsh-defer _evalcache thefuck --alias
+        fi
+    else
+        # 回退到原来的 evalcache 方式
+        if command -v thefuck >/dev/null 2>&1; then
+            _evalcache thefuck --alias
+        fi
     fi
     
     # ========================================
@@ -343,6 +357,13 @@ else
     if command -v thefuck >/dev/null 2>&1; then
         eval "$(thefuck --alias)"
     fi
+    
+    {{- if eq .chezmoi.os "linux" }}
+    # Linux Homebrew 环境设置回退
+    if [[ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    fi
+    {{- end }}
     
     if command -v gh >/dev/null 2>&1; then
         eval "$(gh completion -s zsh)"

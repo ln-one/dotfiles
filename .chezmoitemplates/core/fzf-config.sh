@@ -11,31 +11,46 @@ if command -v fzf >/dev/null 2>&1; then
     # 检查 fzf 版本是否支持新的集成选项
     if fzf --help 2>/dev/null | grep -q -- '--zsh'; then
         # 使用新的 fzf 集成方式 (fzf 0.48.0+)
-        # 注意: evalcache 配置在 evalcache-config.sh 中处理
+        # 使用 zsh-defer 延迟加载以加速启动
         if [ -n "$ZSH_VERSION" ]; then
-            if ! command -v _evalcache >/dev/null 2>&1; then
+            if command -v zsh-defer >/dev/null 2>&1; then
+                zsh-defer eval "$(fzf --zsh)"
+            else
                 eval "$(fzf --zsh)"
             fi
         elif [ -n "$BASH_VERSION" ]; then
-            if ! command -v _evalcache >/dev/null 2>&1; then
-                eval "$(fzf --bash)"
-            fi
+            # Bash 不支持 zsh-defer，直接加载
+            eval "$(fzf --bash)"
         fi
     else
         # 回退到传统的集成方式 (旧版本 fzf)
         {{- if eq .chezmoi.os "darwin" }}
-        # macOS Homebrew 路径
-        if [ -f $(brew --prefix 2>/dev/null)/opt/fzf/shell/completion.zsh ]; then
-            source $(brew --prefix)/opt/fzf/shell/completion.zsh
-        fi
-        if [ -f $(brew --prefix 2>/dev/null)/opt/fzf/shell/key-bindings.zsh ]; then
-            source $(brew --prefix)/opt/fzf/shell/key-bindings.zsh
+        # macOS Homebrew 路径 - 使用 zsh-defer 延迟加载
+        if command -v zsh-defer >/dev/null 2>&1; then
+            if [ -f $(brew --prefix 2>/dev/null)/opt/fzf/shell/completion.zsh ]; then
+                zsh-defer source $(brew --prefix)/opt/fzf/shell/completion.zsh
+            fi
+            if [ -f $(brew --prefix 2>/dev/null)/opt/fzf/shell/key-bindings.zsh ]; then
+                zsh-defer source $(brew --prefix)/opt/fzf/shell/key-bindings.zsh
+            fi
+        else
+            # 回退到直接加载
+            if [ -f $(brew --prefix 2>/dev/null)/opt/fzf/shell/completion.zsh ]; then
+                source $(brew --prefix)/opt/fzf/shell/completion.zsh
+            fi
+            if [ -f $(brew --prefix 2>/dev/null)/opt/fzf/shell/key-bindings.zsh ]; then
+                source $(brew --prefix)/opt/fzf/shell/key-bindings.zsh
+            fi
         fi
         {{- end }}
         
-        # Shell 特定的 fzf 集成
+        # Shell 特定的 fzf 集成 (传统方式)
         if [ -n "$ZSH_VERSION" ]; then
-            [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+            if command -v zsh-defer >/dev/null 2>&1; then
+                [ -f ~/.fzf.zsh ] && zsh-defer source ~/.fzf.zsh
+            else
+                [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+            fi
         elif [ -n "$BASH_VERSION" ]; then
             [ -f ~/.fzf.bash ] && source ~/.fzf.bash
         fi
@@ -221,6 +236,8 @@ fss() {
     sudo systemctl "$action" $(echo "$service" | awk '{print $1}')
 }
 {{- end }}
+
+
 
 {{- else }}
 # fzf 功能已禁用
