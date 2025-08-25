@@ -1,9 +1,9 @@
 # ===============================
 # Personal server Aliyun (1Password keys)
 # ===============================
-Host aliyun
-    HostName 47.93.254.172
-    User ln1
+Host aliyun  
+    HostName "{{ .secrets.aliyun_server_url }}"
+    User "{{ .secrets.aliyun_server_username }}"
     IdentityAgent ~/.1password/agent.sock
 
 # ===============================

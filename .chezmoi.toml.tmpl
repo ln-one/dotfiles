@@ -98,12 +98,13 @@
 # 1Password 集成配置
 [onepassword]
   prompt = false
+  cache = true
 
 # 统一的密钥读取 - 所有 1Password 调用都在这里
 [data.secrets]
   # Git 配置
-  git_user_email = "{{ onepasswordRead "op://Work/Git-Config/email" }}"
-  git_signing_key = "{{ onepasswordRead "op://Work/Git-Config/signing-key" }}"
+  git_user_email = "{{ onepasswordRead "op://Work/Git Signing Key/email" }}"
+  git_signing_key = "{{ onepasswordRead "op://Work/Git Signing Key/public key" }}"
   
   # API Keys
   openai_api_key = "{{ onepasswordRead "op://Work/OpenAI-API-Key/api-key" }}"
@@ -111,6 +112,10 @@
   # Google Cloud
   google_cloud_project = "{{ onepasswordRead "op://Work/Google Cloud/Project ID" }}"
   
+  # Aliyun Server 
+  aliyun_server_url = "{{ onepasswordRead "op://Work/Aliyun/URL" }}"
+  aliyun_server_username = "{{ onepasswordRead "op://Work/Aliyun/username" }}"
+
   # MySQL/MariaDB
   db_user = "{{ onepasswordRead "op://Work/Ali-MySQL/username" }}"
   db_pass = "{{ onepasswordRead "op://Work/Ali-MySQL/password" }}"
