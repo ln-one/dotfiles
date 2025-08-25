@@ -22,14 +22,16 @@ zmodule asciiship
 # 注意: fzf 初始化在 fzf-config.sh 中处理（支持 zsh-defer）
 {{- end }}
 
-# 补全系统配置
+# 补全系统配置 - 延迟加载以加速启动
+# 注意: 补全系统初始化在 shell-common.sh 中通过 zsh-defer 处理
 # zsh-users/zsh-completions 提供额外的补全定义
 zmodule zsh-users/zsh-completions --fpath src
-# completion 模块必须在 zsh-completions 之后加载
-zmodule completion
+# completion 模块延迟加载
+# zmodule completion
 
 # 以下模块必须最后加载以确保正确的功能
-# 语法高亮模块
-zmodule zsh-users/zsh-syntax-highlighting
-# 自动建议模块（必须在语法高亮之后）
+# 语法高亮模块 - 延迟加载以加速启动
+# 注意: 语法高亮初始化在 shell-common.sh 中通过 zsh-defer 处理
+# zmodule zsh-users/zsh-syntax-highlighting
+# 自动建议模块
 zmodule zsh-users/zsh-autosuggestions

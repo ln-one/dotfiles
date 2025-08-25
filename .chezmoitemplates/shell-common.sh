@@ -62,6 +62,39 @@ fi
 # 初始化 zsh-defer (仅在启用 Zim 时，必须在 evalcache 之前)
 {{- if .features.enable_zim }}
 {{ includeTemplate "core/zsh-defer-init.sh" . }}
+
+# 延迟加载语法高亮以加速启动
+if command -v zsh-defer >/dev/null 2>&1; then
+    # 手动安装和延迟加载 zsh-syntax-highlighting
+    if [[ ! -d "${ZIM_HOME}/modules/zsh-syntax-highlighting" ]]; then
+        # 如果模块不存在，先安装
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZIM_HOME}/modules/zsh-syntax-highlighting" 2>/dev/null || true
+    fi
+    
+    # 延迟加载语法高亮
+    if [[ -f "${ZIM_HOME}/modules/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+        zsh-defer source "${ZIM_HOME}/modules/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+    fi
+    
+    # 延迟加载补全系统
+    zsh-defer -c '
+        # 初始化补全系统
+        autoload -Uz compinit
+        
+        # 优化补全加载 - 每天只检查一次
+        local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+        if [[ $zcompdump(#qNmh+24) ]]; then
+            compinit -d "$zcompdump"
+        else
+            compinit -C -d "$zcompdump"
+        fi
+        
+        # 加载 Zim 补全模块
+        if [[ -f "${ZIM_HOME}/modules/completion/init.zsh" ]]; then
+            source "${ZIM_HOME}/modules/completion/init.zsh"
+        fi
+    '
+fi
 {{- end }}
 
 # Evalcache 配置 - 缓存 eval 语句以加速启动 (优先加载)
