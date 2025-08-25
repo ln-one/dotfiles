@@ -4,16 +4,10 @@
 # Minimal configuration for container environments (Docker, Podman, etc.)
 # Requirements: 3.3, 7.4 - Container environment with minimal config, optimized startup speed
 
-# Container Environment Detection and Validation
-if [[ "${CHEZMOI_DETECTED_ENV:-}" != "container" ]] && [[ -z "${FORCE_CONTAINER_CONFIG:-}" ]]; then
-    # Only load container config in actual container environments
-    if [[ ! -f "/.dockerenv" ]] && [[ ! -f "/run/.containerenv" ]] && [[ -z "${container:-}" ]]; then
-        echo "⚠️  Container configuration loaded in non-container environment. Use FORCE_CONTAINER_CONFIG=1 to override."
-        return 0
-    fi
-fi
-
-echo "🐳 Loading container environment configuration..."
+# ========================================
+# Container Environment Configuration (Static)
+# ========================================
+# 容器环境配置 - 由 chezmoi 静态编译，无运行时检测
 
 # ========================================
 # Container-Specific Environment Variables
@@ -387,14 +381,15 @@ validate_container_environment() {
 # Export Container Functions
 # ========================================
 
-export -f container_info
-export -f container_ps
-export -f container_network
-export -f find_file
-export -f container_env
-export -f container_health
-export -f optimize_container
-export -f validate_container_environment
+# Export container functions (with error handling)
+declare -f container_info >/dev/null 2>&1 && export -f container_info 2>/dev/null || true
+declare -f container_ps >/dev/null 2>&1 && export -f container_ps 2>/dev/null || true
+declare -f container_network >/dev/null 2>&1 && export -f container_network 2>/dev/null || true
+declare -f find_file >/dev/null 2>&1 && export -f find_file 2>/dev/null || true
+declare -f container_env >/dev/null 2>&1 && export -f container_env 2>/dev/null || true
+declare -f container_health >/dev/null 2>&1 && export -f container_health 2>/dev/null || true
+declare -f optimize_container >/dev/null 2>&1 && export -f optimize_container 2>/dev/null || true
+declare -f validate_container_environment >/dev/null 2>&1 && export -f validate_container_environment 2>/dev/null || true
 
 # ========================================
 # Container Environment Aliases
@@ -434,9 +429,4 @@ if [[ -f "/.dockerenv" ]] || [[ -f "/run/.containerenv" ]] || [[ -n "${container
     export HISTIGNORE="ls:ll:la:cd:pwd:exit:clear:history:h:p"
 fi
 
-# Container environment ready notification
-if [[ "${CHEZMOI_DEBUG:-}" == "true" ]]; then
-    echo "✅ Container environment configuration loaded successfully"
-    echo "   Minimal mode enabled - maximum startup speed optimization"
-    echo "   Available commands: info, cps, net, env, health, optimize, validate-container"
-fi
+# Container environment configuration loaded

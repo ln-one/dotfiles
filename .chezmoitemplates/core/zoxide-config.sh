@@ -31,9 +31,9 @@ if command -v zoxide >/dev/null 2>&1; then
     
     # 有用的 zoxide 函数
     # 快速跳转到项目目录
-    proj() {
+    zproj() {
         if [ -z "$1" ]; then
-            echo "用法: proj <项目名>"
+            echo "用法: zproj <项目名>"
             echo "可用项目:"
             zoxide query --list | grep -E "(project|proj|work|code|dev)" | head -10
             return 1

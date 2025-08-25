@@ -61,12 +61,12 @@
   - _Requirements: 3.4_
 
 - [ ] 6. 重构 shell-common.sh 为分层加载器
-- [ ] 6.1 实现配置分层加载逻辑
+- [x] 6.1 实现配置分层加载逻辑
   - 重写 `shell-common.sh` 为分层配置加载器
   - 按照 核心→平台→环境→用户 的顺序加载配置
   - _Requirements: 6.1, 6.2_
 
-- [ ] 6.2 更新 includeTemplate 路径引用
+- [x] 6.2 更新 includeTemplate 路径引用
   - 更新所有 `includeTemplate` 调用的路径
   - 确保路径指向新的分层目录结构
   - _Requirements: 6.3_

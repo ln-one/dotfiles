@@ -4,16 +4,10 @@
 # Complete desktop environment setup with full GUI tools and development features
 # Requirements: 3.1 - Desktop environment with complete development tools and GUI functionality
 
-# Desktop Environment Detection and Validation
-if [[ "${CHEZMOI_DETECTED_ENV:-}" != "desktop" ]] && [[ -z "${FORCE_DESKTOP_CONFIG:-}" ]]; then
-    # Only load desktop config in actual desktop environments
-    if [[ -z "${DISPLAY:-}" ]] && [[ -z "${WAYLAND_DISPLAY:-}" ]] && [[ "$(uname -s)" != "Darwin" ]]; then
-        echo "⚠️  Desktop configuration loaded in non-desktop environment. Use FORCE_DESKTOP_CONFIG=1 to override."
-        return 0
-    fi
-fi
-
-echo "🖥️  Loading desktop environment configuration..."
+# ========================================
+# Desktop Environment Configuration (Static)
+# ========================================
+# 桌面环境配置 - 由 chezmoi 静态编译，无运行时检测
 
 # ========================================
 # Desktop-Specific Environment Variables
@@ -75,12 +69,7 @@ if [[ -d "/Applications/Docker.app" ]]; then
 fi
 {{- else if eq .chezmoi.os "linux" }}
 # Linux Docker configuration
-if command -v docker >/dev/null 2>&1; then
-    # Add user to docker group if not already
-    if ! groups | grep -q docker 2>/dev/null; then
-        echo "ℹ️  Consider adding user to docker group: sudo usermod -aG docker $USER"
-    fi
-fi
+# Note: Add user to docker group if needed: sudo usermod -aG docker $USER
 {{- end }}
 
 # ========================================
@@ -435,14 +424,14 @@ validate_desktop_environment() {
     {{- end }}
 }
 
-# Export desktop functions
-export -f open_project
-export -f create_workspace
-export -f send_notification
-export -f serve
-export -f validate_desktop_environment
+# Export desktop functions (with error handling)
+declare -f open_project >/dev/null 2>&1 && export -f open_project 2>/dev/null || true
+declare -f create_workspace >/dev/null 2>&1 && export -f create_workspace 2>/dev/null || true
+declare -f send_notification >/dev/null 2>&1 && export -f send_notification 2>/dev/null || true
+declare -f serve >/dev/null 2>&1 && export -f serve 2>/dev/null || true
+declare -f validate_desktop_environment >/dev/null 2>&1 && export -f validate_desktop_environment 2>/dev/null || true
 {{- if eq .chezmoi.os "linux" }}
-export -f launch_app
+declare -f launch_app >/dev/null 2>&1 && export -f launch_app 2>/dev/null || true
 {{- end }}
 
 # ========================================
@@ -450,13 +439,8 @@ export -f launch_app
 # ========================================
 
 # Set up desktop-specific aliases and functions
-alias proj='open_project'
 alias workspace='create_workspace'
 alias notify='send_notification'
 alias validate-desktop='validate_desktop_environment'
 
-# Desktop environment ready notification
-if [[ "${CHEZMOI_DEBUG:-}" == "true" ]]; then
-    echo "✅ Desktop environment configuration loaded successfully"
-    echo "   Available commands: proj, workspace, serve, notify, validate-desktop"
-fi
+# Desktop environment configuration loaded

@@ -31,14 +31,14 @@ source ~/.zshrc
 
 ## 🧩 四层分层配置架构
 
-本项目采用智能的四层配置架构，实现环境自适应和配置分离：
+本项目采用智能的四层配置架构，通过 chezmoi 模板系统实现环境自适应和配置分离：
 
 ### 配置加载顺序 (优先级从低到高)
 ```
-1. 核心配置层 (Core Layer)     - 所有环境通用的基础功能
-2. 平台配置层 (Platform Layer) - Linux/macOS 特定配置
+1. 核心配置层 (Core Layer)        - 所有环境通用的基础功能
+2. 平台配置层 (Platform Layer)    - Linux/macOS 特定配置  
 3. 环境配置层 (Environment Layer) - 桌面/远程/容器/WSL 特定配置
-4. 用户配置层 (User Layer)     - 个人定制和本地覆盖
+4. 用户配置层 (User Layer)        - 个人定制和本地覆盖
 ```
 
 ### 文件结构
@@ -46,7 +46,6 @@ source ~/.zshrc
 .chezmoitemplates/
 ├── core/                    # 🔧 核心配置层 (跨平台通用)
 │   ├── environment.sh       # 环境变量管理 (路径、SSH、语言配置)
-│   ├── environment-detection.sh # 智能环境检测 (容器/WSL/SSH/桌面)
 │   ├── aliases.sh          # 核心别名 (ls/ll/la + 导航)
 │   ├── basic-functions.sh   # 基础函数 (mkcd, sysinfo)
 │   ├── fzf-config.sh       # FZF 模糊搜索配置
@@ -65,19 +64,21 @@ source ~/.zshrc
 │   ├── remote.sh           # 远程环境 - 轻量化配置
 │   ├── container.sh        # 容器环境 - 最小化配置
 │   └── wsl.sh              # WSL 环境 - 混合优化配置
-├── local/                   # 👤 用户配置层 (个人定制，待实现)
+├── local/                   # 👤 用户配置层 (个人定制，可选)
 │   ├── user-overrides.sh   # 用户个人配置覆盖
 │   └── local-config.sh     # 本地环境特定配置
 └── shell-common.sh         # 🔄 分层配置加载器
 ```
 
-### 智能环境检测
-系统会自动检测运行环境并加载相应配置：
+### 环境配置选择
+通过 chezmoi 模板变量 `.environment` 静态确定环境配置：
 
-- **🖥️ 桌面环境** (`desktop`): 检测到 GUI 环境时，加载完整的开发工具和图形界面相关配置
-- **🌐 远程环境** (`remote`): 检测到 SSH 连接时，加载轻量化配置，跳过 GUI 工具
-- **📦 容器环境** (`container`): 检测到容器环境时，加载最小化配置，优化启动速度
-- **🪟 WSL 环境** (`wsl`): 检测到 WSL 时，加载 Windows 集成优化配置
+- **🖥️ 桌面环境** (`desktop`): 完整的开发工具和图形界面相关配置 (默认)
+- **🌐 远程环境** (`remote`): 轻量化配置，跳过 GUI 工具，优化 SSH 使用
+- **📦 容器环境** (`container`): 最小化配置，优化启动速度和资源使用
+- **🪟 WSL 环境** (`wsl`): Windows 集成优化配置，支持跨系统操作
+
+可通过 `.chezmoi.toml.tmpl` 配置文件设置环境类型，或使用环境变量覆盖。
 
 ### 分层架构优势
 
@@ -253,18 +254,19 @@ fh           # 搜索历史命令
 
 ✅ **分层配置架构重构 (Phase 4)**:
 - [x] 实现四层分层配置架构 (core/platforms/environments/local)
-- [x] 智能环境检测系统 (容器/WSL/SSH/桌面自动识别)
+- [x] 使用 chezmoi 模板系统处理环境选择，移除复杂的运行时检测
 - [x] 平台特定配置分离 (Linux 代理/主题管理，macOS 系统管理)
 - [x] 环境特定配置实现 (桌面/远程/容器/WSL 差异化配置)
+- [x] 分层配置加载器重构 (shell-common.sh)
 - [x] 文件结构重新组织和清理
 - [x] 配置文档更新和完善
 
-🚧 **进行中**:
-- [ ] 分层配置加载器重构 (shell-common.sh)
-- [ ] 用户本地配置层实现
+🚧 **待实现**:
+- [ ] 用户本地配置层实现 (local/ 目录)
 - [ ] 配置验证和诊断工具
+- [ ] 环境变量配置优化
 
-🎯 **项目状态**: 分层架构基础完成，核心功能稳定，正在完善高级特性
+🎯 **项目状态**: 分层架构完成，核心功能稳定，配置系统现代化
 
 ## 🧪 跨平台测试
 

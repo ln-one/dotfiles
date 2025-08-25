@@ -4,16 +4,10 @@
 # Lightweight configuration for SSH remote environments and VPS
 # Requirements: 3.2, 7.1, 7.2 - Remote environment with lightweight config, skip GUI and heavy tools
 
-# Remote Environment Detection and Validation
-if [[ "${CHEZMOI_DETECTED_ENV:-}" != "remote" ]] && [[ -z "${FORCE_REMOTE_CONFIG:-}" ]]; then
-    # Only load remote config in actual remote environments
-    if [[ -z "${SSH_CONNECTION:-}${SSH_CLIENT:-}${SSH_TTY:-}" ]]; then
-        echo "⚠️  Remote configuration loaded in non-remote environment. Use FORCE_REMOTE_CONFIG=1 to override."
-        return 0
-    fi
-fi
-
-echo "🌐 Loading remote environment configuration..."
+# ========================================
+# Remote Environment Configuration (Static)
+# ========================================
+# 远程环境配置 - 由 chezmoi 静态编译，无运行时检测
 
 # ========================================
 # Remote-Specific Environment Variables
@@ -411,16 +405,17 @@ validate_remote_environment() {
 # Export Remote Functions
 # ========================================
 
-export -f search
-export -f grep_files
-export -f sysinfo
-export -f netcheck
-export -f processes
-export -f serve_simple
-export -f upload
-export -f session_info
-export -f tmux_quick
-export -f validate_remote_environment
+# Export remote functions (with error handling)
+declare -f search >/dev/null 2>&1 && export -f search 2>/dev/null || true
+declare -f grep_files >/dev/null 2>&1 && export -f grep_files 2>/dev/null || true
+declare -f sysinfo >/dev/null 2>&1 && export -f sysinfo 2>/dev/null || true
+declare -f netcheck >/dev/null 2>&1 && export -f netcheck 2>/dev/null || true
+declare -f processes >/dev/null 2>&1 && export -f processes 2>/dev/null || true
+declare -f serve_simple >/dev/null 2>&1 && export -f serve_simple 2>/dev/null || true
+declare -f upload >/dev/null 2>&1 && export -f upload 2>/dev/null || true
+declare -f session_info >/dev/null 2>&1 && export -f session_info 2>/dev/null || true
+declare -f tmux_quick >/dev/null 2>&1 && export -f tmux_quick 2>/dev/null || true
+declare -f validate_remote_environment >/dev/null 2>&1 && export -f validate_remote_environment 2>/dev/null || true
 
 # ========================================
 # Remote Environment Aliases
@@ -464,9 +459,4 @@ if [[ -n "${SSH_CONNECTION:-}" ]]; then
     export HISTIGNORE="ls:ll:la:cd:pwd:exit:clear:history"
 fi
 
-# Remote environment ready notification
-if [[ "${CHEZMOI_DEBUG:-}" == "true" ]]; then
-    echo "✅ Remote environment configuration loaded successfully"
-    echo "   Lightweight mode enabled - GUI functions disabled"
-    echo "   Available commands: info, net, proc, sess, serve, validate-remote"
-fi
+# Remote environment configuration loaded

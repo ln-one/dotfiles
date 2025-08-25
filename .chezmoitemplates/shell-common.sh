@@ -1,35 +1,55 @@
 # ========================================
-# 共享 Shell 配置模板 (模块化设计)
+# Chezmoi 分层配置加载器 (Layered Configuration Loader)
 # ========================================
-# 这个文件作为模块加载器，按需加载各个功能模块
-# 由 Chezmoi 模板系统管理
+# 实现四层配置架构：核心→平台→环境→用户
+# 在 chezmoi apply 时静态确定配置，无运行时检测
+# Requirements: 6.1, 6.2
 
-{{/* 注意：环境变量现在由 environment.sh 模板统一管理 */}}
-# ========================================
-# 颜色支持配置
-# ========================================
+# 基础颜色和分页器配置
 export CLICOLOR=1
 {{- if eq .chezmoi.os "linux" }}
 export LS_COLORS='di=34:ln=35:so=32:pi=33:ex=31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
 {{- else if eq .chezmoi.os "darwin" }}
 export LSCOLORS=ExFxCxDxBxegedabagacad
 {{- end }}
-
-# 分页器配置
 export PAGER="less"
 
-{{/* 模块化加载各个功能 */}}
 # ========================================
-# 模块化功能加载
+# 第1层：核心配置层 (Core Layer)
 # ========================================
+# 所有环境通用的基础功能
+# 优先级：最低 (被后续层覆盖)
 
-# 加载核心别名模块
+# 核心环境变量和基础配置
+{{ includeTemplate "core/environment.sh" . }}
+
+# 通用别名定义
 {{ includeTemplate "core/aliases.sh" . }}
 
-# 加载基础函数模块
+# 基础函数库
 {{ includeTemplate "core/basic-functions.sh" . }}
 
-# 加载平台特定配置
+# Shell 性能优化
+{{ includeTemplate "core/zsh-performance-tweaks.sh" . }}
+
+# 提示符配置 (Starship)
+{{ includeTemplate "core/starship-config.sh" . }}
+
+# Oh My Zsh 配置
+{{ includeTemplate "core/oh-my-zsh-config.sh" . }}
+
+# 模糊搜索工具 (fzf)
+{{ includeTemplate "core/fzf-config.sh" . }}
+
+# 智能目录跳转 (zoxide)
+{{ includeTemplate "core/zoxide-config.sh" . }}
+
+# ========================================
+# 第2层：平台配置层 (Platform Layer)
+# ========================================
+# 操作系统特定的配置和工具
+# 优先级：中等 (覆盖核心配置)
+
 {{- if eq .chezmoi.os "linux" }}
 # Linux 平台特定功能
 {{ includeTemplate "platforms/linux/proxy-functions.sh" . }}
@@ -39,13 +59,59 @@ export PAGER="less"
 {{ includeTemplate "platforms/darwin/macos-specific.sh" . }}
 {{- end }}
 
-# 加载 fzf 模糊搜索配置
-{{ includeTemplate "core/fzf-config.sh" . }}
+# ========================================
+# 第3层：环境配置层 (Environment Layer)
+# ========================================
+# 运行环境特定的配置，由 chezmoi 模板变量静态确定
+# 优先级：较高 (覆盖平台配置)
 
-# 加载 zoxide 智能目录跳转配置
-{{ includeTemplate "core/zoxide-config.sh" . }}
+{{- if eq .environment "desktop" }}
+# 桌面环境：完整功能配置
+{{ includeTemplate "environments/desktop.sh" . }}
+{{- else if eq .environment "remote" }}
+# 远程环境：轻量化配置
+{{ includeTemplate "environments/remote.sh" . }}
+{{- else if eq .environment "container" }}
+# 容器环境：最小化配置
+{{ includeTemplate "environments/container.sh" . }}
+{{- else if eq .environment "wsl" }}
+# WSL环境：混合优化配置
+{{ includeTemplate "environments/wsl.sh" . }}
+{{- else }}
+# 默认环境：桌面配置
+{{ includeTemplate "environments/desktop.sh" . }}
+{{- end }}
 
 # ========================================
-# Shell 配置完成
+# 第4层：用户配置层 (User Layer)
 # ========================================
-# 所有功能模块已通过 includeTemplate 加载
+# 用户个人配置覆盖
+# 优先级：最高 (覆盖所有其他配置)
+
+# 加载用户本地配置覆盖 (如果存在)
+{{- if stat (joinPath .chezmoi.sourceDir ".chezmoitemplates/local/user-overrides.sh") }}
+{{ includeTemplate "local/user-overrides.sh" . }}
+{{- end }}
+
+# 加载用户本地环境配置 (如果存在)
+{{- if stat (joinPath .chezmoi.sourceDir ".chezmoitemplates/local/local-config.sh") }}
+{{ includeTemplate "local/local-config.sh" . }}
+{{- end }}
+
+# 加载外部用户配置文件 (如果存在)
+if [[ -f "$HOME/.chezmoi.local.sh" ]]; then
+    source "$HOME/.chezmoi.local.sh"
+fi
+
+# ========================================
+# 配置加载完成
+# ========================================
+# 分层配置系统加载完成 (静态编译)
+# 加载顺序：核心→平台→环境→用户
+# 优先级：用户配置 > 环境配置 > 平台配置 > 核心配置
+
+# 导出配置信息
+export CHEZMOI_CONFIG_LOADED="true"
+export CHEZMOI_CONFIG_LAYERS="core,platform,environment,user"
+export CHEZMOI_PLATFORM="{{ .chezmoi.os }}"
+export CHEZMOI_ENVIRONMENT="{{ .environment | default "desktop" }}"

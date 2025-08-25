@@ -5,20 +5,9 @@
 # 性能监控 (开发时使用)
 # zmodload zsh/zprof
 
-# 加载环境变量配置
-{{- template "core/environment.sh" . }}
-
-# 加载 Oh My Zsh 配置
-{{- template "core/oh-my-zsh-config.sh" . }}
-
-# 加载性能优化
-{{- template "core/zsh-performance-tweaks.sh" . }}
-
-# 加载 Starship 提示符配置
-{{- template "core/starship-config.sh" . }}
-
 # 加载共享 Shell 配置 (包含所有功能模块)
-{{- template "shell-common.sh" . }}
+# 分层配置系统会自动加载：核心→平台→环境→用户
+{{ includeTemplate "shell-common.sh" . }}
 
 # 性能监控结果 (开发时使用)
 # zprof

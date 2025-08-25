@@ -4,16 +4,10 @@
 # Hybrid configuration optimized for Windows Subsystem for Linux
 # Requirements: 3.4 - WSL environment with Windows integration and hybrid configuration
 
-# WSL Environment Detection and Validation
-if [[ "${CHEZMOI_DETECTED_ENV:-}" != "wsl" ]] && [[ -z "${FORCE_WSL_CONFIG:-}" ]]; then
-    # Only load WSL config in actual WSL environments
-    if [[ -z "${WSL_DISTRO_NAME:-}" ]] && ! grep -qi "microsoft\|wsl" /proc/version 2>/dev/null; then
-        echo "⚠️  WSL configuration loaded in non-WSL environment. Use FORCE_WSL_CONFIG=1 to override."
-        return 0
-    fi
-fi
-
-echo "🪟 Loading WSL environment configuration..."
+# ========================================
+# WSL Environment Configuration (Static)
+# ========================================
+# WSL环境配置 - 由 chezmoi 静态编译，无运行时检测
 
 # ========================================
 # WSL-Specific Environment Variables
@@ -506,20 +500,21 @@ validate_wsl_environment() {
 # Export WSL Functions
 # ========================================
 
-export -f open
-export -f wslpath_convert
-export -f wsl_info
-export -f windows_service
-export -f serve_wsl
-export -f setup_git_wsl
-export -f setup_docker_wsl
-export -f optimize_wsl
-export -f launch_gui
-export -f validate_wsl_environment
+# Export WSL functions (with error handling)
+declare -f open >/dev/null 2>&1 && export -f open 2>/dev/null || true
+declare -f wslpath_convert >/dev/null 2>&1 && export -f wslpath_convert 2>/dev/null || true
+declare -f wsl_info >/dev/null 2>&1 && export -f wsl_info 2>/dev/null || true
+declare -f windows_service >/dev/null 2>&1 && export -f windows_service 2>/dev/null || true
+declare -f serve_wsl >/dev/null 2>&1 && export -f serve_wsl 2>/dev/null || true
+declare -f setup_git_wsl >/dev/null 2>&1 && export -f setup_git_wsl 2>/dev/null || true
+declare -f setup_docker_wsl >/dev/null 2>&1 && export -f setup_docker_wsl 2>/dev/null || true
+declare -f optimize_wsl >/dev/null 2>&1 && export -f optimize_wsl 2>/dev/null || true
+declare -f launch_gui >/dev/null 2>&1 && export -f launch_gui 2>/dev/null || true
+declare -f validate_wsl_environment >/dev/null 2>&1 && export -f validate_wsl_environment 2>/dev/null || true
 {{- if eq .chezmoi.os "linux" }}
-export -f proxyon_wsl
-export -f proxyoff_wsl
-export -f proxystatus_wsl
+declare -f proxyon_wsl >/dev/null 2>&1 && export -f proxyon_wsl 2>/dev/null || true
+declare -f proxyoff_wsl >/dev/null 2>&1 && export -f proxyoff_wsl 2>/dev/null || true
+declare -f proxystatus_wsl >/dev/null 2>&1 && export -f proxystatus_wsl 2>/dev/null || true
 {{- end }}
 
 # ========================================
@@ -555,10 +550,4 @@ if [[ -n "${WSL_DISTRO_NAME:-}" ]] || grep -qi "microsoft\|wsl" /proc/version 2>
     export PS1_WSL_INDICATOR="[WSL] "
 fi
 
-# WSL environment ready notification
-if [[ "${CHEZMOI_DEBUG:-}" == "true" ]]; then
-    echo "✅ WSL environment configuration loaded successfully"
-    echo "   Hybrid mode enabled - Windows integration active"
-    echo "   Available commands: info, open, winpath, serve, gui, validate-wsl"
-    echo "   Windows shortcuts: win, desktop, downloads, documents"
-fi
+# WSL environment configuration loaded
