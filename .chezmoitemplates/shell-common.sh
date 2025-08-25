@@ -37,6 +37,9 @@ if [ -n "$ZSH_VERSION" ]; then
     
     # Oh My Zsh 配置
     {{ includeTemplate "core/oh-my-zsh-config.sh" . }}
+    
+    # 重新加载别名 (覆盖 Oh My Zsh 的默认设置)
+    {{ includeTemplate "core/aliases.sh" . }}
 fi
 
 # 提示符配置 (Starship) - 支持多种 shell
