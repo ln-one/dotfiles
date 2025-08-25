@@ -40,18 +40,71 @@ exec zsh  # 重启 shell 生效
 - **kubectl** - Kubernetes CLI 补全
 - **docker** - Docker CLI 补全
 
-## 性能提升
+## 性能优化策略
 
-预期的启动时间改善：
+### 缓存策略分类
 
-| 工具 | 原始时间 | 缓存后时间 | 提升 |
-|------|----------|------------|------|
-| Starship | 50-100ms | 1-5ms | 90%+ |
-| pyenv/rbenv | 100-200ms | 1-5ms | 95%+ |
-| fzf | 20-50ms | 1-5ms | 80%+ |
-| zoxide | 10-30ms | 1-5ms | 70%+ |
+配置采用智能缓存策略，根据工具的实际性能特点决定是否使用缓存：
 
-**总体提升**: shell 启动时间可减少 200-500ms
+#### 高优先级缓存（真正慢的工具）
+| 工具 | 原始时间 | 缓存后时间 | 提升 | 状态 |
+|------|----------|------------|------|------|
+| Starship | 50-100ms | 1-5ms | 90%+ | ✅ 缓存 |
+| pyenv/rbenv | 100-200ms | 1-5ms | 95%+ | ✅ 缓存 |
+| Homebrew | 50-150ms | 1-5ms | 90%+ | ✅ 缓存 |
+| Conda | 200-500ms | 1-5ms | 98%+ | ✅ 缓存 |
+
+#### 直接执行（快速工具）
+| 工具 | 原始时间 | 缓存开销 | 决策 | 状态 |
+|------|----------|----------|------|------|
+| fzf | 5-15ms | 3-8ms | 缓存无益 | ❌ 直接 eval |
+| zoxide | 3-10ms | 3-8ms | 缓存无益 | ❌ 直接 eval |
+| direnv | 5-20ms | 3-8ms | 缓存无益 | ❌ 直接 eval |
+
+#### 特殊处理
+- **fnm**: 性能优化版本，禁用自动切换钩子以减少启动时间
+- **mise**: 仅在确实很慢时才缓存
+
+### fnm 性能优化详解
+
+fnm 的 `--use-on-cd` 选项会创建 `_fnm_autoload_hook` 函数，在性能分析中占用 13.60% 的启动时间。
+
+#### 优化策略
+```bash
+# ❌ 原始配置（慢）
+eval "$(fnm env --use-on-cd)"  # 创建自动切换钩子
+
+# ✅ 优化配置（快）
+eval "$(fnm env)"              # 轻量级初始化
+export PATH="$HOME/.fnm:$PATH"
+```
+
+#### 功能权衡
+| 配置 | 启动时间 | 自动切换 | 使用方式 |
+|------|----------|----------|----------|
+| `--use-on-cd` | +13.60% | ✅ | `cd project` 自动切换 |
+| 优化版本 | +1-2% | ❌ | `fnm use` 手动切换 |
+
+#### 恢复自动切换
+如果需要自动切换功能，在配置中取消注释：
+```bash
+# eval "$(fnm env --use-on-cd)"
+```
+
+### 性能问题诊断
+
+如果 evalcache 本身成为性能瓶颈，使用内置诊断工具：
+
+```bash
+# 诊断性能问题
+evalcache-diagnose
+
+# 清理所有缓存重新开始
+evalcache-clear
+
+# 查看缓存状态
+evalcache-status
+```
 
 ## 管理命令
 
@@ -65,6 +118,16 @@ evalcache-status
 - 缓存文件数量
 - 缓存目录大小
 - 已缓存的工具列表
+
+### 性能诊断
+```bash
+evalcache-diagnose
+```
+
+诊断性能问题：
+- 检查缓存文件大小
+- 识别异常缓存文件
+- 提供优化建议
 
 ### 清理所有缓存
 ```bash
@@ -82,9 +145,24 @@ evalcache-refresh pyenv
 删除指定工具的缓存，强制重新生成。
 
 ### 性能测试
+
+#### 手动性能测试
 ```bash
-# 手动测试启动时间
+# 测试当前启动时间
 time zsh -i -c exit
+
+# 对比缓存效果
+ZSH_EVALCACHE_DISABLE=1 time zsh -i -c exit  # 禁用缓存
+time zsh -i -c exit                           # 启用缓存
+```
+
+#### zsh 性能分析
+```bash
+# 在 .zshrc 开头添加
+zmodload zsh/zprof
+
+# 在 .zshrc 结尾添加
+zprof
 ```
 
 ## 工作原理
@@ -99,6 +177,54 @@ time zsh -i -c exit
 - **插件目录**: `~/.evalcache/`
 
 ## 故障排除
+
+### evalcache 性能问题
+如果 evalcache 本身成为性能瓶颈（占用 >50% 启动时间）：
+
+```bash
+# 1. 运行诊断工具
+evalcache-diagnose
+
+# 2. 手动清理缓存
+evalcache-clear
+
+# 3. 测试启动时间
+time zsh -i -c exit
+
+# 4. 检查大缓存文件
+find ~/.zsh-evalcache -size +1k -ls
+```
+
+### 常见性能问题
+
+#### 问题：_evalcache 函数调用次数过多
+**症状**: zsh 性能分析显示 `_evalcache` 占用大量时间
+**原因**: 缓存了太多快速工具，缓存开销超过收益
+**解决**: 
+- 只缓存真正慢的工具（>50ms）
+- 快速工具直接使用 `eval`
+
+#### 问题：缓存文件过大或损坏
+**症状**: 启动时间反而变慢
+**解决**:
+```bash
+# 检查大缓存文件
+find ~/.zsh-evalcache -size +1k -ls
+
+# 清理并重新生成
+evalcache-clear
+```
+
+#### 问题：特定工具缓存有问题
+**症状**: 某个工具初始化异常
+**解决**:
+```bash
+# 刷新特定工具缓存
+evalcache-refresh starship
+
+# 或改为直接 eval
+# 在配置中将 _evalcache 改为 eval
+```
 
 ### 工具行为异常
 如果某个工具的行为不正常，可能是缓存过期：
@@ -124,7 +250,7 @@ evalcache-refresh starship
 
 1. **临时禁用**: 设置环境变量
    ```bash
-   export EVALCACHE_DISABLE=1
+   export ZSH_EVALCACHE_DISABLE=1
    ```
 
 2. **永久禁用**: 在 chezmoi 配置中设置
@@ -133,12 +259,26 @@ evalcache-refresh starship
    enable_evalcache = false
    ```
 
+### 性能基准测试
+```bash
+# 测试当前启动时间
+time zsh -i -c exit
+
+# 使用 zsh 内置性能分析
+zmodload zsh/zprof
+# 在 .zshrc 开头添加，结尾添加 zprof
+
+# 比较缓存前后性能
+ZSH_EVALCACHE_DISABLE=1 time zsh -i -c exit  # 禁用缓存
+time zsh -i -c exit                           # 启用缓存
+```
+
 ### 查看缓存过程
 首次启动时会看到缓存信息：
 
 ```bash
 evalcache: starship initialization not cached, caching output of: starship init zsh
-evalcache: zoxide initialization not cached, caching output of: zoxide init zsh
+evalcache: pyenv initialization not cached, caching output of: pyenv init -
 ```
 
 ## 最佳实践

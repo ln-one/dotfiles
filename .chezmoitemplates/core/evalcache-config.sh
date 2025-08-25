@@ -15,37 +15,22 @@ fi
 # 检查 evalcache 是否可用
 if command -v _evalcache >/dev/null 2>&1; then
     
-    # 配置 evalcache 设置
-    export EVALCACHE_DIR="${EVALCACHE_DIR:-$HOME/.cache/evalcache}"
+    # 配置 evalcache 设置 (使用 evalcache 的标准环境变量)
+    export ZSH_EVALCACHE_DIR="${ZSH_EVALCACHE_DIR:-$HOME/.zsh-evalcache}"
     
     # 确保缓存目录存在
-    [[ ! -d "$EVALCACHE_DIR" ]] && mkdir -p "$EVALCACHE_DIR"
+    [[ ! -d "$ZSH_EVALCACHE_DIR" ]] && mkdir -p "$ZSH_EVALCACHE_DIR"
     
     # ========================================
-    # 缓存工具初始化
+    # 高优先级工具缓存 (最大收益)
     # ========================================
     
-    # Starship 提示符初始化 (高优先级缓存)
+    # 只缓存真正慢的工具，避免过度缓存
+    
+    # Starship 提示符初始化 (通常最慢，优先缓存)
     {{- if .features.enable_starship }}
     if command -v starship >/dev/null 2>&1; then
         _evalcache starship init zsh
-    fi
-    {{- end }}
-    
-    # fzf 模糊搜索初始化
-    {{- if .features.enable_fzf }}
-    if command -v fzf >/dev/null 2>&1; then
-        # 检查是否支持新的 --zsh 选项
-        if fzf --help 2>/dev/null | grep -q -- '--zsh'; then
-            _evalcache fzf --zsh
-        fi
-    fi
-    {{- end }}
-    
-    # zoxide 智能目录跳转初始化
-    {{- if .features.enable_zoxide }}
-    if command -v zoxide >/dev/null 2>&1; then
-        _evalcache zoxide init zsh
     fi
     {{- end }}
     
@@ -53,78 +38,101 @@ if command -v _evalcache >/dev/null 2>&1; then
     # 版本管理工具缓存 (最大收益)
     # ========================================
     
-    # pyenv Python 版本管理
+    # pyenv Python 版本管理 (通常很慢)
     if command -v pyenv >/dev/null 2>&1; then
         _evalcache pyenv init -
-        # 如果启用了 pyenv-virtualenv
+        # pyenv-virtualenv 通常也很慢
         if command -v pyenv-virtualenv-init >/dev/null 2>&1; then
             _evalcache pyenv virtualenv-init -
         fi
     fi
     
-    # rbenv Ruby 版本管理
+    # rbenv Ruby 版本管理 (通常很慢)
     if command -v rbenv >/dev/null 2>&1; then
         _evalcache rbenv init -
     fi
     
-    # fnm Node.js 版本管理
+    # fnm Node.js 版本管理 (性能优化版本)
     if command -v fnm >/dev/null 2>&1; then
-        _evalcache fnm env --use-on-cd
+        # fnm 的 --use-on-cd 选项会创建钩子函数，导致性能问题
+        # 使用更轻量的初始化方式
+        eval "$(fnm env)"
+        
+        # 手动添加路径而不是使用自动切换钩子
+        export PATH="$HOME/.fnm:$PATH"
+        
+        # 如果需要自动切换功能，可以手动启用（但会影响性能）
+        # eval "$(fnm env --use-on-cd)"
     fi
     
-    # mise 多语言版本管理 (rtx 的继任者)
+    # mise 多语言版本管理 (如果真的很慢才缓存)
     if command -v mise >/dev/null 2>&1; then
         _evalcache mise activate zsh
     fi
     
-    # nvm Node.js 版本管理 (如果使用)
-    if command -v nvm >/dev/null 2>&1; then
-        # nvm 比较特殊，需要特殊处理
-        _evalcache nvm use default
-    fi
-    
     # ========================================
-    # 包管理器环境设置
+    # 包管理器环境设置 (通常很慢)
     # ========================================
     
     {{- if eq .chezmoi.os "linux" }}
-    # Linux Homebrew 环境设置
+    # Linux Homebrew 环境设置 (通常很慢)
     if [[ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
         _evalcache /home/linuxbrew/.linuxbrew/bin/brew shellenv
     fi
     {{- end }}
     
-    # Conda 环境管理 (如果使用)
+    # Conda 环境管理 (通常非常慢)
     if command -v conda >/dev/null 2>&1; then
-        # Conda 初始化通常很慢，是 evalcache 的理想候选
         _evalcache conda shell.zsh hook
     fi
     
     # ========================================
-    # 开发工具缓存
+    # 快速工具直接 eval (不缓存)
     # ========================================
     
-    # direnv 环境变量管理
+    # 这些工具通常很快，缓存反而可能更慢
+    
+    # fzf 模糊搜索初始化 (通常很快，不缓存)
+    {{- if .features.enable_fzf }}
+    if command -v fzf >/dev/null 2>&1; then
+        if fzf --help 2>/dev/null | grep -q -- '--zsh'; then
+            eval "$(fzf --zsh)"
+        fi
+    fi
+    {{- end }}
+    
+    # zoxide 智能目录跳转初始化 (通常很快，不缓存)
+    {{- if .features.enable_zoxide }}
+    if command -v zoxide >/dev/null 2>&1; then
+        eval "$(zoxide init zsh)"
+    fi
+    {{- end }}
+    
+    # direnv 环境变量管理 (通常很快，不缓存)
     if command -v direnv >/dev/null 2>&1; then
-        _evalcache direnv hook zsh
+        eval "$(direnv hook zsh)"
     fi
     
-    # thefuck 命令纠错工具
+    # ========================================
+    # 其他开发工具 (按需缓存)
+    # ========================================
+    
+    # thefuck 命令纠错工具 (通常较慢，值得缓存)
     if command -v thefuck >/dev/null 2>&1; then
         _evalcache thefuck --alias
     fi
     
-    # gh GitHub CLI 补全
+    # gh GitHub CLI 补全 (补全通常较慢，可以缓存)
     if command -v gh >/dev/null 2>&1; then
         _evalcache gh completion -s zsh
     fi
     
-    # kubectl Kubernetes CLI 补全
+    # kubectl Kubernetes CLI 补全 (补全通常很慢，强烈建议缓存)
     if command -v kubectl >/dev/null 2>&1; then
         _evalcache kubectl completion zsh
     fi
     
-    # docker CLI 补全
+    # docker CLI 补全 (补全通常较慢，可以缓存)
     if command -v docker >/dev/null 2>&1; then
         _evalcache docker completion zsh
     fi
@@ -135,29 +143,68 @@ if command -v _evalcache >/dev/null 2>&1; then
     
     # 清理 evalcache 缓存
     evalcache-clear() {
-        if [[ -d "$EVALCACHE_DIR" ]]; then
-            echo "🧹 清理 evalcache 缓存目录: $EVALCACHE_DIR"
-            rm -rf "$EVALCACHE_DIR"/*
-            echo "✅ 缓存已清理"
+        if [[ -d "$ZSH_EVALCACHE_DIR" ]]; then
+            echo "🧹 清理 evalcache 缓存目录: $ZSH_EVALCACHE_DIR"
+            rm -rf "$ZSH_EVALCACHE_DIR"/*
+            echo "✅ 缓存已清理，重启 shell 生效"
         else
-            echo "❌ 缓存目录不存在: $EVALCACHE_DIR"
+            echo "❌ 缓存目录不存在: $ZSH_EVALCACHE_DIR"
         fi
+    }
+    
+    # 诊断 evalcache 性能问题
+    evalcache-diagnose() {
+        echo "🔍 Evalcache 性能诊断"
+        echo "===================="
+        
+        if [[ -d "$ZSH_EVALCACHE_DIR" ]]; then
+            echo "缓存目录: $ZSH_EVALCACHE_DIR"
+            
+            # 检查缓存文件
+            local cache_files=($(find "$ZSH_EVALCACHE_DIR" -type f 2>/dev/null))
+            echo "缓存文件数量: ${#cache_files[@]}"
+            
+            if [[ ${#cache_files[@]} -gt 0 ]]; then
+                echo ""
+                echo "📁 缓存文件详情:"
+                for file in "${cache_files[@]}"; do
+                    local basename=$(basename "$file")
+                    local size=$(du -h "$file" 2>/dev/null | cut -f1)
+                    local mtime=$(stat -c %y "$file" 2>/dev/null | cut -d' ' -f1)
+                    echo "  • $basename (${size}, 修改: $mtime)"
+                done
+                
+                # 检查异常大的缓存文件
+                echo ""
+                echo "🚨 大缓存文件 (>1KB):"
+                find "$ZSH_EVALCACHE_DIR" -type f -size +1k -exec ls -lh {} \; 2>/dev/null | \
+                    awk '{print "  • " $9 " (" $5 ")"}' || echo "  无"
+            fi
+        else
+            echo "❌ 缓存目录不存在"
+        fi
+        
+        echo ""
+        echo "💡 建议:"
+        echo "  • 如果有大缓存文件，考虑不缓存对应工具"
+        echo "  • 运行 'evalcache-clear' 清理所有缓存"
+        echo "  • 使用 'time zsh -i -c exit' 测试启动时间"
     }
     
     # 显示 evalcache 状态
     evalcache-status() {
         echo "📊 Evalcache 状态报告"
-        echo "缓存目录: $EVALCACHE_DIR"
+        echo "缓存目录: $ZSH_EVALCACHE_DIR"
         
-        if [[ -d "$EVALCACHE_DIR" ]]; then
-            local cache_count=$(find "$EVALCACHE_DIR" -name "*.cache" 2>/dev/null | wc -l)
-            local cache_size=$(du -sh "$EVALCACHE_DIR" 2>/dev/null | cut -f1)
+        if [[ -d "$ZSH_EVALCACHE_DIR" ]]; then
+            local cache_count=$(find "$ZSH_EVALCACHE_DIR" -type f 2>/dev/null | wc -l)
+            local cache_size=$(du -sh "$ZSH_EVALCACHE_DIR" 2>/dev/null | cut -f1)
             
             echo "缓存文件数量: $cache_count"
             echo "缓存目录大小: $cache_size"
             echo ""
             echo "缓存文件列表:"
-            find "$EVALCACHE_DIR" -name "*.cache" -exec basename {} .cache \; 2>/dev/null | sort
+            find "$ZSH_EVALCACHE_DIR" -type f -exec basename {} \; 2>/dev/null | sort
         else
             echo "❌ 缓存目录不存在"
         fi
@@ -172,7 +219,8 @@ if command -v _evalcache >/dev/null 2>&1; then
             return 1
         fi
         
-        local cache_file="$EVALCACHE_DIR/${tool}.cache"
+        # evalcache 使用工具名作为文件名，不一定有 .cache 扩展名
+        local cache_file="$ZSH_EVALCACHE_DIR/${tool}"
         if [[ -f "$cache_file" ]]; then
             echo "🔄 刷新 $tool 的缓存..."
             rm "$cache_file"
@@ -222,7 +270,8 @@ else
     fi
     
     if command -v fnm >/dev/null 2>&1; then
-        eval "$(fnm env --use-on-cd)"
+        eval "$(fnm env)"
+        export PATH="$HOME/.fnm:$PATH"
     fi
     
     if command -v mise >/dev/null 2>&1; then
@@ -234,6 +283,23 @@ else
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     fi
     {{- end }}
+    
+    # 其他开发工具回退
+    if command -v thefuck >/dev/null 2>&1; then
+        eval "$(thefuck --alias)"
+    fi
+    
+    if command -v gh >/dev/null 2>&1; then
+        eval "$(gh completion -s zsh)"
+    fi
+    
+    if command -v kubectl >/dev/null 2>&1; then
+        eval "$(kubectl completion zsh)"
+    fi
+    
+    if command -v docker >/dev/null 2>&1; then
+        eval "$(docker completion zsh)"
+    fi
 fi
 
 {{- else }}
