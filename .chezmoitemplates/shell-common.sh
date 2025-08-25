@@ -59,6 +59,11 @@ if [ -n "$ZSH_VERSION" ]; then
     {{ includeTemplate "core/aliases.sh" . }}
 fi
 
+# 初始化 zsh-defer (仅在启用 Zim 时，必须在 evalcache 之前)
+{{- if .features.enable_zim }}
+{{ includeTemplate "core/zsh-defer-init.sh" . }}
+{{- end }}
+
 # Evalcache 配置 - 缓存 eval 语句以加速启动 (优先加载)
 {{ includeTemplate "core/evalcache-config.sh" . }}
 

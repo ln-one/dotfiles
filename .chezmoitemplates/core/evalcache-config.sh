@@ -38,36 +38,68 @@ if command -v _evalcache >/dev/null 2>&1; then
     # 版本管理工具缓存 (最大收益)
     # ========================================
     
-    # pyenv Python 版本管理 (通常很慢)
-    if command -v pyenv >/dev/null 2>&1; then
-        _evalcache pyenv init -
-        # pyenv-virtualenv 通常也很慢
-        if command -v pyenv-virtualenv-init >/dev/null 2>&1; then
-            _evalcache pyenv virtualenv-init -
+    # ========================================
+    # 版本管理工具 - 使用 zsh-defer 延迟加载
+    # ========================================
+    
+    # 检查 zsh-defer 是否可用
+    if command -v zsh-defer >/dev/null 2>&1; then
+        # pyenv Python 版本管理 (延迟加载)
+        if command -v pyenv >/dev/null 2>&1; then
+            zsh-defer _evalcache pyenv init -
+            # pyenv-virtualenv 也延迟加载
+            if command -v pyenv-virtualenv-init >/dev/null 2>&1; then
+                zsh-defer _evalcache pyenv virtualenv-init -
+            fi
         fi
-    fi
-    
-    # rbenv Ruby 版本管理 (通常很慢)
-    if command -v rbenv >/dev/null 2>&1; then
-        _evalcache rbenv init -
-    fi
-    
-    # fnm Node.js 版本管理 (性能优化版本)
-    if command -v fnm >/dev/null 2>&1; then
-        # fnm 的 --use-on-cd 选项会创建钩子函数，导致性能问题
-        # 使用更轻量的初始化方式
-        eval "$(fnm env)"
         
-        # 手动添加路径而不是使用自动切换钩子
-        export PATH="$HOME/.fnm:$PATH"
+        # rbenv Ruby 版本管理 (延迟加载)
+        if command -v rbenv >/dev/null 2>&1; then
+            zsh-defer _evalcache rbenv init -
+        fi
         
-        # 如果需要自动切换功能，可以手动启用（但会影响性能）
-        # eval "$(fnm env --use-on-cd)"
-    fi
-    
-    # mise 多语言版本管理 (如果真的很慢才缓存)
-    if command -v mise >/dev/null 2>&1; then
-        _evalcache mise activate zsh
+        # fnm Node.js 版本管理 (延迟加载)
+        if command -v fnm >/dev/null 2>&1; then
+            zsh-defer _evalcache fnm env --use-on-cd
+        fi
+        
+        # mise 多语言版本管理 (延迟加载)
+        if command -v mise >/dev/null 2>&1; then
+            zsh-defer _evalcache mise activate zsh
+        fi
+    else
+        # 回退到原来的 evalcache 方式
+        # pyenv Python 版本管理 (通常很慢)
+        if command -v pyenv >/dev/null 2>&1; then
+            _evalcache pyenv init -
+            # pyenv-virtualenv 通常也很慢
+            if command -v pyenv-virtualenv-init >/dev/null 2>&1; then
+                _evalcache pyenv virtualenv-init -
+            fi
+        fi
+        
+        # rbenv Ruby 版本管理 (通常很慢)
+        if command -v rbenv >/dev/null 2>&1; then
+            _evalcache rbenv init -
+        fi
+        
+        # fnm Node.js 版本管理 (性能优化版本)
+        if command -v fnm >/dev/null 2>&1; then
+            # fnm 的 --use-on-cd 选项会创建钩子函数，导致性能问题
+            # 使用更轻量的初始化方式
+            eval "$(fnm env)"
+            
+            # 手动添加路径而不是使用自动切换钩子
+            export PATH="$HOME/.fnm:$PATH"
+            
+            # 如果需要自动切换功能，可以手动启用（但会影响性能）
+            # eval "$(fnm env --use-on-cd)"
+        fi
+        
+        # mise 多语言版本管理 (如果真的很慢才缓存)
+        if command -v mise >/dev/null 2>&1; then
+            _evalcache mise activate zsh
+        fi
     fi
     
     # ========================================
@@ -122,19 +154,42 @@ if command -v _evalcache >/dev/null 2>&1; then
         _evalcache thefuck --alias
     fi
     
-    # gh GitHub CLI 补全 (补全通常较慢，可以缓存)
-    if command -v gh >/dev/null 2>&1; then
-        _evalcache gh completion -s zsh
-    fi
+    # ========================================
+    # CLI 工具补全 - 使用 zsh-defer 延迟加载
+    # ========================================
     
-    # kubectl Kubernetes CLI 补全 (补全通常很慢，强烈建议缓存)
-    if command -v kubectl >/dev/null 2>&1; then
-        _evalcache kubectl completion zsh
-    fi
-    
-    # docker CLI 补全 (补全通常较慢，可以缓存)
-    if command -v docker >/dev/null 2>&1; then
-        _evalcache docker completion zsh
+    # 检查 zsh-defer 是否可用
+    if command -v zsh-defer >/dev/null 2>&1; then
+        # gh GitHub CLI 补全 (延迟加载)
+        if command -v gh >/dev/null 2>&1; then
+            zsh-defer _evalcache gh completion -s zsh
+        fi
+        
+        # kubectl Kubernetes CLI 补全 (延迟加载)
+        if command -v kubectl >/dev/null 2>&1; then
+            zsh-defer _evalcache kubectl completion zsh
+        fi
+        
+        # docker CLI 补全 (延迟加载)
+        if command -v docker >/dev/null 2>&1; then
+            zsh-defer _evalcache docker completion zsh
+        fi
+    else
+        # 回退到原来的 evalcache 方式
+        # gh GitHub CLI 补全 (补全通常较慢，可以缓存)
+        if command -v gh >/dev/null 2>&1; then
+            _evalcache gh completion -s zsh
+        fi
+        
+        # kubectl Kubernetes CLI 补全 (补全通常很慢，强烈建议缓存)
+        if command -v kubectl >/dev/null 2>&1; then
+            _evalcache kubectl completion zsh
+        fi
+        
+        # docker CLI 补全 (补全通常较慢，可以缓存)
+        if command -v docker >/dev/null 2>&1; then
+            _evalcache docker completion zsh
+        fi
     fi
     
     # ========================================
@@ -260,7 +315,7 @@ else
     fi
     {{- end }}
     
-    # 版本管理工具回退
+    # 版本管理工具回退 (无 evalcache 时)
     if command -v pyenv >/dev/null 2>&1; then
         eval "$(pyenv init -)"
     fi
@@ -284,7 +339,7 @@ else
     fi
     {{- end }}
     
-    # 其他开发工具回退
+    # 其他开发工具回退 (无 evalcache 时)
     if command -v thefuck >/dev/null 2>&1; then
         eval "$(thefuck --alias)"
     fi
