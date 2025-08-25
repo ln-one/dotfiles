@@ -258,13 +258,14 @@ fh           # 搜索历史命令
 - [x] 平台特定配置分离 (Linux 代理/主题管理，macOS 系统管理)
 - [x] 环境特定配置实现 (桌面/远程/容器/WSL 差异化配置)
 - [x] 分层配置加载器重构 (shell-common.sh)
+- [x] 用户本地配置层实现 (local/ 目录和外部配置文件支持)
 - [x] 文件结构重新组织和清理
 - [x] 配置文档更新和完善
 
-🚧 **待实现**:
-- [ ] 用户本地配置层实现 (local/ 目录)
+🚧 **待优化**:
 - [ ] 配置验证和诊断工具
 - [ ] 环境变量配置优化
+- [ ] 性能监控和调试工具
 
 🎯 **项目状态**: 分层架构完成，核心功能稳定，配置系统现代化
 
@@ -298,6 +299,15 @@ fh           # 搜索历史命令
 - **网络连接** - 远程环境的网络和下载能力
 
 详细测试文档请参考: [tests/README.md](tests/README.md)
+
+## 📖 详细文档
+
+- **[安装指南](docs/INSTALL.md)** - 详细的安装和配置说明
+- **[1Password 集成](docs/1password-integration.md)** - SSH Agent 和密钥管理
+- **[Homebrew 集成](docs/homebrew-integration.md)** - 包管理和工具安装
+- **[社区工具](docs/community-tools.md)** - 现代化 CLI 工具介绍
+- **[Nerd Fonts 设置](docs/nerd-fonts-setup.md)** - 字体安装和配置
+- **[Zoxide 使用](docs/zoxide-usage.md)** - 智能目录跳转使用指南
 
 ## 🔗 相关文件
 

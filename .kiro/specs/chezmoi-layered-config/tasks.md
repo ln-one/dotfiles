@@ -72,12 +72,12 @@
   - _Requirements: 6.3_
 
 - [ ] 7. 实现用户配置覆盖机制
-- [ ] 7.1 创建用户本地配置层支持
+- [x] 7.1 创建用户本地配置层支持
   - 创建 `local/user-overrides.sh` 模板
   - 创建 `local/local-config.sh` 模板
   - _Requirements: 4.1, 4.2_
 
-- [ ] 7.2 实现外部配置文件支持
+- [x] 7.2 实现外部配置文件支持
   - 添加 `~/.chezmoi.local.sh` 外部配置文件支持
   - 实现配置优先级处理 (用户配置最高优先级)
   - _Requirements: 4.3, 4.4_

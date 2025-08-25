@@ -92,19 +92,44 @@ fi
 # 用户个人配置覆盖
 # 优先级：最高 (覆盖所有其他配置)
 
-# 加载用户本地配置覆盖 (如果存在)
+# 4.1 加载用户本地配置覆盖 (如果存在)
 {{- if stat (joinPath .chezmoi.sourceDir ".chezmoitemplates/local/user-overrides.sh") }}
 {{ includeTemplate "local/user-overrides.sh" . }}
 {{- end }}
 
-# 加载用户本地环境配置 (如果存在)
+# 4.2 加载用户本地环境配置 (如果存在)
 {{- if stat (joinPath .chezmoi.sourceDir ".chezmoitemplates/local/local-config.sh") }}
 {{ includeTemplate "local/local-config.sh" . }}
 {{- end }}
 
-# 加载外部用户配置文件 (如果存在)
+# 4.3 加载外部用户配置文件 (按优先级顺序)
+# 优先级：后加载的文件覆盖先加载的文件
+
+# 4.3.1 系统级配置 (最低优先级)
+if [[ -f "/etc/chezmoi/config.sh" ]]; then
+    source "/etc/chezmoi/config.sh"
+fi
+
+# 4.3.2 用户配置目录中的配置
+if [[ -f "$HOME/.config/chezmoi/config.sh" ]]; then
+    source "$HOME/.config/chezmoi/config.sh"
+fi
+
+# 4.3.3 用户主目录中的配置 (高优先级)
 if [[ -f "$HOME/.chezmoi.local.sh" ]]; then
     source "$HOME/.chezmoi.local.sh"
+fi
+
+# 4.3.4 项目根目录中的配置 (最高优先级)
+# 这允许项目特定的配置覆盖
+if [[ -f "$(pwd)/.chezmoi.local.sh" ]]; then
+    source "$(pwd)/.chezmoi.local.sh"
+fi
+
+# 4.4 环境变量配置覆盖 (最终优先级)
+# 允许通过环境变量进行最后的配置覆盖
+if [[ -n "${CHEZMOI_USER_CONFIG:-}" ]]; then
+    eval "$CHEZMOI_USER_CONFIG"
 fi
 
 # ========================================
