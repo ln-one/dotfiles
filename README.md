@@ -29,19 +29,29 @@ source ~/.bashrc
 source ~/.zshrc
 ```
 
-## 🧩 模块化架构
+## 🧩 分层配置架构
 
-### 核心模板
+### 核心模板 (跨平台通用)
 ```
 .chezmoitemplates/
-├── environment.sh           # 环境变量管理 (路径、SSH、语言配置)
-├── shell-common.sh          # 别名、函数、颜色配置
-├── aliases.sh              # 核心别名 (ls/ll/la + 导航)
-├── basic-functions.sh       # 基础函数 (mkcd, sysinfo)
-├── proxy-functions.sh       # 代理管理 (proxyon/proxyoff/proxystatus)
-├── theme-functions.sh       # WhiteSur 主题切换 (light/dark/themestatus)
-├── fzf-config.sh           # FZF 模糊搜索配置
-└── zoxide-config.sh        # Zoxide 智能目录跳转配置
+├── core/                    # 核心功能模块
+│   ├── environment.sh       # 环境变量管理 (路径、SSH、语言配置)
+│   ├── aliases.sh          # 核心别名 (ls/ll/la + 导航)
+│   ├── basic-functions.sh   # 基础函数 (mkcd, sysinfo)
+│   ├── fzf-config.sh       # FZF 模糊搜索配置
+│   ├── zoxide-config.sh    # Zoxide 智能目录跳转配置
+│   ├── oh-my-zsh-config.sh # Oh My Zsh 配置和性能优化
+│   ├── starship-config.sh  # Starship 提示符配置
+│   └── zsh-performance-tweaks.sh # Zsh 性能优化
+├── platforms/               # 平台特定功能
+│   ├── linux/              # Linux 特定配置
+│   │   ├── proxy-functions.sh    # 代理管理 (Clash + GNOME)
+│   │   └── theme-functions.sh    # WhiteSur 主题切换
+│   └── darwin/             # macOS 特定配置
+│       └── macos-specific.sh     # macOS 系统管理和应用
+├── environments/            # 环境特定配置 (预留)
+├── local/                   # 本地自定义配置 (预留)
+└── shell-common.sh         # 模块加载器和颜色配置
 ```
 
 ### Shell 配置
@@ -82,18 +92,45 @@ source ~/.zshrc
 - **导航**: `..`, `...`, `....`, `~`, `-`
 - **安全操作**: `cp -i`, `mv -i`, `rm -i`
 
-### 代理管理 (Linux 桌面)
+### 平台特定功能
+
+#### Linux 桌面环境
+**代理管理** (Clash + GNOME 集成):
 ```bash
-proxyon      # 启用代理 (环境变量 + GNOME 系统代理)
-proxyoff     # 关闭代理
-proxystatus  # 显示代理状态
+proxyon      # 启用代理 (Clash + 环境变量 + GNOME 系统代理)
+proxyoff     # 关闭代理 (停止 Clash + 清除环境变量)
+proxystatus  # 显示代理状态 (进程、环境变量、网络测试)
 ```
 
-### 主题切换 (Linux GNOME)
+**主题切换** (WhiteSur + GNOME):
 ```bash
-dark         # 切换到 WhiteSur 暗色主题
+dark         # 切换到 WhiteSur 暗色主题 (GTK + Shell + fcitx5)
 light        # 切换到 WhiteSur 亮色主题
-themestatus  # 显示主题状态
+themestatus  # 显示主题状态 (GTK、Shell、配色方案)
+```
+
+#### macOS 系统管理
+**系统信息和管理**:
+```bash
+macos_version    # 显示 macOS 版本信息
+system_status    # 系统资源使用情况
+clean_system     # 清理系统缓存和垃圾桶
+```
+
+**应用管理** (Homebrew Cask + Mac App Store):
+```bash
+cask_list        # 列出已安装的 Cask 应用
+cask_upgrade     # 更新所有 Cask 应用
+mas_list         # 列出已安装的 App Store 应用
+mas_upgrade      # 更新所有 App Store 应用
+```
+
+**系统优化**:
+```bash
+show_hidden      # 显示隐藏文件
+hide_hidden      # 隐藏隐藏文件
+reset_dock       # 重置 Dock 到默认设置
+brew_cleanup     # 清理 Homebrew 缓存
 ```
 
 ### 基础函数
@@ -137,10 +174,12 @@ fh           # 搜索历史命令
 
 ## 🎯 设计原则
 
-- **模块化**: 每个功能独立的模板文件
-- **平台感知**: 根据操作系统和环境智能加载
-- **简洁高效**: 只保留核心必需功能
-- **易于维护**: 清晰的文件结构和职责分离
+- **分层架构**: 核心功能、平台特定、环境特定、本地自定义四层分离
+- **模块化**: 每个功能独立的模板文件，按需加载
+- **平台感知**: 根据操作系统和环境智能加载相应配置
+- **性能优化**: 条件加载、延迟初始化、预编译脚本
+- **简洁高效**: 只保留核心必需功能，避免功能冗余
+- **易于维护**: 清晰的文件结构和职责分离，便于扩展和调试
 
 ## 📋 迁移状态
 
@@ -170,13 +209,15 @@ fh           # 搜索历史命令
 - [x] FZF 模糊搜索集成
 - [x] Zoxide 智能目录跳转集成
 
-✅ **最新修复**:
-- [x] 修复 Bash 中 Zoxide 初始化语法错误
-- [x] 优化跨 Shell 兼容性 (Bash/Zsh)
-- [x] 清理无用文件和目录
-- [x] 完善模板条件判断逻辑
+✅ **分层配置架构重构**:
+- [x] 实现四层分层配置架构 (core/platforms/environments/local)
+- [x] 平台特定配置分离 (Linux 代理/主题管理，macOS 系统管理)
+- [x] 修复模板路径引用问题
+- [x] 优化配置加载逻辑和性能
+- [x] 清理测试文件和无用代码
+- [x] 完善跨平台兼容性
 
-🎉 **项目状态**: 生产就绪，所有核心功能已完成并测试通过
+🎉 **项目状态**: 生产就绪，分层架构完成，所有功能测试通过
 
 ## 🧪 跨平台测试
 
