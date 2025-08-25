@@ -1,7 +1,14 @@
+{{- if .features.enable_1password }}
 [user]
-	email = "{{ env "GIT_USER_EMAIL" }}"
-	signingkey = "{{ env "GIT_SIGNING_KEY" }}"
+	email = "{{ .secrets.git_user_email }}"
+	signingkey = "{{ .secrets.git_signing_key }}"
 	name = ln-one
+{{- else }}
+[user]
+	email = "user@example.com"
+	signingkey = ""
+	name = ln-one
+{{- end }}
 
 [commit]
 	gpgsign = true

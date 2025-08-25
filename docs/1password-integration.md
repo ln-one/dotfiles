@@ -76,16 +76,19 @@ ssh-add -l
    - 创建新的登录项或安全笔记
    - 记录 vault/item/field 路径
 
-2. **更新模板文件**
-   编辑 `dot_secrets.tmpl`：
-   ```bash
-   export NEW_SECRET="{{ onepasswordRead "op://Vault/Item/field" }}"
+2. **在 .chezmoi.toml.tmpl 中添加密钥读取**
+   ```toml
+   [data.secrets]
+     new_secret = "{{ onepasswordRead "op://Vault/Item/field" }}"
    ```
 
-3. **在其他文件中使用环境变量**
+3. **在模板文件中使用 chezmoi 变量**
    ```bash
-   # 使用环境变量而不是重复调用 onepasswordRead
-   some_config = "{{ env "NEW_SECRET" }}"
+   # dot_secrets.tmpl
+   export NEW_SECRET="{{ .secrets.new_secret }}"
+   
+   # other_config.tmpl
+   some_config = "{{ .secrets.new_secret }}"
    ```
 
 4. **应用更改**
@@ -177,17 +180,23 @@ op read "op://Work/OpenAI-API-Key/api-key"
 3. **避免重复** - 同一个密钥只读取一次，多处使用环境变量
 
 ### 正确示例
-```bash
-# dot_secrets.tmpl - 统一读取
-export API_KEY="{{ onepasswordRead "op://Work/API/key" }}"
+```toml
+# .chezmoi.toml.tmpl - 统一读取
+[data.secrets]
+  api_key = "{{ onepasswordRead "op://Work/API/key" }}"
+```
 
-# other_config.tmpl - 使用环境变量
-api_key = "{{ env "API_KEY" }}"
+```bash
+# dot_secrets.tmpl - 使用 chezmoi 变量
+export API_KEY="{{ .secrets.api_key }}"
+
+# other_config.tmpl - 使用 chezmoi 变量
+api_key = "{{ .secrets.api_key }}"
 ```
 
 ### 错误示例
 ```bash
-# 避免在多个文件中重复调用
+# 避免在多个文件中重复调用 onepasswordRead
 config1 = "{{ onepasswordRead "op://Work/API/key" }}"  # ❌
 config2 = "{{ onepasswordRead "op://Work/API/key" }}"  # ❌
 ```
