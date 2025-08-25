@@ -1,45 +1,10 @@
 # ========================================
 # fzf 模糊搜索配置模板
 # ========================================
-# 现代化的 fzf 配置，优化搜索体验
+# fzf shell 集成和自定义函数
+# 环境变量配置已移至 environment.sh
 
 {{- if .features.enable_fzf }}
-
-# fzf 环境变量配置
-export FZF_DEFAULT_OPTS="
-    --height 40%
-    --layout=reverse
-    --border
-    --inline-info
-    --preview-window=:hidden
-    --preview '([[ -f {} ]] && (bat --style=numbers --color=always {} || cat {})) || ([[ -d {} ]] && (tree -C {} | head -200))'
-    --color=dark
-    --color=fg:-1,bg:-1,hl:#c678dd,fg+:#ffffff,bg+:#4b5263,hl+:#d858fe
-    --color=info:#98c379,prompt:#61afef,pointer:#be5046,marker:#e5c07b,spinner:#61afef,header:#61afef
-"
-
-# 使用更好的搜索工具 (如果可用)
-{{- if lookPath "fd" }}
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
-{{- else if lookPath "rg" }}
-export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*"'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-{{- else }}
-export FZF_DEFAULT_COMMAND='find . -type f -not -path "*/\.git/*" 2>/dev/null'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-{{- end }}
-
-# fzf 预览选项
-export FZF_CTRL_T_OPTS="
-    --preview '([[ -f {} ]] && (bat --style=numbers --color=always {} 2>/dev/null || cat {} 2>/dev/null || echo {})) || ([[ -d {} ]] && (eza --tree --color=always {} 2>/dev/null || ls -la {} 2>/dev/null))'
-    --bind 'ctrl-/:change-preview-window(down|hidden|)'
-"
-
-export FZF_ALT_C_OPTS="
-    --preview 'eza --tree --color=always {} 2>/dev/null || tree -C {} 2>/dev/null || ls -la {} 2>/dev/null'
-"
 
 # 加载 fzf shell 集成
 {{- if eq .chezmoi.os "darwin" }}

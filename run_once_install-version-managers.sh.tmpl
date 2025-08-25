@@ -1,6 +1,6 @@
 #!/bin/bash
 # 版本管理器自动安装和配置脚本
-# 安装和配置 NVM, pyenv, rbenv 等版本管理器
+# 安装和配置 fnm, pyenv, rbenv 等版本管理器
 # Requirements: 8.3
 
 set -euo pipefail
@@ -41,7 +41,7 @@ HOME_DIR="{{ .chezmoi.homeDir }}"
 
 # 版本管理器配置
 declare -A VERSION_MANAGERS=(
-    ["nvm"]="Node.js 版本管理器"
+    ["fnm"]="Node.js 版本管理器 (快速)"
     ["pyenv"]="Python 版本管理器"
     ["rbenv"]="Ruby 版本管理器"
     ["mise"]="通用版本管理器"
@@ -52,8 +52,8 @@ check_version_manager_installed() {
     local manager="$1"
     
     case "$manager" in
-        "nvm")
-            [[ -s "$HOME_DIR/.nvm/nvm.sh" ]] && return 0
+        "fnm")
+            command -v fnm >/dev/null 2>&1 && return 0
             ;;
         "pyenv")
             command -v pyenv >/dev/null 2>&1 && return 0
@@ -72,33 +72,29 @@ check_version_manager_installed() {
     return 1
 }
 
-# 安装 NVM (Node Version Manager)
-install_nvm() {
-    log_step "安装 NVM (Node Version Manager)..."
+# 安装 fnm (Fast Node Manager)
+install_fnm() {
+    log_step "安装 fnm (Fast Node Manager)..."
     
-    if check_version_manager_installed "nvm"; then
-        log_success "✅ NVM 已安装"
+    if check_version_manager_installed "fnm"; then
+        log_success "✅ fnm 已安装"
         return 0
     fi
     
-    # 下载并安装 NVM
-    local nvm_version="v0.39.7"  # 使用稳定版本
-    local install_script="https://raw.githubusercontent.com/nvm-sh/nvm/${nvm_version}/install.sh"
-    
-    log_info "下载 NVM 安装脚本..."
-    if curl --connect-timeout 30 --max-time 300 --retry 3 --retry-delay 5 -o- "$install_script" | bash; then
-        log_success "✅ NVM 安装成功"
+    # 使用官方安装脚本安装 fnm
+    log_info "下载 fnm 安装脚本..."
+    if curl --connect-timeout 30 --max-time 300 --retry 3 --retry-delay 5 -fsSL https://fnm.vercel.app/install | bash; then
+        log_success "✅ fnm 安装成功"
         
-        # 重新加载 shell 环境
-        export NVM_DIR="$HOME_DIR/.nvm"
-        [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+        # 设置环境变量
+        export PATH="$HOME_DIR/.local/bin:$PATH"
         
         # 跳过自动安装 Node.js，让用户手动安装
-        log_info "NVM 已安装，可以使用 'nvm install --lts' 安装 Node.js LTS 版本"
+        log_info "fnm 已安装，可以使用 'fnm install --lts' 安装 Node.js LTS 版本"
         
         return 0
     else
-        log_error "❌ NVM 安装失败"
+        log_error "❌ fnm 安装失败"
         return 1
     fi
 }
@@ -244,10 +240,10 @@ install_mise() {
 create_version_manager_configs() {
     log_step "创建版本管理器配置文件..."
     
-    # 创建 .nvmrc 文件
-    if check_version_manager_installed "nvm"; then
+    # 创建 .nvmrc 文件 (fnm 兼容)
+    if check_version_manager_installed "fnm"; then
         echo "lts/*" > "$HOME_DIR/.nvmrc"
-        log_info "已创建 .nvmrc 配置文件"
+        log_info "已创建 .nvmrc 配置文件 (fnm 兼容)"
     fi
 
     # 创建 .python-version 文件
@@ -301,10 +297,10 @@ verify_version_managers() {
             
             # 显示版本信息
             case "$manager" in
-                "nvm")
-                    if command -v nvm >/dev/null 2>&1; then
-                        local nvm_version=$(nvm --version 2>/dev/null || echo "未知")
-                        echo "   版本: $nvm_version"
+                "fnm")
+                    if command -v fnm >/dev/null 2>&1; then
+                        local fnm_version=$(fnm --version 2>/dev/null || echo "未知")
+                        echo "   版本: $fnm_version"
                         local node_version=$(node --version 2>/dev/null || echo "未安装")
                         echo "   当前 Node.js: $node_version"
                     fi
@@ -357,13 +353,14 @@ show_usage_instructions() {
     echo "版本管理器使用指南:"
     echo "=================="
     
-    if check_version_manager_installed "nvm"; then
+    if check_version_manager_installed "fnm"; then
         echo ""
-        echo "NVM (Node.js):"
-        echo "  - 安装 Node.js 版本: nvm install <version>"
-        echo "  - 切换版本: nvm use <version>"
-        echo "  - 列出可用版本: nvm list-remote"
-        echo "  - 设置默认版本: nvm alias default <version>"
+        echo "fnm (Node.js):"
+        echo "  - 安装 Node.js 版本: fnm install <version>"
+        echo "  - 切换版本: fnm use <version>"
+        echo "  - 列出可用版本: fnm list-remote"
+        echo "  - 设置默认版本: fnm default <version>"
+        echo "  - 自动切换: fnm use --install-if-missing"
     fi
 
     if check_version_manager_installed "pyenv"; then
@@ -405,7 +402,7 @@ main() {
     local failed_installations=0
     
     # 安装各个版本管理器 (根据需要启用/禁用)
-    install_nvm || failed_installations=$((failed_installations + 1))
+    install_fnm || failed_installations=$((failed_installations + 1))
     install_pyenv || failed_installations=$((failed_installations + 1))
     # install_rbenv || failed_installations=$((failed_installations + 1))  # 可选
     # install_mise || failed_installations=$((failed_installations + 1))   # 可选

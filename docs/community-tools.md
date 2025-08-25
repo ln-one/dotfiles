@@ -143,7 +143,7 @@ fzf --version
 启用的插件根据环境自动配置：
 
 **桌面环境**:
-- git, docker, npm, nvm, python, pip, fzf
+- git, docker, npm, fnm, python, pip, fzf
 - zsh-autosuggestions, zsh-syntax-highlighting
 
 **远程/服务器环境**:

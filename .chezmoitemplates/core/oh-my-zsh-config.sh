@@ -29,7 +29,7 @@ plugins=(
     git                    # Git 集成 (轻量级，优先加载)
     {{- if eq .environment "desktop" }}
     {{- if .features.enable_node }}
-    zsh-nvm                # NVM 支持 (lazy load)
+    # fnm 不需要插件，直接在 shell 中配置
     {{- end }}
     {{- if .features.enable_python }}
     python                 # Python 支持
@@ -46,7 +46,7 @@ plugins=(
 DISABLE_AUTO_UPDATE="true"           # 禁用自动更新 (由 Chezmoi 管理)
 DISABLE_UPDATE_PROMPT="true"         # 禁用更新提示
 COMPLETION_WAITING_DOTS="true"       # 显示补全等待点
-HIST_STAMPS="yyyy-mm-dd"            # 历史时间戳格式
+# 历史配置已移至 environment.sh
 
 # 跳过权限检查以加速启动
 ZSH_DISABLE_COMPFIX=true
@@ -63,13 +63,6 @@ _optimize_completions() {
         fi
     fi
 }
-
-{{- if .features.enable_node }}
-# zsh-nvm lazy load 配置 (大幅提升启动速度)
-export NVM_LAZY_LOAD=true
-export NVM_COMPLETION=true
-export NVM_AUTO_USE=true
-{{- end }}
 
 # 加载 Oh My Zsh
 source $ZSH/oh-my-zsh.sh

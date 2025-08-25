@@ -211,7 +211,7 @@ fh           # 搜索历史命令
 - **开发环境**: git, curl, neovim, tmux 等开发工具自动配置
 
 ### 版本管理器集成
-- **NVM**: Node.js 版本管理，自动安装 LTS 版本
+- **fnm**: 快速的 Node.js 版本管理器，替代 nvm
 - **pyenv**: Python 版本管理，自动安装最新稳定版
 - **rbenv**: Ruby 版本管理 (可选)
 - **mise**: 通用版本管理器 (可选)
@@ -249,7 +249,7 @@ fh           # 搜索历史命令
 ✅ **Phase 2 已完成**:
 - [x] Homebrew 包管理集成
 - [x] 工具自动安装系统
-- [x] 版本管理器集成 (NVM, pyenv, rbenv, mise)
+- [x] 版本管理器集成 (fnm, pyenv, rbenv, mise)
 - [x] SSH 和 Git 配置迁移
 
 ✅ **Phase 3 已完成**:
