@@ -1,0 +1,32 @@
+# Zim 框架模块配置文件
+# 此文件定义要加载的 Zim 模块
+# 注意：此文件不会在 Zsh 启动时被 source，仅用于配置 zimfw 插件管理器
+
+# 核心模块 - 提供基础的 Zsh 环境配置
+zmodule environment
+zmodule input
+zmodule utility
+
+{{- if not .features.enable_starship }}
+# 如果不使用 Starship 提示符，则使用 Zim 内置提示符模块
+zmodule duration-info
+zmodule git-info
+zmodule asciiship
+{{- end }}
+
+{{- if .features.enable_fzf }}
+# fzf 模糊搜索集成（需要 fzf 已安装）
+zmodule fzf
+{{- end }}
+
+# 补全系统配置
+# zsh-users/zsh-completions 提供额外的补全定义
+zmodule zsh-users/zsh-completions --fpath src
+# completion 模块必须在 zsh-completions 之后加载
+zmodule completion
+
+# 以下模块必须最后加载以确保正确的功能
+# 语法高亮模块
+zmodule zsh-users/zsh-syntax-highlighting
+# 自动建议模块（必须在语法高亮之后）
+zmodule zsh-users/zsh-autosuggestions

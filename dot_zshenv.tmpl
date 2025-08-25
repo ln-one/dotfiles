@@ -1,0 +1,43 @@
+# ========================================
+# Zsh 环境配置文件 (Chezmoi 管理)
+# ========================================
+# 此文件在所有 Zsh 会话中都会被加载
+# 用于设置环境变量和基础配置
+
+{{- if eq .chezmoi.os "linux" }}
+{{- if lookPath "apt" }}
+# Ubuntu/Debian 特定配置
+# 跳过全局 compinit 以避免与 Zim 补全模块冲突
+skip_global_compinit=1
+{{- end }}
+{{- end }}
+
+# 设置 Zim 相关环境变量 (保持默认路径以兼容现有配置)
+export ZIM_HOME="${ZDOTDIR:-${HOME}}/.zim"
+
+# 性能优化 - 减少启动时的检查
+export ZSH_DISABLE_COMPFIX=true
+
+{{- if .features.enable_fzf }}
+# fzf 相关环境变量 (早期设置以确保其他工具可以使用)
+export FZF_BASE="${HOME}/.fzf"
+{{- end }}
+
+# 确保 ~/.local/bin 在 PATH 中 (早期设置)
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
+{{- if eq .chezmoi.os "darwin" }}
+# macOS 特定的早期环境设置
+{{- if stat "/opt/homebrew" }}
+export HOMEBREW_PREFIX="/opt/homebrew"
+{{- else if stat "/usr/local" }}
+export HOMEBREW_PREFIX="/usr/local"
+{{- end }}
+
+{{- if or (stat "/opt/homebrew") (stat "/usr/local") }}
+# 早期设置 Homebrew PATH
+export PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH"
+{{- end }}
+{{- end }}

@@ -84,19 +84,27 @@ export OPENAI_API_BASE="${OPENAI_API_BASE:-}"
 
 {{- if and .features.enable_proxy .proxy.enabled }}
 # 代理配置
-{{- if .proxy.http_port }}
-export HTTP_PROXY="http://{{ .proxy.host }}:{{ .proxy.http_port }}"
-export HTTPS_PROXY="http://{{ .proxy.host }}:{{ .proxy.http_port }}"
+{{- if .proxy.http_proxy }}
+export HTTP_PROXY="{{ .proxy.http_proxy }}"
 {{- end }}
-{{- if .proxy.socks_port }}
-export SOCKS_PROXY="socks5://{{ .proxy.host }}:{{ .proxy.socks_port }}"
+{{- if .proxy.https_proxy }}
+export HTTPS_PROXY="{{ .proxy.https_proxy }}"
+{{- end }}
+{{- if .proxy.socks_proxy }}
+export SOCKS_PROXY="{{ .proxy.socks_proxy }}"
 {{- end }}
 export NO_PROXY="localhost,127.0.0.1,::1,.local"
 
 # 小写版本
-export http_proxy="$HTTP_PROXY"
-export https_proxy="$HTTPS_PROXY"
-export socks_proxy="$SOCKS_PROXY"
+{{- if .proxy.http_proxy }}
+export http_proxy="{{ .proxy.http_proxy }}"
+{{- end }}
+{{- if .proxy.https_proxy }}
+export https_proxy="{{ .proxy.https_proxy }}"
+{{- end }}
+{{- if .proxy.socks_proxy }}
+export socks_proxy="{{ .proxy.socks_proxy }}"
+{{- end }}
 export no_proxy="$NO_PROXY"
 {{- end }}
 
@@ -116,30 +124,41 @@ export FNM_PATH="$USER_HOME/.local/share/fnm"
 if [[ -d "$FNM_PATH" ]]; then
     export PATH="$FNM_PATH:$PATH"
     # 静默初始化 fnm，避免启动时的输出信息
-    eval "$(fnm env --use-on-cd --log-level=quiet)" 2>/dev/null
+    if command -v fnm >/dev/null 2>&1; then
+        eval "$(fnm env --use-on-cd --log-level=quiet)" >/dev/null 2>&1
+    fi
 fi
 {{- end }}
 
 # fzf 模糊搜索工具配置
 {{- if .features.enable_fzf }}
-# fzf 环境变量配置
+# fzf 环境变量配置 (优化为新版本 fzf 0.48.0+)
 export FZF_DEFAULT_OPTS="
     --height 40%
     --layout=reverse
-    --border
-    --inline-info
+    --border=rounded
+    --info=inline-right
+    --marker='▶'
+    --pointer='◆'
+    --separator='─'
+    --scrollbar='│'
     --preview-window=:hidden
-    --preview '([[ -f {} ]] && (bat --style=numbers --color=always {} || cat {})) || ([[ -d {} ]] && (tree -C {} | head -200))'
+    --bind='ctrl-/:toggle-preview'
+    --bind='ctrl-u:preview-page-up'
+    --bind='ctrl-d:preview-page-down'
+    --bind='ctrl-f:preview-page-down'
+    --bind='ctrl-b:preview-page-up'
     --color=dark
     --color=fg:-1,bg:-1,hl:#c678dd,fg+:#ffffff,bg+:#4b5263,hl+:#d858fe
     --color=info:#98c379,prompt:#61afef,pointer:#be5046,marker:#e5c07b,spinner:#61afef,header:#61afef
+    --color=border:#4b5263,separator:#4b5263,scrollbar:#4b5263
 "
 
 # 使用更好的搜索工具 (如果可用)
 {{- if lookPath "fd" }}
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --strip-cwd-prefix'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git --strip-cwd-prefix'
 {{- else if lookPath "rg" }}
 export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*"'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
@@ -148,14 +167,28 @@ export FZF_DEFAULT_COMMAND='find . -type f -not -path "*/\.git/*" 2>/dev/null'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 {{- end }}
 
-# fzf 预览选项
+# fzf 预览选项 (利用新版本的改进预览功能)
 export FZF_CTRL_T_OPTS="
-    --preview '([[ -f {} ]] && (bat --style=numbers --color=always {} 2>/dev/null || cat {} 2>/dev/null || echo {})) || ([[ -d {} ]] && (eza --tree --color=always {} 2>/dev/null || ls -la {} 2>/dev/null))'
-    --bind 'ctrl-/:change-preview-window(down|hidden|)'
+    --preview '([[ -f {} ]] && (bat --style=numbers --color=always --line-range :500 {} 2>/dev/null || cat {} 2>/dev/null || echo {})) || ([[ -d {} ]] && (eza --tree --level=2 --color=always {} 2>/dev/null || tree -C -L 2 {} 2>/dev/null || ls -la {} 2>/dev/null))'
+    --preview-window='right:50%:wrap'
+    --bind='ctrl-/:change-preview-window(down,50%|right,50%|hidden|)'
+    --bind='ctrl-y:execute-silent(echo {} | pbcopy)'
 "
 
 export FZF_ALT_C_OPTS="
-    --preview 'eza --tree --color=always {} 2>/dev/null || tree -C {} 2>/dev/null || ls -la {} 2>/dev/null'
+    --preview 'eza --tree --level=2 --color=always {} 2>/dev/null || tree -C -L 2 {} 2>/dev/null || ls -la {} 2>/dev/null'
+    --preview-window='right:50%:wrap'
+    --bind='ctrl-/:change-preview-window(down,50%|right,50%|hidden|)'
+"
+
+# Git 集成的 fzf 选项
+export FZF_CTRL_R_OPTS="
+    --preview 'echo {}'
+    --preview-window='down:3:wrap'
+    --bind='ctrl-/:toggle-preview'
+    --bind='ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
+    --color='header:italic'
+    --header='Press CTRL-Y to copy command into clipboard'
 "
 {{- end }}
 

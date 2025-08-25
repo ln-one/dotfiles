@@ -35,10 +35,27 @@ if [ -n "$ZSH_VERSION" ]; then
     # Shell 性能优化
     {{ includeTemplate "core/zsh-performance-tweaks.sh" . }}
     
-    # Oh My Zsh 配置
+    # Zsh 框架配置 - 根据特性标志选择框架
+    {{- if .features.enable_zim }}
+    # Zim 框架配置 (包含补全系统管理)
+    {{ includeTemplate "core/zim-config.sh" . }}
+    {{- else if .features.enable_oh_my_zsh }}
+    # Oh My Zsh 框架配置
     {{ includeTemplate "core/oh-my-zsh-config.sh" . }}
+    {{- else }}
+    # 无框架模式 - 仅加载基础 Zsh 配置
+    # 基础补全系统 (仅在无框架模式下手动初始化)
+    autoload -Uz compinit
+    # 优化补全加载 - 每天只检查一次
+    local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+    if [[ $zcompdump(#qNmh+24) ]]; then
+        compinit -d "$zcompdump"
+    else
+        compinit -C -d "$zcompdump"
+    fi
+    {{- end }}
     
-    # 重新加载别名 (覆盖 Oh My Zsh 的默认设置)
+    # 重新加载别名 (覆盖框架的默认设置)
     {{ includeTemplate "core/aliases.sh" . }}
 fi
 
