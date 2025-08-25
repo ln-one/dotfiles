@@ -8,7 +8,7 @@
 # Only load proxy functions on Linux desktop environments
 
 # Clash 代理配置
-CLASH_DIR="${CLASH_DIR:-$HOME/.Clash}"
+CLASH_DIR="${CLASH_DIR:-$HOME/.config/clash}"
 PROXY_HOST="${PROXY_HOST:-127.0.0.1}"
 PROXY_HTTP_PORT="${PROXY_HTTP_PORT:-7890}"
 PROXY_SOCKS_PORT="${PROXY_SOCKS_PORT:-7891}"
