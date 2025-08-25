@@ -82,7 +82,13 @@ ssh-add -l
    export NEW_SECRET="{{ onepasswordRead "op://Vault/Item/field" }}"
    ```
 
-3. **应用更改**
+3. **在其他文件中使用环境变量**
+   ```bash
+   # 使用环境变量而不是重复调用 onepasswordRead
+   some_config = "{{ env "NEW_SECRET" }}"
+   ```
+
+4. **应用更改**
    ```bash
    chezmoi apply
    ```
@@ -162,12 +168,37 @@ op item list --vault Work
 op read "op://Work/OpenAI-API-Key/api-key"
 ```
 
+## 性能优化
+
+为了避免重复调用 1Password CLI（会导致性能问题），遵循以下原则：
+
+1. **统一读取** - 所有 `onepasswordRead` 调用都在 `dot_secrets.tmpl` 中
+2. **环境变量引用** - 其他文件使用 `{{ env "VARIABLE_NAME" }}` 引用
+3. **避免重复** - 同一个密钥只读取一次，多处使用环境变量
+
+### 正确示例
+```bash
+# dot_secrets.tmpl - 统一读取
+export API_KEY="{{ onepasswordRead "op://Work/API/key" }}"
+
+# other_config.tmpl - 使用环境变量
+api_key = "{{ env "API_KEY" }}"
+```
+
+### 错误示例
+```bash
+# 避免在多个文件中重复调用
+config1 = "{{ onepasswordRead "op://Work/API/key" }}"  # ❌
+config2 = "{{ onepasswordRead "op://Work/API/key" }}"  # ❌
+```
+
 ## 安全注意事项
 
 1. **密钥文件权限** - 自动设置为 600 (仅用户可读写)
 2. **版本控制** - 密钥文件已添加到 `.chezmoiignore`
 3. **会话管理** - 1Password CLI 会话会自动管理
 4. **最小权限** - 仅读取必要的密钥字段
+5. **性能考虑** - 避免重复的 1Password 调用
 
 ## 高级配置
 

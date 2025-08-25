@@ -1,6 +1,6 @@
 [user]
-	email = "{{ onepasswordRead "op://Work/Git Signing Key/email" }}"
-	signingkey = "{{ onepasswordRead "op://Work/Git Signing Key/public key" }}"
+	email = "{{ env "GIT_USER_EMAIL" }}"
+	signingkey = "{{ env "GIT_SIGNING_KEY" }}"
 	name = ln-one
 
 [commit]
