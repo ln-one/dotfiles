@@ -393,6 +393,11 @@ proxyon() {
         return 1
     }
     
+    # 清理旧的日志文件，避免nohup重定向失败
+    if [[ -f "clash.log" ]]; then
+        rm -f "clash.log" 2>/dev/null
+    fi
+    
     # 使用nohup启动clash进程
     nohup ./clash -f "$(basename "$selected_config")" > clash.log 2>&1 &
     local clash_pid=$!
