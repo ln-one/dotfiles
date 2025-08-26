@@ -3,7 +3,7 @@
 # ========================================
 # WhiteSur 主题切换功能 (迁移自原 system-tools.sh)
 
-{{- if and (eq .chezmoi.os "linux") (not (env "SSH_CONNECTION")) (lookPath "gsettings") }}
+{{- if and (eq .chezmoi.os "linux") (eq .environment "desktop") (lookPath "gsettings") }}
 # Only load theme functions on Linux desktop with GNOME
 
 # WhiteSur 主题配置

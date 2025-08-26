@@ -4,7 +4,7 @@
 # Clash 代理管理功能 (迁移自原 system-tools.sh)
 # 仅在 Linux 桌面环境加载，macOS 不使用此功能
 
-{{- if and (eq .chezmoi.os "linux") (not (env "SSH_CONNECTION")) }}
+{{- if and (eq .chezmoi.os "linux") (eq .environment "desktop") }}
 # Only load proxy functions on Linux desktop environments
 
 # Clash 代理配置
@@ -159,7 +159,7 @@ proxystatus() {
 }
 
 {{- else }}
-# macOS 和远程环境不加载代理功能
+# 非Linux桌面环境不加载代理功能
 # 提供占位函数以避免命令未找到错误
 proxyon() {
     echo "ℹ️  代理管理功能仅在 Linux 桌面环境中可用"

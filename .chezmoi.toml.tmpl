@@ -42,7 +42,11 @@
 [data.features]
   enable_ai_tools = true
   enable_proxy = true
-  enable_1password = true
+  {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") }}
+  enable_1password = false  # 远程环境禁用1Password
+  {{- else }}
+  enable_1password = true   # 桌面环境启用1Password
+  {{- end }}
   enable_oh_my_zsh = false  # 禁用 Oh My Zsh
   enable_zim = true         # 启用 Zim 框架
   enable_starship = true    # 启用 Starship 提示符

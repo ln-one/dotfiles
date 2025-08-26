@@ -74,11 +74,15 @@ source ~/.zshrc
 通过 chezmoi 模板变量 `.environment` 静态确定环境配置：
 
 - **🖥️ 桌面环境** (`desktop`): 完整的开发工具和图形界面相关配置 (默认)
-- **🌐 远程环境** (`remote`): 轻量化配置，跳过 GUI 工具，优化 SSH 使用
+- **🌐 远程环境** (`remote`): 轻量化配置，跳过 GUI 工具，优化 SSH 使用，自动禁用1Password
 - **📦 容器环境** (`container`): 最小化配置，优化启动速度和资源使用
 - **🪟 WSL 环境** (`wsl`): Windows 集成优化配置，支持跨系统操作
 
-可通过 `.chezmoi.toml.tmpl` 配置文件设置环境类型，或使用环境变量覆盖。
+**自动环境检测**:
+- SSH连接 (`SSH_CONNECTION` 或 `SSH_CLIENT`) → `remote`
+- WSL环境 (`/proc/version` 包含 "microsoft") → `wsl`  
+- 容器环境 (`CONTAINER` 环境变量) → `container`
+- 其他情况 → `desktop`
 
 ### 分层架构优势
 
@@ -279,6 +283,7 @@ Ctrl-a r          # 重新加载配置文件
 - **分层架构**: 核心功能、平台特定、环境特定、本地自定义四层分离
 - **模块化**: 每个功能独立的模板文件，按需加载
 - **平台感知**: 根据操作系统和环境智能加载相应配置
+- **环境自适应**: SSH环境自动切换轻量化模式，桌面环境启用完整功能
 - **性能优化**: zsh-defer 延迟加载、evalcache 缓存、条件加载
 - **简洁高效**: 只保留核心必需功能，避免功能冗余
 - **易于维护**: 清晰的文件结构和职责分离，便于扩展和调试
@@ -330,7 +335,58 @@ Ctrl-a r          # 重新加载配置文件
 
 详细测试文档请参考: [tests/README.md](tests/README.md)
 
+## 🚀 服务器部署
+
+### 阿里云ECS服务器安装
+
+本配置完全支持在阿里云ECS Ubuntu 24.04服务器上部署，会自动检测SSH环境并启用轻量化模式。
+
+#### 快速安装
+```bash
+# 1. 上传安装脚本到服务器
+scp install-server.sh user@your-server:~/
+
+# 2. 在服务器上运行
+chmod +x install-server.sh
+./install-server.sh
+
+# 3. 重新登录生效
+exit
+ssh user@your-server
+```
+
+#### 自动环境适配
+- **SSH连接检测**: 自动识别SSH环境切换到remote模式
+- **1Password禁用**: 服务器环境自动跳过1Password功能
+- **GUI功能禁用**: 自动禁用桌面主题和图形界面工具
+- **轻量化配置**: 保留核心开发工具，优化性能
+
+#### 服务器环境功能
+✅ **保留功能**:
+- Zsh + Zim框架 + Starship提示符
+- 现代CLI工具: eza, bat, fd, rg, fzf, zoxide
+- 开发工具: git, nvim, tmux, htop
+- 系统监控: `sysinfo`, `netcheck`, `processes`
+- 智能搜索: `search`, `grep_text`
+- 文件服务: `serve_simple`
+
+❌ **自动禁用**:
+- 1Password SSH Agent和密钥管理
+- WhiteSur主题切换和GUI工具
+- Clash代理管理和桌面集成
+- 重量级开发环境配置
+
 ## 🔧 故障排除
+
+### 服务器环境问题
+
+**问题**: 在服务器上看到"1Password功能未启用"提示
+
+**解决方案**: 这是正常的，服务器环境会自动禁用1Password功能，使用占位符函数避免命令错误。
+
+**问题**: 代理或主题命令显示"仅在桌面环境中可用"
+
+**解决方案**: 这是预期行为，服务器环境提供占位符函数，避免在远程环境执行GUI操作。
 
 ### ls 命令图标不显示
 
