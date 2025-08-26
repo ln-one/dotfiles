@@ -77,10 +77,55 @@ http_proxy = "{{ $http_proxy | default "" }}"
 https_proxy = "{{ $https_proxy | default "" }}"
 socks_proxy = "{{ $socks_proxy | default "" }}"
 {{- else if or (eq .chezmoi.os "linux") (eq .chezmoi.os "windows") }}
-  {{- $clash_config := joinPath .chezmoi.homeDir ".config/clash/config.yaml" }}
-  {{- if stat $clash_config }}
-    {{- $clash := include $clash_config | fromYaml }}
-# 使用 Clash 配置文件
+  {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") (env "SSH_TTY") }}
+    {{- /* 远程环境：优先检查 subscription.yaml，然后回退到 config.yaml */ -}}
+    {{- $subscription_config := joinPath .chezmoi.homeDir ".config/clash/subscription.yaml" }}
+    {{- $clash_config := joinPath .chezmoi.homeDir ".config/clash/config.yaml" }}
+    {{- if stat $subscription_config }}
+      {{- $clash := include $subscription_config | fromYaml }}
+# 使用 Clash subscription.yaml 配置文件 (远程环境)
+enabled = true
+source = "subscription"
+config_file = "subscription.yaml"
+log_file = "clash.log"
+host = "127.0.0.1"
+http_port = {{ $clash.port | default 7890 }}
+socks_port = {{ index $clash "socks-port" | default 7891 }}
+http_proxy = "http://127.0.0.1:{{ $clash.port | default 7890 }}"
+https_proxy = "http://127.0.0.1:{{ $clash.port | default 7890 }}"
+socks_proxy = "socks5://127.0.0.1:{{ index $clash "socks-port" | default 7891 }}"
+    {{- else if stat $clash_config }}
+      {{- $clash := include $clash_config | fromYaml }}
+# 使用 Clash config.yaml 配置文件 (远程环境回退)
+enabled = true
+source = "clash"
+config_file = "config.yaml"
+log_file = "clash.log"
+host = "127.0.0.1"
+http_port = {{ $clash.port | default 7890 }}
+socks_port = {{ index $clash "socks-port" | default 7891 }}
+http_proxy = "http://127.0.0.1:{{ $clash.port | default 7890 }}"
+https_proxy = "http://127.0.0.1:{{ $clash.port | default 7890 }}"
+socks_proxy = "socks5://127.0.0.1:{{ index $clash "socks-port" | default 7891 }}"
+    {{- else }}
+# 远程环境：没有找到代理配置文件 - 使用默认端口
+enabled = false
+source = "default"
+config_file = "subscription.yaml"
+log_file = "clash.log"
+host = "127.0.0.1"
+http_port = 7890
+socks_port = 7891
+http_proxy = "http://127.0.0.1:7890"
+https_proxy = "http://127.0.0.1:7890"
+socks_proxy = "socks5://127.0.0.1:7891"
+    {{- end }}
+  {{- else }}
+    {{- /* Desktop环境：保持现有逻辑完全不变 */ -}}
+    {{- $clash_config := joinPath .chezmoi.homeDir ".config/clash/config.yaml" }}
+    {{- if stat $clash_config }}
+      {{- $clash := include $clash_config | fromYaml }}
+# 使用 Clash 配置文件 (Desktop环境)
 enabled = true
 source = "clash"
 host = "127.0.0.1"
@@ -89,12 +134,13 @@ socks_port = {{ index $clash "socks-port" }}
 http_proxy = "http://127.0.0.1:{{ $clash.port }}"
 https_proxy = "http://127.0.0.1:{{ $clash.port }}"
 socks_proxy = "socks5://127.0.0.1:{{ index $clash "socks-port" }}"
-  {{- else }}
-# 没有找到代理配置 - 提供默认空值
+    {{- else }}
+# 没有找到代理配置 - 提供默认空值 (Desktop环境)
 enabled = false
 http_proxy = ""
 https_proxy = ""
 socks_proxy = ""
+    {{- end }}
   {{- end }}
 {{- else }}
 # macOS 或其他系统，且无环境变量 - 提供默认空值
