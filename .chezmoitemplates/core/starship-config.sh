@@ -28,6 +28,8 @@ if command -v starship >/dev/null 2>&1; then
     {{- if eq .environment "remote" }}
     # 远程环境优化: 禁用一些耗时的模块
     export STARSHIP_CACHE="$HOME/.cache/starship"
+    # 创建缓存目录
+    mkdir -p "$HOME/.cache/starship"
     {{- end }}
     
 else

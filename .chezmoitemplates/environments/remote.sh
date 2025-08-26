@@ -61,27 +61,32 @@ elif command -v bat >/dev/null 2>&1; then
     alias cat='bat --paging=never'
 fi
 
-# File listing with minimal options
+# Remote-specific file listing (lightweight, no icons for performance)
 if command -v eza >/dev/null 2>&1; then
-    alias ls='eza --color=auto'
-    alias ll='eza -l --color=auto'
-    alias la='eza -la --color=auto'
+    # Use eza without icons for better performance over SSH
+    alias rls='eza --color=auto'
+    alias rll='eza -l --color=auto'
+    alias rla='eza -la --color=auto'
 elif command -v exa >/dev/null 2>&1; then
-    alias ls='exa --color=auto'
-    alias ll='exa -l --color=auto'
-    alias la='exa -la --color=auto'
+    # Use exa without icons for better performance over SSH
+    alias rls='exa --color=auto'
+    alias rll='exa -l --color=auto'
+    alias rla='exa -la --color=auto'
 else
     # Fallback to standard ls with colors
     {{- if eq .chezmoi.os "linux" }}
-    alias ls='ls --color=auto'
-    alias ll='ls -l --color=auto'
-    alias la='ls -la --color=auto'
+    alias rls='ls --color=auto'
+    alias rll='ls -l --color=auto'
+    alias rla='ls -la --color=auto'
     {{- else if eq .chezmoi.os "darwin" }}
-    alias ls='ls -G'
-    alias ll='ls -lG'
-    alias la='ls -laG'
+    alias rls='ls -G'
+    alias rll='ls -lG'
+    alias rla='ls -laG'
     {{- end }}
 fi
+
+# Note: Core aliases.sh will handle the main ls/ll/la aliases
+# These remote-specific aliases (rls/rll/rla) are for explicit remote usage
 
 # Lightweight system monitoring
 if command -v htop >/dev/null 2>&1; then
@@ -316,9 +321,9 @@ themestatus() {
     echo "ℹ️  GUI theme functions disabled in remote environment"
 }
 
-# Provide CLI-only proxy management
-proxyon() {
-    echo "🔗 Setting environment proxy variables..."
+# Remote-specific proxy management (CLI-only, no GUI integration)
+remote_proxyon() {
+    echo "🔗 Setting environment proxy variables (remote mode)..."
     export http_proxy="http://127.0.0.1:7890"
     export https_proxy="http://127.0.0.1:7890"
     export all_proxy="socks5://127.0.0.1:7891"
@@ -330,18 +335,23 @@ proxyon() {
     echo "✅ Environment proxy variables set (CLI only)"
 }
 
-proxyoff() {
-    echo "🔗 Clearing environment proxy variables..."
+remote_proxyoff() {
+    echo "🔗 Clearing environment proxy variables (remote mode)..."
     unset http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY no_proxy NO_PROXY
     echo "✅ Environment proxy variables cleared"
 }
 
-proxystatus() {
+remote_proxystatus() {
     echo "🔗 Proxy Status (Environment Variables Only):"
     echo "  http_proxy: ${http_proxy:-not set}"
     echo "  https_proxy: ${https_proxy:-not set}"
     echo "  all_proxy: ${all_proxy:-not set}"
 }
+
+# 为了向后兼容，提供别名
+alias proxyon='remote_proxyon'
+alias proxyoff='remote_proxyoff'
+alias proxystatus='remote_proxystatus'
 {{- end }}
 
 # ========================================
@@ -405,10 +415,9 @@ validate_remote_environment() {
 # Export Remote Functions
 # ========================================
 
-# Export remote functions (with error handling)
+# Export remote-specific functions (with error handling)
 declare -f search >/dev/null 2>&1 && export -f search 2>/dev/null || true
 declare -f grep_files >/dev/null 2>&1 && export -f grep_files 2>/dev/null || true
-declare -f sysinfo >/dev/null 2>&1 && export -f sysinfo 2>/dev/null || true
 declare -f netcheck >/dev/null 2>&1 && export -f netcheck 2>/dev/null || true
 declare -f processes >/dev/null 2>&1 && export -f processes 2>/dev/null || true
 declare -f serve_simple >/dev/null 2>&1 && export -f serve_simple 2>/dev/null || true
@@ -416,6 +425,11 @@ declare -f upload >/dev/null 2>&1 && export -f upload 2>/dev/null || true
 declare -f session_info >/dev/null 2>&1 && export -f session_info 2>/dev/null || true
 declare -f tmux_quick >/dev/null 2>&1 && export -f tmux_quick 2>/dev/null || true
 declare -f validate_remote_environment >/dev/null 2>&1 && export -f validate_remote_environment 2>/dev/null || true
+declare -f remote_proxyon >/dev/null 2>&1 && export -f remote_proxyon 2>/dev/null || true
+declare -f remote_proxyoff >/dev/null 2>&1 && export -f remote_proxyoff 2>/dev/null || true
+declare -f remote_proxystatus >/dev/null 2>&1 && export -f remote_proxystatus 2>/dev/null || true
+
+# Note: sysinfo function is defined in this file and will override the basic one from core
 
 # ========================================
 # Remote Environment Aliases

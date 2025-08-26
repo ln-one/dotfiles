@@ -13,7 +13,8 @@ mkcd() {
     echo "✅ 创建并进入目录: $1"
 }
 
-# 系统信息 (简化版)
+# 系统信息 (简化版) - 仅在非远程环境中定义
+{{- if ne .environment "remote" }}
 sysinfo() {
     echo "=== System Information ==="
     echo "OS: {{ .chezmoi.os }}"
@@ -25,3 +26,4 @@ sysinfo() {
     echo "PWD: $PWD"
     echo "=========================="
 }
+{{- end }}

@@ -71,11 +71,11 @@ else
     z() {
         echo "❌ zoxide 未安装"
         echo "💡 运行以下命令安装:"
-        {{- if eq .chezmoi.os "darwin" }}
+{{- if eq .chezmoi.os "darwin" }}
         echo "   brew install zoxide"
-        {{- else if eq .chezmoi.os "linux" }}
+{{- else if eq .chezmoi.os "linux" }}
         echo "   curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
-        {{- end }}
+{{- end }}
         echo "   或者运行 chezmoi apply 来自动安装"
     }
     
