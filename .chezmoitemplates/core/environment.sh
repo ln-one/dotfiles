@@ -84,27 +84,22 @@ export OPENAI_API_BASE="${OPENAI_API_BASE:-}"
 
 {{- if and .features.enable_proxy .proxy.enabled }}
 # 代理配置
-{{- if and (hasKey .proxy "http_proxy") .proxy.http_proxy }}
-export HTTP_PROXY="{{ .proxy.http_proxy }}"
+{{- $http_proxy := .proxy.http_proxy | default "" }}
+{{- $https_proxy := .proxy.https_proxy | default "" }}
+{{- $socks_proxy := .proxy.socks_proxy | default "" }}
+{{- if $http_proxy }}
+export HTTP_PROXY="{{ $http_proxy }}"
+export http_proxy="{{ $http_proxy }}"
 {{- end }}
-{{- if and (hasKey .proxy "https_proxy") .proxy.https_proxy }}
-export HTTPS_PROXY="{{ .proxy.https_proxy }}"
+{{- if $https_proxy }}
+export HTTPS_PROXY="{{ $https_proxy }}"
+export https_proxy="{{ $https_proxy }}"
 {{- end }}
-{{- if and (hasKey .proxy "socks_proxy") .proxy.socks_proxy }}
-export SOCKS_PROXY="{{ .proxy.socks_proxy }}"
+{{- if $socks_proxy }}
+export SOCKS_PROXY="{{ $socks_proxy }}"
+export socks_proxy="{{ $socks_proxy }}"
 {{- end }}
 export NO_PROXY="localhost,127.0.0.1,::1,.local"
-
-# 小写版本
-{{- if and (hasKey .proxy "http_proxy") .proxy.http_proxy }}
-export http_proxy="{{ .proxy.http_proxy }}"
-{{- end }}
-{{- if and (hasKey .proxy "https_proxy") .proxy.https_proxy }}
-export https_proxy="{{ .proxy.https_proxy }}"
-{{- end }}
-{{- if and (hasKey .proxy "socks_proxy") .proxy.socks_proxy }}
-export socks_proxy="{{ .proxy.socks_proxy }}"
-{{- end }}
 export no_proxy="$NO_PROXY"
 {{- end }}
 
