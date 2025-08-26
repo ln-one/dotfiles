@@ -43,7 +43,8 @@ if command -v brew >/dev/null 2>&1; then
 elif command -v apt >/dev/null 2>&1; then
     echo "📦 尝试使用 apt 安装 Starship..."
     # 检查是否在apt仓库中可用
-    if apt-cache search starship | grep -q "^starship "; then
+    if apt-cache search --names-only starship 2>/dev/null | grep -q "^starship "; then
+        echo "📦 从 apt 仓库安装..."
         sudo apt update && sudo apt install -y starship
     else
         echo "📥 apt 中无 Starship，使用官方安装脚本..."
