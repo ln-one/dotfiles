@@ -505,6 +505,13 @@ proxyoff() {
     echo "🧹 清理代理环境变量..."
     unset http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY no_proxy NO_PROXY
     
+    # 清理日志文件
+    local log_file="$clash_dir/clash.log"
+    if [[ -f "$log_file" ]]; then
+        echo "🗑️  清理日志文件..."
+        rm -f "$log_file" 2>/dev/null && echo "   ✅ 日志文件已删除: $log_file" || echo "   ⚠️  无法删除日志文件: $log_file"
+    fi
+    
     # 显示结果
     if [[ "$stopped_any" == true ]]; then
         echo "✅ Clash进程已停止"
