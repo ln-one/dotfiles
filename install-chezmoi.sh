@@ -92,16 +92,28 @@ init_chezmoi() {
     local env_type=$(detect_environment)
     log "Initializing Chezmoi for environment: $env_type"
     
+    # Ensure chezmoi is in PATH
+    export PATH="$HOME/.local/bin:$PATH"
+    
     # Set environment variables for Chezmoi templates
     export CHEZMOI_ENVIRONMENT="$env_type"
     
     # Initialize Chezmoi (without --apply for safety)
     if [[ -d "$CHEZMOI_SOURCE_DIR" ]]; then
-        warn "Chezmoi source directory already exists, updating..."
-        chezmoi update || error "Failed to update Chezmoi"
+        warn "Chezmoi source directory already exists, reinitializing..."
+        # Remove and reinitialize to fix template issues
+        rm -rf "$CHEZMOI_SOURCE_DIR"
+        chezmoi init "$CHEZMOI_REPO" || error "Failed to reinitialize Chezmoi"
     else
         chezmoi init "$CHEZMOI_REPO" || error "Failed to initialize Chezmoi"
     fi
+    
+    # Create chezmoi config with environment data
+    mkdir -p "$CHEZMOI_CONFIG_DIR"
+    cat > "$CHEZMOI_CONFIG_DIR/chezmoi.toml" << EOF
+[data]
+    environment = "$env_type"
+EOF
     
     # Preview changes before applying
     info "Previewing changes..."
@@ -164,6 +176,9 @@ rollback() {
 # Verify installation
 verify_installation() {
     log "Verifying installation..."
+    
+    # Ensure chezmoi is in PATH
+    export PATH="$HOME/.local/bin:$PATH"
     
     # Check if Chezmoi is working
     if ! chezmoi --version >/dev/null 2>&1; then
@@ -249,6 +264,11 @@ main() {
     info "Backup saved to: $BACKUP_DIR"
     info "To rollback: bash $0 --rollback"
     info "Chezmoi source: $CHEZMOI_SOURCE_DIR"
+    
+    # Remind user to update PATH
+    warn "IMPORTANT: Add ~/.local/bin to your PATH permanently by adding this to your shell config:"
+    echo "export PATH=\"\$HOME/.local/bin:\$PATH\""
+    info "Or restart your shell to use the new configuration"
     
     # Clean up trap
     trap - ERR
