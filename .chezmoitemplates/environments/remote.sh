@@ -348,16 +348,11 @@ remote_proxystatus() {
     echo "  all_proxy: ${all_proxy:-not set}"
 }
 
-# 为了向后兼容，提供别名（避免函数定义冲突）
-if ! type proxyon >/dev/null 2>&1; then
-    alias proxyon='remote_proxyon'
-fi
-if ! type proxyoff >/dev/null 2>&1; then
-    alias proxyoff='remote_proxyoff'
-fi
-if ! type proxystatus >/dev/null 2>&1; then
-    alias proxystatus='remote_proxystatus'
-fi
+# 为了向后兼容，提供别名（在远程环境中强制覆盖占位函数）
+# 在远程环境中，我们总是使用remote_proxy*函数
+alias proxyon='remote_proxyon'
+alias proxyoff='remote_proxyoff'
+alias proxystatus='remote_proxystatus'
 {{- end }}
 
 # ========================================
