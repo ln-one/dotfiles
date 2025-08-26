@@ -3,7 +3,7 @@
 # 注意：此文件不会在 Zsh 启动时被 source，仅用于配置 zimfw 插件管理器
 
 # zsh-defer 模块 - 必须最先加载以支持延迟执行
-zmodule romkatv/zsh-defer -d
+zmodule romkatv/zsh-defer
 
 # 核心模块 - 提供基础的 Zsh 环境配置
 zmodule environment
@@ -26,7 +26,7 @@ zmodule asciiship
 # 注意: 补全系统初始化在 shell-common.sh 中通过 zsh-defer 处理
 # zsh-users/zsh-completions 提供额外的补全定义
 zmodule zsh-users/zsh-completions --fpath src
-# completion 模块延迟加载
+# completion 模块 - 通过 shell-common.sh 延迟加载，这里注释掉避免重复
 # zmodule completion
 
 # 以下模块必须最后加载以确保正确的功能
