@@ -94,6 +94,24 @@ if command -v zsh-defer >/dev/null 2>&1; then
             source "${ZIM_HOME}/modules/completion/init.zsh"
         fi
     '
+    
+    # 延迟配置历史子字符串搜索键绑定
+    zsh-defer -c '
+        # 配置历史子字符串搜索的键绑定
+        if [[ -n "${widgets[history-substring-search-up]}" ]]; then
+            # 绑定上下箭头键到历史子字符串搜索
+            bindkey "^[[A" history-substring-search-up      # 上箭头
+            bindkey "^[[B" history-substring-search-down    # 下箭头
+            
+            # 兼容不同终端的键码
+            bindkey "^[OA" history-substring-search-up      # 上箭头 (某些终端)
+            bindkey "^[OB" history-substring-search-down    # 下箭头 (某些终端)
+            
+            # 在 vi 模式下也启用
+            bindkey -M vicmd "k" history-substring-search-up
+            bindkey -M vicmd "j" history-substring-search-down
+        fi
+    '
 fi
 {{- end }}
 
