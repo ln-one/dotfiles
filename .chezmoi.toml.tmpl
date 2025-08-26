@@ -134,7 +134,7 @@ enabled = false
   autoCommit = true
   autoPush = false
 
-{{- if and (hasKey . "features") .features.enable_1password }}
+{{- if and (hasKey . "features") .features.enable_1password (lookPath "op") }}
 # 1Password 集成配置
 [onepassword]
   prompt = false
@@ -161,6 +161,28 @@ enabled = false
   db_pass = "{{ onepasswordRead "op://Work/Ali-MySQL/password" }}"
   db_host = "{{ onepasswordRead "op://Work/Ali-MySQL/server" }}"
   db_port = "{{ onepasswordRead "op://Work/Ali-MySQL/port" }}"
+{{- else if and (hasKey . "features") .features.enable_1password }}
+# 1Password 功能已启用但 CLI 不可用 - 使用默认值
+[data.secrets]
+  # Git 配置 (默认值)
+  git_user_email = "{{ .user.email }}"
+  git_signing_key = ""
+  
+  # API Keys (空值，需要手动配置)
+  openai_api_key = ""
+  
+  # Google Cloud (空值)
+  google_cloud_project = ""
+  
+  # Aliyun Server (空值)
+  aliyun_server_url = ""
+  aliyun_server_username = ""
+
+  # MySQL/MariaDB (空值)
+  db_user = ""
+  db_pass = ""
+  db_host = ""
+  db_port = ""
 {{- end }}
 
 # 禁用加密 (我们使用 1Password 管理密钥)
