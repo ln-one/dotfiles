@@ -88,13 +88,22 @@ source = "clash"
 host = "127.0.0.1"
 http_port = {{ $clash.port }}
 socks_port = {{ index $clash "socks-port" }}
+http_proxy = "http://127.0.0.1:{{ $clash.port }}"
+https_proxy = "http://127.0.0.1:{{ $clash.port }}"
+socks_proxy = "socks5://127.0.0.1:{{ index $clash "socks-port" }}"
   {{- else }}
 # 没有找到代理配置
 enabled = false
+http_proxy = ""
+https_proxy = ""
+socks_proxy = ""
   {{- end }}
 {{- else }}
 # macOS 或其他系统，且无环境变量
 enabled = false
+http_proxy = ""
+https_proxy = ""
+socks_proxy = ""
 {{- end }}
   
 [data.packages]
@@ -134,7 +143,8 @@ enabled = false
   autoCommit = true
   autoPush = false
 
-{{- if and (hasKey . "features") .features.enable_1password (lookPath "op") }}
+{{- $op_available := and (lookPath "op") (not (or (env "SSH_CONNECTION") (env "SSH_CLIENT"))) }}
+{{- if and (hasKey . "features") .features.enable_1password $op_available }}
 # 1Password 集成配置
 [onepassword]
   prompt = false
