@@ -6,6 +6,9 @@
 
 {{- if .features.enable_evalcache }}
 
+# 只在 zsh 中启用 evalcache
+if [[ -n "${ZSH_VERSION:-}" ]]; then
+
 # 检查并加载 evalcache
 if [[ -f "$HOME/.evalcache/evalcache.plugin.zsh" ]]; then
     # 加载 evalcache 插件
@@ -377,6 +380,8 @@ else
         eval "$(docker completion zsh)"
     fi
 fi
+
+fi  # 结束 zsh 检测
 
 {{- else }}
 # evalcache 功能已禁用，使用标准 eval 语句
