@@ -7,7 +7,7 @@ set -euo pipefail
 
 # Configuration
 BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
-CHEZMOI_REPO="${CHEZMOI_REPO:-https://github.com/$(whoami)/dotfiles.git}"
+CHEZMOI_REPO="${CHEZMOI_REPO:-https://github.com/ln-one/dotfiles-chezmoi.git}"
 LOG_FILE="./chezmoi-install.log"
 CHEZMOI_SOURCE_DIR="$HOME/.local/share/chezmoi"
 CHEZMOI_CONFIG_DIR="$HOME/.config/chezmoi"
@@ -62,10 +62,21 @@ install_chezmoi() {
     fi
     
     log "Installing Chezmoi..."
+    
+    # Ensure ~/.local/bin directory exists
+    mkdir -p "$HOME/.local/bin"
+    
     if command -v curl >/dev/null 2>&1; then
-        sh -c "$(curl -fsLS get.chezmoi.io)" || error "Failed to install Chezmoi"
+        # Install Chezmoi to ~/.local/bin
+        BINDIR="$HOME/.local/bin" sh -c "$(curl -fsLS get.chezmoi.io)" || error "Failed to install Chezmoi"
     else
         error "curl is required but not installed"
+    fi
+    
+    # Add ~/.local/bin to PATH if not already there
+    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+        export PATH="$HOME/.local/bin:$PATH"
+        info "Added ~/.local/bin to PATH for this session"
     fi
     
     # Verify installation
@@ -212,7 +223,7 @@ main() {
             echo "  --help      Show this help"
             echo ""
             echo "Environment variables:"
-            echo "  CHEZMOI_REPO  Git repository URL (default: https://github.com/USERNAME/dotfiles.git)"
+            echo "  CHEZMOI_REPO  Git repository URL (default: https://github.com/ln-one/dotfiles-chezmoi.git)"
             exit 0 ;;
     esac
     
