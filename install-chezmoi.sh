@@ -108,12 +108,8 @@ init_chezmoi() {
         chezmoi init "$CHEZMOI_REPO" || error "Failed to initialize Chezmoi"
     fi
     
-    # Create chezmoi config with environment data
-    mkdir -p "$CHEZMOI_CONFIG_DIR"
-    cat > "$CHEZMOI_CONFIG_DIR/chezmoi.toml" << EOF
-[data]
-    environment = "$env_type"
-EOF
+    # Let .chezmoi.toml.tmpl generate the full configuration automatically
+    # No need to create a static config file that would override the template
     
     # Preview changes before applying
     info "Previewing changes..."
