@@ -101,6 +101,7 @@ source ~/.zshrc
 ```
 ├── dot_bashrc.tmpl         # Bash 配置模板
 ├── dot_zshrc.tmpl          # Zsh 配置模板
+├── dot_tmux.conf.tmpl      # Tmux 配置模板 (Tokyo Night 主题)
 └── run_onchange_verify-environment.sh.tmpl  # 环境验证脚本
 ```
 
@@ -228,6 +229,30 @@ npm <↑>      # 搜索以 "npm" 开头的历史命令
 # ↓ 箭头键    - 向后搜索匹配的历史命令
 # k (vi模式)  - 向前搜索 (仅在 vi 模式下)
 # j (vi模式)  - 向后搜索 (仅在 vi 模式下)
+```
+
+### 终端复用器 (Tmux)
+**Tokyo Night 主题配置**:
+- 现代化的 Tokyo Night 配色方案，支持真彩色显示
+- Vim 风格的窗格导航 (hjkl) 和调整大小 (HJKL)
+- 智能状态栏显示：会话信息、CPU 使用率、电池状态、日期
+- TPM 插件管理器集成，支持会话恢复和系统监控
+
+**快捷键配置**:
+```bash
+# 前缀键: Ctrl-a (替代默认的 Ctrl-b)
+# 窗格分割
+Ctrl-a |     # 垂直分割窗格
+Ctrl-a -     # 水平分割窗格
+
+# Vim 风格导航
+Ctrl-a h/j/k/l    # 选择左/下/上/右窗格
+Ctrl-a H/J/K/L    # 调整窗格大小
+
+# 窗口管理
+Alt-1/2/3/4/5     # 快速切换到窗口 1-5
+Ctrl-a c          # 新建窗口 (在当前路径)
+Ctrl-a r          # 重新加载配置文件
 ```
 
 ### 工具管理

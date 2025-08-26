@@ -1,0 +1,154 @@
+# ----------------------------
+# Basic settings
+# ----------------------------
+set -g default-terminal "tmux-256color"
+set -ga terminal-overrides ",xterm-256color*:Tc"
+set -g history-limit 50000
+set -g base-index 1
+set -g pane-base-index 1
+set -g renumber-windows on
+set -sg escape-time 0
+set -g focus-events on
+
+# ----------------------------
+# Prefix and basic navigation
+# ----------------------
+unbind C-b
+set -g prefix C-a
+bind C-a send-prefix
+set -g mouse on
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+
+# ----------------------------
+# Vim-style pane navigation
+# ----------------------------
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+# ----------------------------
+# Pane resizing
+# ----------------------------
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# ----------------------------
+# Copy mode (vi-style)
+# ----------------------------
+setw -g mode-keys vi
+bind-key -T copy-mode-vi v send-keys -X begin-selection
+bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xclip -selection clipboard"
+bind-key -T copy-mode-vi r send-keys -X rectangle-toggle
+
+# ----------------------------
+# TPM plugin management
+# ----------------------------
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+set -g @plugin 'tmux-plugins/tmux-yank'
+set -g @plugin 'christoomey/vim-tmux-navigator'
+set -g @plugin 'tmux-plugins/tmux-cpu'
+set -g @plugin 'tmux-plugins/tmux-battery'
+
+# ----------------------------
+# Plugin settings
+# ----------------------------
+set -g @continuum-restore 'off'
+set -g @resurrect-capture-pane-contents 'on'
+set -g @cpu_low_icon "󰾆"
+set -g @cpu_medium_icon "󰾅"
+set -g @cpu_high_icon "󰾄"
+set -g @online_icon "󰖩"
+set -g @offline_icon "󰖪"
+
+# ----------------------------
+# Modern theme - Tokyo Night
+# ----------------------------
+# Color definitions
+bg_dark="#1a1b26"
+bg="#24283b"
+bg_highlight="#292e42"
+terminal_black="#414868"
+fg="#c0caf5"
+fg_dark="#a9b1d6"
+fg_gutter="#3b4261"
+comment="#565f89"
+blue="#7aa2f7"
+cyan="#7dcfff"
+magenta="#bb9af7"
+orange="#ff9e64"
+yellow="#e0af68"
+green="#9ece6a"
+red="#f7768e"
+purple="#9d7cd8"
+
+# ----------------------------
+# Status bar configuration
+# ----------------------------
+set -g status on
+set -g status-position bottom
+set -g status-justify left
+set -g status-interval 1
+set -g status-style "bg=$bg,fg=$fg"
+
+# ----------------------------
+# Left status: Session info
+# ----------------------------
+set -g status-left-length 100
+set -g status-left "#[bg=$blue,fg=$bg_dark,bold] 󰣇 #S #[bg=$bg_highlight,fg=$blue]#[bg=$bg_highlight,fg=$fg] 󰖲 #I:#P #[bg=$bg,fg=$bg_highlight]"
+
+# ----------------------------
+# Window status styling
+# ----------------------------
+set -g window-status-separator ""
+set -g window-status-format "#[bg=$bg,fg=$fg_gutter] #I #[bg=$bg,fg=$fg_dark]#W#[bg=$bg,fg=$comment]#{?window_zoomed_flag, 󰍉,} "
+set -g window-status-current-format "#[bg=$orange,fg=$bg_dark,bold] #I #[bg=$orange,fg=$bg_dark,bold]#W#[bg=$orange,fg=$bg_dark]#{?window_zoomed_flag, 󰍉,} #[bg=$bg,fg=$orange]"
+
+# ----------------------------
+# Right status: System info
+# ----------------------------
+set -g status-right-length 200
+set -g status-right "#[bg=$bg_highlight,fg=$green]#[bg=$green,fg=$bg_dark,bold] 󰻠 #{cpu_percentage} #[bg=$purple,fg=$yellow]#[bg=$yellow,fg=$bg_dark,bold] 󰂄 #{battery_percentage} #[bg=$magenta,fg=$blue]#[bg=$blue,fg=$bg_dark,bold] 󰃭 %m-%d "
+
+# ----------------------------
+# Pane border styling
+# ----------------------------
+set -g pane-border-style "fg=$fg_gutter"
+set -g pane-active-border-style "fg=$blue"
+
+# ----------------------------
+# Message styling
+# ----------------------------
+set -g message-style "bg=$blue,fg=$bg_dark,bold"
+set -g message-command-style "bg=$yellow,fg=$bg_dark,bold"
+
+# ----------------------------
+# Copy mode styling
+# ----------------------------
+set -g mode-style "bg=$blue,fg=$bg_dark"
+
+# ----------------------------
+# Window management
+# ----------------------------
+bind c new-window -c "#{pane_current_path}"
+bind-key -n M-1 select-window -t 1
+bind-key -n M-2 select-window -t 2
+bind-key -n M-3 select-window -t 3
+bind-key -n M-4 select-window -t 4
+bind-key -n M-5 select-window -t 5
+
+# ----------------------------
+# Reload config
+# ----------------------------
+bind r source-file ~/.tmux.conf \; display-message "Config reloaded! 🚀"
+
+# ----------------------------
+# Initialize TPM (keep at bottom)
+# ----------------------------
+run-shell "~/.tmux/plugins/tpm/tpm"
