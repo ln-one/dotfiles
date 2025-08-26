@@ -5,11 +5,9 @@
 # 用于设置环境变量和基础配置
 
 {{- if eq .chezmoi.os "linux" }}
-{{- if lookPath "apt" }}
-# Ubuntu/Debian 特定配置
+# Linux 特定配置
 # 跳过全局 compinit 以避免与 Zim 补全模块冲突
 skip_global_compinit=1
-{{- end }}
 {{- end }}
 
 # 设置 Zim 相关环境变量 (保持默认路径以兼容现有配置)

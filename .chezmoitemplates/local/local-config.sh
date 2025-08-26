@@ -132,10 +132,6 @@ detect_local_capabilities() {
         export LOCAL_HAS_BREW=true
     fi
     
-    if command -v apt >/dev/null 2>&1; then
-        export LOCAL_HAS_APT=true
-    fi
-    
     # Detect container runtime
     if command -v docker >/dev/null 2>&1; then
         export LOCAL_HAS_DOCKER=true

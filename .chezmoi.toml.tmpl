@@ -19,16 +19,8 @@
   environment = "desktop"
   {{- end }}
   
-  # 包管理器检测
-  {{- if lookPath "apt" }}
-  package_manager = "apt"
-  {{- else if lookPath "yum" }}
-  package_manager = "yum"
-  {{- else if lookPath "brew" }}
+  # 统一使用 Homebrew 包管理器
   package_manager = "brew"
-  {{- else }}
-  package_manager = "unknown"
-  {{- end }}
 
 [data.user]
   name = "{{ .chezmoi.username }}"
@@ -151,9 +143,9 @@ socks_proxy = ""
 {{- end }}
   
 [data.packages]
-  # 核心工具包列表
+  # 核心工具包列表 (统一使用 Homebrew 标准包名)
   brew = ["git", "curl", "wget", "fzf", "ripgrep", "fd", "bat", "eza", "zoxide"]
-  apt = ["git", "curl", "wget", "unzip", "build-essential", "fzf", "ripgrep", "fd-find"]
+  # 注意: 不再使用 apt 包名映射，统一通过 Homebrew 管理
   
   # 必需工具列表 (按优先级分组)
   essential = ["git", "curl", "wget", "unzip"]
@@ -181,13 +173,13 @@ socks_proxy = ""
 
 # Chezmoi 行为配置
 [edit]
-  command = "{{ if lookPath "code" }}code{{ else if lookPath "nvim" }}nvim{{ else }}vi{{ end }}"
+  command = "{{ if stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/code") }}{{ joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/code" }}{{ else if stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/nvim") }}{{ joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/nvim" }}{{ else }}vi{{ end }}"
 
 [git]
   autoCommit = true
   autoPush = false
 
-{{- $op_available := and (lookPath "op") (not (or (env "SSH_CONNECTION") (env "SSH_CLIENT"))) }}
+{{- $op_available := and (or (lookPath "op") (stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/op")) (stat "/usr/bin/op")) (not (or (env "SSH_CONNECTION") (env "SSH_CLIENT"))) }}
 {{- $is_remote := or (env "SSH_CONNECTION") (env "SSH_CLIENT") }}
 {{- if and (hasKey . "features") .features.enable_1password $op_available (not $is_remote) }}
 # 1Password 集成配置

@@ -11,17 +11,31 @@ brew "tree"             # 目录树显示
 
 # 现代化 CLI 工具 (替代传统工具)
 brew "eza"              # 现代化的 ls 替代品
-brew "bat"              # 现代化的 cat 替代品
-brew "fd"               # 现代化的 find 替代品
+brew "bat"              # 现代化的 cat 替代品 (统一使用 bat，不再使用 batcat)
+brew "fd"               # 现代化的 find 替代品 (统一使用 fd，不再使用 fd-find)
 brew "ripgrep"          # 现代化的 grep 替代品
 brew "fzf"              # 模糊搜索工具
 brew "zoxide"           # 智能目录跳转工具
 brew "jq"               # JSON 处理工具
 
+# 1Password CLI (仅 macOS 通过 Homebrew)
+{{- if and (hasKey . "features") .features.enable_1password (eq .chezmoi.os "darwin") }}
+tap "1password/tap"
+cask "1password/tap/1password-cli"  # macOS 通过 Homebrew tap 安装
+{{- end }}
+
+# 注意: Linux 上的 1Password CLI 必须通过 apt 仓库安装
+# 这是一个例外情况，不能通过 Homebrew 统一管理
+
 # Shell 和终端工具
 brew "zsh"              # 现代 Shell
 brew "tmux"             # 终端复用器
 brew "starship"         # 跨 Shell 提示符
+
+# 版本管理和性能优化工具
+{{- if and (hasKey . "features") .features.enable_node }}
+brew "fnm"              # 快速 Node.js 版本管理器
+{{- end }}
 
 # 编辑器和开发工具
 brew "neovim"           # 现代化的 Vim
@@ -38,6 +52,14 @@ cask "iterm2"
 cask "docker"
 cask "1password"
 cask "1password-cli"
+
+# Nerd Fonts (通过 Homebrew Cask)
+{{- if and (hasKey . "features") .features.enable_nerd_fonts }}
+cask "font-fira-code-nerd-font"
+cask "font-hack-nerd-font"
+cask "font-jetbrains-mono-nerd-font"
+cask "font-meslo-lg-nerd-font"
+{{- end }}
 
 {{- else if eq .chezmoi.os "linux" }}
 # Linux 特定工具
@@ -96,3 +118,8 @@ brew "docker"           # Docker (Linux)
 brew "docker-compose"   # Docker Compose
 {{- end }}
 {{- end }}
+
+# 注意: 以下工具需要特殊安装方式，不通过 Homebrew:
+# - evalcache: 通过 git clone 安装到 ~/.evalcache
+# - zim: 通过 curl 安装脚本安装
+# 这些工具的安装逻辑保留在相应的配置模板中

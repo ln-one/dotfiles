@@ -3,6 +3,15 @@
 # ========================================
 # 现代化的命令别名，支持图标和颜色
 
+# 使用 Homebrew 安装的现代化工具
+{{- if or (stat "/opt/homebrew") (stat "/home/linuxbrew/.linuxbrew") }}
+# 使用 eza (通过 Homebrew 安装)
+alias ls='$HOMEBREW_PREFIX/bin/eza --color=auto --icons'
+alias ll='$HOMEBREW_PREFIX/bin/eza -alF --color=auto --icons --git'
+alias la='$HOMEBREW_PREFIX/bin/eza -a --color=auto --icons'
+alias l='$HOMEBREW_PREFIX/bin/eza -F --color=auto --icons'
+alias tree='$HOMEBREW_PREFIX/bin/eza --tree --color=auto --icons'
+{{- else }}
 # 检查可用的 ls 替代工具
 if command -v eza &> /dev/null; then
     # 使用 eza (exa 的现代替代品)
@@ -25,6 +34,7 @@ else
     alias la='ls -A --color=auto'
     alias l='ls -CF --color=auto'
 fi
+{{- end }}
 
 # 目录导航
 alias ..='cd ..'
@@ -42,8 +52,13 @@ alias gd='git diff'
 alias gb='git branch'
 alias gco='git checkout'
 
-# 实用工具
-alias grep='grep --color=auto'
+# 实用工具 - 使用 Homebrew 标准命令名
+{{- if or (stat "/opt/homebrew") (stat "/home/linuxbrew/.linuxbrew") }}
+# 使用 Homebrew 安装的现代化工具
+alias cat='$HOMEBREW_PREFIX/bin/bat'
+alias find='$HOMEBREW_PREFIX/bin/fd'
+alias grep='$HOMEBREW_PREFIX/bin/rg'
+{{- end }}
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 alias df='df -h'

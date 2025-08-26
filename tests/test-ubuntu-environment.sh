@@ -56,11 +56,11 @@ test_system_detection() {
         error "操作系统检测错误: 期望 Linux, 实际 $(uname -s)"
     fi
     
-    # 检查包管理器检测
-    if command -v apt >/dev/null 2>&1; then
-        success "包管理器检测正确: apt"
+    # 检查 Homebrew 包管理器 (统一包管理方式)
+    if command -v brew >/dev/null 2>&1; then
+        success "Homebrew 包管理器检测正确"
     else
-        error "apt 包管理器未找到"
+        warning "Homebrew 未安装 (需要手动安装)"
     fi
     
     # 检查环境类型检测
@@ -140,37 +140,31 @@ test_shell_configs() {
 }
 
 # ========================================
-# 4. 包管理器集成测试
+# 4. Homebrew 包管理器测试
 # ========================================
 test_package_manager() {
-    log "测试 4: Ubuntu 包管理器集成"
+    log "测试 4: Homebrew 统一包管理"
     
-    # 测试 apt 可用性
-    if apt list --installed >/dev/null 2>&1; then
-        success "apt 包管理器正常工作"
-    else
-        error "apt 包管理器异常"
-    fi
-    
-    # 测试核心包是否可安装 (不实际安装)
-    local core_packages=("git" "curl" "wget" "unzip" "build-essential")
-    for package in "${core_packages[@]}"; do
-        if apt-cache show "$package" >/dev/null 2>&1; then
-            success "核心包 $package 可用"
-        else
-            error "核心包 $package 不可用"
-        fi
-    done
-    
-    # 测试 Homebrew 兼容性 (如果已安装)
+    # 测试 Homebrew 可用性
     if command -v brew >/dev/null 2>&1; then
         if brew --version >/dev/null 2>&1; then
             success "Homebrew 在 Linux 上正常工作"
+            
+            # 测试核心包是否可通过 Homebrew 安装
+            local core_packages=("git" "curl" "wget" "unzip")
+            for package in "${core_packages[@]}"; do
+                if brew info "$package" >/dev/null 2>&1; then
+                    success "核心包 $package 可通过 Homebrew 获取"
+                else
+                    warning "核心包 $package 在 Homebrew 中不可用"
+                fi
+            done
         else
             error "Homebrew 在 Linux 上异常"
         fi
     else
-        log "Homebrew 未安装 (这是正常的)"
+        warning "Homebrew 未安装 - 这是新的统一包管理要求"
+        log "请手动安装 Homebrew: https://brew.sh"
     fi
 }
 
@@ -180,25 +174,14 @@ test_package_manager() {
 test_modern_cli_tools() {
     log "测试 5: 现代 CLI 工具兼容性"
     
-    # 测试工具可用性
-    local modern_tools=("fzf" "ripgrep" "fd-find" "bat" "eza")
+    # 测试工具可用性 (使用 Homebrew 标准命令名)
+    local modern_tools=("fzf" "ripgrep" "fd" "bat" "eza")
     for tool in "${modern_tools[@]}"; do
         if command -v "$tool" >/dev/null 2>&1; then
             success "现代工具 $tool 已安装"
         else
-            # 检查是否可以通过 apt 安装
-            local apt_name="$tool"
-            case "$tool" in
-                "ripgrep") apt_name="ripgrep" ;;
-                "fd-find") apt_name="fd-find" ;;
-                "eza") apt_name="eza" ;;  # 可能需要额外源
-            esac
-            
-            if apt-cache show "$apt_name" >/dev/null 2>&1; then
-                warning "现代工具 $tool 未安装但可通过 apt 获取"
-            else
-                warning "现代工具 $tool 在 Ubuntu 仓库中不可用"
-            fi
+            # 注意: 现在统一通过 Homebrew 管理，不再检查 apt 包
+            warning "现代工具 $tool 未安装 (应通过 Homebrew 安装)"
         fi
     done
 }

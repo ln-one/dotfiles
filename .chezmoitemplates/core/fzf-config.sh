@@ -58,12 +58,12 @@ if command -v fzf >/dev/null 2>&1; then
 fi
 
 # 自定义 fzf 函数 (利用新版本功能)
-# 智能 cd 到目录 (增强版)
+# 智能 cd 到目录 (使用 Homebrew 工具)
 fcd() {
     local dir
-    {{- if lookPath "fd" }}
-    dir=$(fd --type d --hidden --follow --exclude .git ${1:-.} | fzf \
-        --preview 'eza --tree --level=2 --color=always {} 2>/dev/null || tree -C -L 2 {} 2>/dev/null || ls -la {}' \
+    {{- if or (stat "/opt/homebrew") (stat "/home/linuxbrew/.linuxbrew") }}
+    dir=$($HOMEBREW_PREFIX/bin/fd --type d --hidden --follow --exclude .git ${1:-.} | fzf \
+        --preview '$HOMEBREW_PREFIX/bin/eza --tree --level=2 --color=always {} 2>/dev/null || tree -C -L 2 {} 2>/dev/null || ls -la {}' \
         --preview-window='right:50%:wrap' \
         --bind='ctrl-/:change-preview-window(down,50%|right,50%|hidden|)' \
         --header='Select directory to cd into')
@@ -76,13 +76,13 @@ fcd() {
     [[ -n "$dir" ]] && cd "$dir"
 }
 
-# 搜索并编辑文件 (增强版)
+# 搜索并编辑文件 (使用 Homebrew 工具)
 fe() {
     local files
-    {{- if lookPath "fd" }}
-    IFS=$'\n' files=($(fd --type f --hidden --follow --exclude .git ${1:-.} | fzf \
+    {{- if or (stat "/opt/homebrew") (stat "/home/linuxbrew/.linuxbrew") }}
+    IFS=$'\n' files=($($HOMEBREW_PREFIX/bin/fd --type f --hidden --follow --exclude .git ${1:-.} | fzf \
         --multi \
-        --preview 'bat --style=numbers --color=always --line-range :500 {} 2>/dev/null || cat {} 2>/dev/null' \
+        --preview '$HOMEBREW_PREFIX/bin/bat --style=numbers --color=always --line-range :500 {} 2>/dev/null || cat {} 2>/dev/null' \
         --preview-window='right:60%:wrap' \
         --bind='ctrl-/:change-preview-window(down,60%|right,60%|hidden|)' \
         --bind='ctrl-y:execute-silent(echo {} | pbcopy)' \
@@ -193,36 +193,36 @@ fgf() {
         --bind='ctrl-/:change-preview-window(down|hidden|)'
 }
 
-# Docker 容器管理 (如果安装了 Docker)
-{{- if lookPath "docker" }}
+# Docker 容器管理 (使用 Homebrew 安装的 Docker)
+{{- if or (stat "/opt/homebrew") (stat "/home/linuxbrew/.linuxbrew") }}
 # 选择并连接到 Docker 容器
 fdc() {
     local container
-    container=$(docker ps --format "table {{`{{.Names}}`}}\t{{`{{.Image}}`}}\t{{`{{.Status}}`}}" | fzf \
+    container=$($HOMEBREW_PREFIX/bin/docker ps --format "table {{`{{.Names}}`}}\t{{`{{.Image}}`}}\t{{`{{.Status}}`}}" | fzf \
         --header-lines=1 \
-        --preview 'docker inspect {1}' \
+        --preview '$HOMEBREW_PREFIX/bin/docker inspect {1}' \
         --preview-window='right:60%:wrap' \
         --bind='ctrl-/:change-preview-window(down|hidden|)' \
         --header='Select container to connect to') &&
-    docker exec -it $(echo "$container" | awk '{print $1}') /bin/bash
+    $HOMEBREW_PREFIX/bin/docker exec -it $(echo "$container" | awk '{print $1}') /bin/bash
 }
 
 # 选择并删除 Docker 容器
 fdrm() {
     local containers
-    containers=$(docker ps -a --format "table {{`{{.Names}}`}}\t{{`{{.Image}}`}}\t{{`{{.Status}}`}}" | fzf \
+    containers=$($HOMEBREW_PREFIX/bin/docker ps -a --format "table {{`{{.Names}}`}}\t{{`{{.Image}}`}}\t{{`{{.Status}}`}}" | fzf \
         --header-lines=1 \
         --multi \
-        --preview 'docker inspect {1}' \
+        --preview '$HOMEBREW_PREFIX/bin/docker inspect {1}' \
         --preview-window='right:60%:wrap' \
         --bind='ctrl-/:change-preview-window(down|hidden|)' \
         --header='Select containers to remove (Tab for multiple)') &&
-    echo "$containers" | awk '{print $1}' | xargs docker rm -f
+    echo "$containers" | awk '{print $1}' | xargs $HOMEBREW_PREFIX/bin/docker rm -f
 }
 {{- end }}
 
 # 系统服务管理 (systemd)
-{{- if and (eq .chezmoi.os "linux") (lookPath "systemctl") }}
+{{- if eq .chezmoi.os "linux" }}
 # 选择并管理 systemd 服务
 fss() {
     local service action

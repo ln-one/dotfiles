@@ -53,11 +53,8 @@ unset WAYLAND_DISPLAY 2>/dev/null || true
 # Lightweight Tool Aliases
 # ========================================
 
-# Prefer lightweight alternatives
-if command -v batcat >/dev/null 2>&1; then
-    alias bat='batcat'
-    alias cat='batcat --paging=never'
-elif command -v bat >/dev/null 2>&1; then
+# Use Homebrew standard bat command (no more batcat aliases)
+if command -v bat >/dev/null 2>&1; then
     alias cat='bat --paging=never'
 fi
 

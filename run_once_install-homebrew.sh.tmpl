@@ -84,20 +84,9 @@ verify_homebrew() {
 # Install build dependencies for Linux
 install_linux_dependencies() {
     if [[ "{{ .chezmoi.os }}" == "linux" ]]; then
-        log_info "Installing build dependencies for Linux..."
-        
-        if command -v apt-get >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install -y build-essential procps curl file git
-        elif command -v yum >/dev/null 2>&1; then
-            sudo yum groupinstall -y 'Development Tools'
-            sudo yum install -y procps-ng curl file git
-        elif command -v dnf >/dev/null 2>&1; then
-            sudo dnf groupinstall -y 'Development Tools'
-            sudo dnf install -y procps-ng curl file git
-        else
-            log_warn "Could not detect package manager. Please install build dependencies manually."
-        fi
+        log_warn "Build dependencies should be installed manually before running this script."
+        log_warn "Required packages: build-essential procps curl file git (or equivalent)"
+        log_warn "Please install them using your system package manager if needed."
     fi
 }
 

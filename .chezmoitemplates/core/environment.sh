@@ -146,20 +146,31 @@ export FZF_DEFAULT_OPTS="
     --color=border:#4b5263,separator:#4b5263,scrollbar:#4b5263
 "
 
-# 使用更好的搜索工具 (如果可用)
-{{- if lookPath "fd" }}
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --strip-cwd-prefix'
+# 使用 Homebrew 安装的搜索工具
+{{- if or (stat "/opt/homebrew") (stat "/home/linuxbrew/.linuxbrew") }}
+export FZF_DEFAULT_COMMAND='$HOMEBREW_PREFIX/bin/fd --type f --hidden --follow --exclude .git --strip-cwd-prefix'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git --strip-cwd-prefix'
-{{- else if lookPath "rg" }}
-export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*"'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND='$HOMEBREW_PREFIX/bin/fd --type d --hidden --follow --exclude .git --strip-cwd-prefix'
 {{- else }}
 export FZF_DEFAULT_COMMAND='find . -type f -not -path "*/\.git/*" 2>/dev/null'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 {{- end }}
 
-# fzf 预览选项 (利用新版本的改进预览功能)
+# fzf 预览选项 (使用 Homebrew 安装的工具)
+{{- if or (stat "/opt/homebrew") (stat "/home/linuxbrew/.linuxbrew") }}
+export FZF_CTRL_T_OPTS="
+    --preview '([[ -f {} ]] && ($HOMEBREW_PREFIX/bin/bat --style=numbers --color=always --line-range :500 {} 2>/dev/null || cat {} 2>/dev/null || echo {})) || ([[ -d {} ]] && ($HOMEBREW_PREFIX/bin/eza --tree --level=2 --color=always {} 2>/dev/null || tree -C -L 2 {} 2>/dev/null || ls -la {} 2>/dev/null))'
+    --preview-window='right:50%:wrap'
+    --bind='ctrl-/:change-preview-window(down,50%|right,50%|hidden|)'
+    --bind='ctrl-y:execute-silent(echo {} | pbcopy)'
+"
+
+export FZF_ALT_C_OPTS="
+    --preview '$HOMEBREW_PREFIX/bin/eza --tree --level=2 --color=always {} 2>/dev/null || tree -C -L 2 {} 2>/dev/null || ls -la {} 2>/dev/null'
+    --preview-window='right:50%:wrap'
+    --bind='ctrl-/:change-preview-window(down,50%|right,50%|hidden|)'
+"
+{{- else }}
 export FZF_CTRL_T_OPTS="
     --preview '([[ -f {} ]] && (bat --style=numbers --color=always --line-range :500 {} 2>/dev/null || cat {} 2>/dev/null || echo {})) || ([[ -d {} ]] && (eza --tree --level=2 --color=always {} 2>/dev/null || tree -C -L 2 {} 2>/dev/null || ls -la {} 2>/dev/null))'
     --preview-window='right:50%:wrap'
@@ -172,6 +183,7 @@ export FZF_ALT_C_OPTS="
     --preview-window='right:50%:wrap'
     --bind='ctrl-/:change-preview-window(down,50%|right,50%|hidden|)'
 "
+{{- end }}
 
 # Git 集成的 fzf 选项
 export FZF_CTRL_R_OPTS="
