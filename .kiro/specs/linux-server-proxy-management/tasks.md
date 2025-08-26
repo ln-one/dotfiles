@@ -6,7 +6,7 @@
   - 验证基础shell配置在远程环境中正常工作
   - _Requirements: 1.1, 1.4_
 
-- [ ] 2. 扩展chezmoi配置读取逻辑支持subscription.yaml
+- [x] 2. 扩展chezmoi配置读取逻辑支持subscription.yaml
   - 修改.chezmoi.toml.tmpl中的代理配置读取部分
   - 在远程环境检测中添加对subscription.yaml的优先支持
   - 保持desktop环境的现有配置读取逻辑完全不变

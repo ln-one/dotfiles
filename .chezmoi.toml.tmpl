@@ -69,7 +69,7 @@
 {{- $https_proxy := env "https_proxy" | default (env "HTTPS_PROXY") }}
 {{- $socks_proxy := env "socks_proxy" | default (env "SOCKS_PROXY") }}
 
-{{- if or $http_proxy $https_proxy $socks_proxy }}
+{{- if or (and $http_proxy (ne $http_proxy "")) (and $https_proxy (ne $https_proxy "")) (and $socks_proxy (ne $socks_proxy "")) }}
 # 使用环境变量中的代理配置
 enabled = true
 source = "environment"
