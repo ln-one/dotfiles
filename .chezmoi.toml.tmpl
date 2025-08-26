@@ -8,8 +8,8 @@
   hostname = "{{ .chezmoi.hostname }}"
   username = "{{ .chezmoi.username }}"
   
-  # 环境类型检测
-  {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") }}
+  # 环境类型检测 - 优先检查SSH连接
+  {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") (env "SSH_TTY") }}
   environment = "remote"
   {{- else if and (stat "/proc/version") (regexMatch "microsoft" (cat "/proc/version")) }}
   environment = "wsl"

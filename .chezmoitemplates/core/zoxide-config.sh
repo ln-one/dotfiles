@@ -68,7 +68,8 @@ if command -v zoxide >/dev/null 2>&1; then
     
 else
     # 如果 zoxide 未安装，提供安装提示
-    z() {
+    # 注意：不定义 z() 函数，避免与别名冲突
+    zoxide_not_installed() {
         echo "❌ zoxide 未安装"
         echo "💡 运行以下命令安装:"
 {{- if eq .chezmoi.os "darwin" }}
@@ -79,6 +80,9 @@ else
         echo "   或者运行 chezmoi apply 来自动安装"
     }
     
-    zi() { z "$@"; }
+    # 为 zi 命令提供回退
+    zi() { 
+        zoxide_not_installed
+    }
 fi
 {{- end }}

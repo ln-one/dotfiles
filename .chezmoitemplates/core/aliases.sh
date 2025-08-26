@@ -56,6 +56,8 @@ alias cp='cp -i'
 alias mv='mv -i'
 
 {{- if .features.enable_zoxide }}
-# Zoxide 别名
-alias cd='z'
+# Zoxide 别名 - 仅在zoxide已安装时启用
+if command -v zoxide >/dev/null 2>&1; then
+    alias cd='z'
+fi
 {{- end }}
