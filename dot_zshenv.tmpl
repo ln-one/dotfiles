@@ -18,7 +18,7 @@ export ZIM_HOME="${ZDOTDIR:-${HOME}}/.zim"
 # 性能优化 - 减少启动时的检查
 export ZSH_DISABLE_COMPFIX=true
 
-{{- if .features.enable_fzf }}
+{{- if and (hasKey . "features") .features.enable_fzf }}
 # fzf 相关环境变量 (早期设置以确保其他工具可以使用)
 export FZF_BASE="${HOME}/.fzf"
 {{- end }}

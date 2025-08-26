@@ -64,14 +64,14 @@ declare -A DEVELOPMENT_TOOLS=(
     ["tree"]="目录树显示"
 )
 
-{{- if .features.enable_node }}
+{{- if and (hasKey . "features") .features.enable_node }}
 declare -A NODE_TOOLS=(
     ["node"]="Node.js 运行时"
     ["npm"]="Node 包管理器"
 )
 {{- end }}
 
-{{- if .features.enable_python }}
+{{- if and (hasKey . "features") .features.enable_python }}
 declare -A PYTHON_TOOLS=(
     ["python3"]="Python 3 解释器"
     ["pip3"]="Python 包管理器"
@@ -376,13 +376,13 @@ verify_installation() {
         all_tools+=("$tool")
     done
     
-{{- if .features.enable_node }}
+{{- if and (hasKey . "features") .features.enable_node }}
     for tool in "${!NODE_TOOLS[@]}"; do
         all_tools+=("$tool")
     done
 {{- end }}
 
-{{- if .features.enable_python }}
+{{- if and (hasKey . "features") .features.enable_python }}
     for tool in "${!PYTHON_TOOLS[@]}"; do
         all_tools+=("$tool")
     done
@@ -429,16 +429,16 @@ show_installation_summary() {
     
     echo ""
     echo "功能配置:"
-{{- if .features.enable_node }}
+{{- if and (hasKey . "features") .features.enable_node }}
     echo "  - Node.js 支持: 启用"
 {{- end }}
-{{- if .features.enable_python }}
+{{- if and (hasKey . "features") .features.enable_python }}
     echo "  - Python 支持: 启用"
 {{- end }}
-{{- if .features.enable_ai_tools }}
+{{- if and (hasKey . "features") .features.enable_ai_tools }}
     echo "  - AI 工具: 启用"
 {{- end }}
-{{- if .features.enable_proxy }}
+{{- if and (hasKey . "features") .features.enable_proxy }}
     echo "  - 代理工具: 启用"
 {{- end }}
     
@@ -475,12 +475,12 @@ main() {
     # 安装开发工具
     install_tool_group DEVELOPMENT_TOOLS "开发工具" "auto"
     
-{{- if .features.enable_node }}
+{{- if and (hasKey . "features") .features.enable_node }}
     # 安装 Node.js 工具
     install_tool_group NODE_TOOLS "Node.js 工具" "auto"
 {{- end }}
 
-{{- if .features.enable_python }}
+{{- if and (hasKey . "features") .features.enable_python }}
     # 安装 Python 工具
     install_tool_group PYTHON_TOOLS "Python 工具" "auto"
 {{- end }}

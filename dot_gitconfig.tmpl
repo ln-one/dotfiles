@@ -1,4 +1,4 @@
-{{- if .features.enable_1password }}
+{{- if and (hasKey . "features") .features.enable_1password }}
 [user]
 	email = "{{ .secrets.git_user_email }}"
 	signingkey = "{{ .secrets.git_signing_key }}"
@@ -18,14 +18,14 @@
 	format = ssh
 
 [http]
-{{- if .features.enable_proxy }}
+{{- if and (hasKey . "features") .features.enable_proxy }}
 	proxy = http://127.0.0.1:7890
 {{- else }}
 	# proxy = http://127.0.0.1:7890
 {{- end }}
 
 [https]
-{{- if .features.enable_proxy }}
+{{- if and (hasKey . "features") .features.enable_proxy }}
 	proxy = http://127.0.0.1:7890
 {{- else }}
 	# proxy = http://127.0.0.1:7890

@@ -10,14 +10,14 @@ zmodule environment
 zmodule input
 zmodule utility
 
-{{- if not .features.enable_starship }}
+{{- if not (and (hasKey . "features") .features.enable_starship) }}
 # 如果不使用 Starship 提示符，则使用 Zim 内置提示符模块
 zmodule duration-info
 zmodule git-info
 zmodule asciiship
 {{- end }}
 
-{{- if .features.enable_fzf }}
+{{- if and (hasKey . "features") .features.enable_fzf }}
 # fzf 模糊搜索集成 - 由自定义配置管理，不使用 Zim 模块以支持 defer
 # 注意: fzf 初始化在 fzf-config.sh 中处理（支持 zsh-defer）
 {{- end }}

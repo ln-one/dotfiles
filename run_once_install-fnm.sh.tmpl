@@ -3,7 +3,7 @@
 # 快速的 Node.js 版本管理器，替代 nvm
 # Requirements: 8.4
 
-{{- if .features.enable_node }}
+{{- if and (hasKey . "features") .features.enable_node }}
 
 set -euo pipefail
 

@@ -4,7 +4,7 @@
 # ========================================
 # 安装 Nerd Fonts 以支持 Starship 图标显示
 
-{{- if .features.enable_starship }}
+{{- if and (hasKey . "features") .features.enable_starship }}
 
 set -euo pipefail
 

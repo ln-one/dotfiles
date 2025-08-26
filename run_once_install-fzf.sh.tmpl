@@ -4,7 +4,7 @@
 # ========================================
 # 安装和配置 fzf 模糊搜索工具
 
-{{- if .features.enable_fzf }}
+{{- if and (hasKey . "features") .features.enable_fzf }}
 
 set -euo pipefail
 

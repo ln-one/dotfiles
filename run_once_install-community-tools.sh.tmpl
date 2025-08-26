@@ -30,20 +30,20 @@ fi
 installed_count=0
 total_tools=0
 
-{{- if .features.enable_fzf }}
+{{- if and (hasKey . "features") .features.enable_fzf }}
 total_tools=$((total_tools + 1))
 {{- end }}
-{{- if .features.enable_oh_my_zsh }}
+{{- if and (hasKey . "features") .features.enable_oh_my_zsh }}
 total_tools=$((total_tools + 1))
 {{- end }}
-{{- if .features.enable_starship }}
+{{- if and (hasKey . "features") .features.enable_starship }}
 total_tools=$((total_tools + 1))
 {{- end }}
 
 echo "📋 计划安装 $total_tools 个社区工具"
 
 # 安装 fzf (优先安装，其他工具可能依赖它)
-{{- if .features.enable_fzf }}
+{{- if and (hasKey . "features") .features.enable_fzf }}
 echo ""
 echo "📦 [1/$total_tools] 安装 fzf 模糊搜索..."
 # 直接运行 fzf 安装逻辑，而不是调用外部脚本
@@ -63,7 +63,7 @@ fi
 {{- end }}
 
 # 安装 Oh My Zsh
-{{- if .features.enable_oh_my_zsh }}
+{{- if and (hasKey . "features") .features.enable_oh_my_zsh }}
 echo ""
 echo "📦 [2/$total_tools] 安装 Oh My Zsh..."
 if [ -d "$HOME/.oh-my-zsh" ]; then
@@ -89,7 +89,7 @@ fi
 {{- end }}
 
 # 安装 Starship
-{{- if .features.enable_starship }}
+{{- if and (hasKey . "features") .features.enable_starship }}
 echo ""
 echo "📦 [3/$total_tools] 安装 Starship 提示符..."
 if command -v starship >/dev/null 2>&1; then
@@ -122,13 +122,13 @@ if [ $installed_count -eq $total_tools ]; then
     # 显示已安装工具的快速使用提示
     echo ""
     echo "🔧 快速使用指南:"
-    {{- if .features.enable_fzf }}
+    {{- if and (hasKey . "features") .features.enable_fzf }}
     echo "• fzf: Ctrl+T (文件搜索), Ctrl+R (历史搜索), Alt+C (目录搜索)"
     {{- end }}
-    {{- if .features.enable_oh_my_zsh }}
+    {{- if and (hasKey . "features") .features.enable_oh_my_zsh }}
     echo "• Oh My Zsh: 输入 'omz' 查看可用命令"
     {{- end }}
-    {{- if .features.enable_starship }}
+    {{- if and (hasKey . "features") .features.enable_starship }}
     echo "• Starship: 自动显示 Git 状态和项目信息"
     {{- end }}
     

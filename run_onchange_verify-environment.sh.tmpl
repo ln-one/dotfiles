@@ -103,7 +103,7 @@ if command -v locale >/dev/null 2>&1; then
     fi
 fi
 
-{{- if .features.enable_1password }}
+{{- if and (hasKey . "features") .features.enable_1password }}
 # 验证 SSH Agent 配置 (Requirements: 7.2)
 echo ""
 echo "🔐 SSH Agent 配置 (1Password):"
@@ -200,7 +200,7 @@ echo "  配置目录: {{ .paths.config }}"
 echo "  本地二进制目录: {{ .chezmoi.homeDir }}/.local/bin"
 echo "  编辑器: {{ .preferences.editor }}"
 echo "  语言: en_US.UTF-8"
-{{- if .features.enable_1password }}
+{{- if and (hasKey . "features") .features.enable_1password }}
 {{- if eq .chezmoi.os "darwin" }}
 echo "  SSH Agent: 1Password ($HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock)"
 {{- else if eq .chezmoi.os "linux" }}

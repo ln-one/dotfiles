@@ -134,7 +134,7 @@ enabled = false
   autoCommit = true
   autoPush = false
 
-{{- if .features.enable_1password }}
+{{- if and (hasKey . "features") .features.enable_1password }}
 # 1Password 集成配置
 [onepassword]
   prompt = false

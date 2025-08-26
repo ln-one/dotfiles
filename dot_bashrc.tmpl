@@ -43,7 +43,7 @@ fi
 {{ includeTemplate "core/starship-config.sh" . }}
 
 # 如果没有启用 Starship，使用默认 Bash 提示符
-{{- if not .features.enable_starship }}
+{{- if not (and (hasKey . "features") .features.enable_starship) }}
 # ========================================
 # 默认彩色提示符配置
 # ========================================

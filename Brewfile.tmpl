@@ -46,13 +46,13 @@ brew "make"             # 构建工具
 
 {{- end }}
 
-{{- if .features.enable_ai_tools }}
+{{- if and (hasKey . "features") .features.enable_ai_tools }}
 # AI 开发工具 (可选)
 brew "gh"               # GitHub CLI
 brew "glab"             # GitLab CLI
 {{- end }}
 
-{{- if .features.enable_proxy }}
+{{- if and (hasKey . "features") .features.enable_proxy }}
 # 代理和网络工具 (可选)
 brew "proxychains-ng"   # 代理链工具
 {{- end }}
@@ -71,26 +71,26 @@ brew "fail2ban"         # 安全工具 (如果可用)
 {{- end }}
 
 # 开发语言和运行时管理
-{{- if .features.enable_node }}
+{{- if and (hasKey . "features") .features.enable_node }}
 brew "node"             # Node.js
 brew "npm"              # Node 包管理器
 {{- end }}
 
-{{- if .features.enable_python }}
+{{- if and (hasKey . "features") .features.enable_python }}
 brew "python@3.11"      # Python 3.11
 brew "pipx"             # Python 应用安装器
 {{- end }}
 
-{{- if .features.enable_go }}
+{{- if and (hasKey . "features") .features.enable_go }}
 brew "go"               # Go 语言
 {{- end }}
 
-{{- if .features.enable_rust }}
+{{- if and (hasKey . "features") .features.enable_rust }}
 brew "rust"             # Rust 语言
 {{- end }}
 
 # 容器和虚拟化工具
-{{- if .features.enable_docker }}
+{{- if and (hasKey . "features") .features.enable_docker }}
 {{- if eq .chezmoi.os "linux" }}
 brew "docker"           # Docker (Linux)
 brew "docker-compose"   # Docker Compose

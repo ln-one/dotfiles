@@ -5,7 +5,7 @@
 # 安装 evalcache 插件以加速 shell 启动
 # GitHub: https://github.com/mroth/evalcache
 
-{{- if .features.enable_evalcache }}
+{{- if and (hasKey . "features") .features.enable_evalcache }}
 
 set -euo pipefail
 

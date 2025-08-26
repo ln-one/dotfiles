@@ -4,7 +4,7 @@
 # ========================================
 # 安装现代化的跨 Shell 提示符
 
-{{- if .features.enable_starship }}
+{{- if and (hasKey . "features") .features.enable_starship }}
 
 set -euo pipefail
 
