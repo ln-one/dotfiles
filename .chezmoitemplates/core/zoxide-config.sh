@@ -68,21 +68,14 @@ if command -v zoxide >/dev/null 2>&1; then
     
 else
     # 如果 zoxide 未安装，提供安装提示
-    # 注意：不定义 z() 函数，避免与别名冲突
-    zoxide_not_installed() {
-        echo "❌ zoxide 未安装"
-        echo "💡 运行以下命令安装:"
+    # 注意：不定义任何函数，避免与zoxide init创建的函数冲突
+    echo "⚠️  zoxide 未安装，某些目录跳转功能不可用"
+    echo "💡 运行以下命令安装:"
 {{- if eq .chezmoi.os "darwin" }}
-        echo "   brew install zoxide"
+    echo "   brew install zoxide"
 {{- else if eq .chezmoi.os "linux" }}
-        echo "   curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
+    echo "   curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
 {{- end }}
-        echo "   或者运行 chezmoi apply 来自动安装"
-    }
-    
-    # 为 zi 命令提供回退
-    zi() { 
-        zoxide_not_installed
-    }
+    echo "   或者运行 chezmoi apply 来自动安装"
 fi
 {{- end }}
