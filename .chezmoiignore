@@ -53,6 +53,7 @@ verify-*.sh
 Brewfile
 
 # 根据环境条件忽略
+{{- if (index . "environment") }}
 {{- if ne .environment "desktop" }}
 # 非桌面环境忽略GUI相关配置
 .config/firefox/
@@ -63,4 +64,5 @@ Brewfile
 # SSH远程环境忽略本地工具配置
 .config/docker/
 .local/share/applications/
+{{- end }}
 {{- end }}
