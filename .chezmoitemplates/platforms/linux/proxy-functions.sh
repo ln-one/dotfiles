@@ -158,22 +158,24 @@ proxystatus() {
     echo "  SOCKS_PORT: ${PROXY_SOCKS_PORT}"
 }
 
-{{- else }}
-# macOS 和远程环境不加载代理功能
+{{- else if eq .chezmoi.os "darwin" }}
+# macOS 不加载代理功能
 # 提供占位函数以避免命令未找到错误
 proxyon() {
-    echo "ℹ️  代理管理功能仅在 Linux 桌面环境中可用"
+    echo "ℹ️  代理管理功能仅在 Linux 环境中可用"
 }
 
 proxyoff() {
-    echo "ℹ️  代理管理功能仅在 Linux 桌面环境中可用"
+    echo "ℹ️  代理管理功能仅在 Linux 环境中可用"
 }
 
 proxyai() {
-    echo "ℹ️  代理管理功能仅在 Linux 桌面环境中可用"
+    echo "ℹ️  代理管理功能仅在 Linux 环境中可用"
 }
 
 proxystatus() {
-    echo "ℹ️  代理管理功能仅在 Linux 桌面环境中可用"
+    echo "ℹ️  代理管理功能仅在 Linux 环境中可用"
 }
 {{- end }}
+
+{{- /* 注意：远程环境的代理函数在 remote.sh 中定义，不在这里定义占位函数 */ -}}
