@@ -326,9 +326,12 @@ themestatus() {
 # ========================================
 # Requirements: 2.3, 2.4, 2.5, 2.6 - Server环境专用代理管理
 
+# 确保覆盖任何之前定义的代理函数
+unset -f proxyon proxyoff proxystatus 2>/dev/null || true
+
 # Server专用的proxyon函数 - 使用nohup和subscription.yaml
 proxyon() {
-    echo "🔗 启用服务器代理..."
+    echo "🔗 启用服务器代理 (Remote环境版本)..."
     
     local clash_dir="$HOME/.config/clash"
     local clash_binary="$clash_dir/clash"
@@ -464,7 +467,7 @@ proxyon() {
 
 # Server专用的proxyoff函数 - 停止clash进程和清理环境变量
 proxyoff() {
-    echo "🔗 停止服务器代理..."
+    echo "🔗 停止服务器代理 (Remote环境版本)..."
     
     local clash_dir="$HOME/.config/clash"
     local stopped_any=false
@@ -521,7 +524,7 @@ proxyoff() {
 
 # Server专用的proxystatus函数 - 显示进程状态和日志信息
 proxystatus() {
-    echo "🔍 服务器代理状态检查"
+    echo "🔍 服务器代理状态检查 (Remote环境版本)"
     echo "================================"
     
     local clash_dir="$HOME/.config/clash"
@@ -726,9 +729,11 @@ declare -f upload >/dev/null 2>&1 && export -f upload 2>/dev/null || true
 declare -f session_info >/dev/null 2>&1 && export -f session_info 2>/dev/null || true
 declare -f tmux_quick >/dev/null 2>&1 && export -f tmux_quick 2>/dev/null || true
 declare -f validate_remote_environment >/dev/null 2>&1 && export -f validate_remote_environment 2>/dev/null || true
-declare -f proxyon >/dev/null 2>&1 && export -f proxyon 2>/dev/null || true
-declare -f proxyoff >/dev/null 2>&1 && export -f proxyoff 2>/dev/null || true
-declare -f proxystatus >/dev/null 2>&1 && export -f proxystatus 2>/dev/null || true
+
+# 强制export代理函数，确保覆盖platform层的定义
+export -f proxyon 2>/dev/null || true
+export -f proxyoff 2>/dev/null || true  
+export -f proxystatus 2>/dev/null || true
 
 # Note: sysinfo function is defined in this file and will override the basic one from core
 

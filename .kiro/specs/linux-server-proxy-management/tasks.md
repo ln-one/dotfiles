@@ -13,7 +13,7 @@
   - 添加配置文件存在性检查和错误处理
   - _Requirements: 3.1, 3.2, 3.5_
 
-- [ ] 3. 增强远程环境代理管理函数
+- [x] 3. 增强远程环境代理管理函数
   - 扩展.chezmoitemplates/environments/remote.sh中的代理函数
   - 实现server专用的proxyon函数（使用nohup和subscription.yaml）
   - 实现server专用的proxyoff函数（停止clash进程和清理环境变量）
@@ -27,7 +27,7 @@
   - 使用chezmoi的条件模板避免在desktop环境重复安装
   - _Requirements: 1.2, 1.5, 5.4_
 
-- [ ] 5. 实现环境隔离和功能分离
+- [x] 5. 实现环境隔离和功能分离
   - 确保desktop环境继续使用现有的proxy-functions.sh
   - 确保remote环境使用扩展后的remote.sh中的代理函数
   - 验证环境检测机制能够正确区分desktop和server环境
