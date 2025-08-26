@@ -50,7 +50,7 @@ verify-*.sh
 .git/
 .gitignore
 .kiro/
-Brewfile
+# Brewfile - 现在由 Chezmoi 管理
 
 # 根据环境条件忽略
 {{- if (index . "environment") }}

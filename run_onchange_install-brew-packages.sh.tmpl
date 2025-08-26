@@ -10,10 +10,11 @@ echo "🍺 安装 Homebrew 包..."
 # Brewfile 路径
 BREWFILE_PATH="{{ .chezmoi.homeDir }}/Brewfile"
 
-# 检查 Brewfile 是否存在
+# 检查 Brewfile 是否存在，如果不存在则生成
 if [[ ! -f "$BREWFILE_PATH" ]]; then
-    echo "❌ Brewfile 不存在: $BREWFILE_PATH"
-    exit 1
+    echo "📝 Brewfile 不存在，正在从模板生成..."
+    chezmoi execute-template < "{{ .chezmoi.sourceDir }}/Brewfile.tmpl" > "$BREWFILE_PATH"
+    echo "✅ Brewfile 已生成: $BREWFILE_PATH"
 fi
 
 echo "📋 使用 Brewfile: $BREWFILE_PATH"
