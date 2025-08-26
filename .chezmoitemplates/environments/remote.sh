@@ -321,38 +321,338 @@ themestatus() {
     echo "ℹ️  GUI theme functions disabled in remote environment"
 }
 
-# Remote-specific proxy management (CLI-only, no GUI integration)
-remote_proxyon() {
-    echo "🔗 Setting environment proxy variables (remote mode)..."
-    export http_proxy="http://127.0.0.1:7890"
-    export https_proxy="http://127.0.0.1:7890"
-    export all_proxy="socks5://127.0.0.1:7891"
+# ========================================
+# Server专用代理管理函数
+# ========================================
+# Requirements: 2.3, 2.4, 2.5, 2.6 - Server环境专用代理管理
+
+# Server专用的proxyon函数 - 使用nohup和subscription.yaml
+proxyon() {
+    echo "🔗 启用服务器代理..."
+    
+    local clash_dir="$HOME/.config/clash"
+    local clash_binary="$clash_dir/clash"
+    local config_file="$clash_dir/subscription.yaml"
+    local fallback_config="$clash_dir/config.yaml"
+    local log_file="$clash_dir/clash.log"
+    
+    # 检查clash目录是否存在
+    if [[ ! -d "$clash_dir" ]]; then
+        echo "❌ Clash目录不存在: $clash_dir"
+        echo "💡 请创建目录并放置clash二进制文件和配置文件"
+        return 1
+    fi
+    
+    # 检查clash二进制文件
+    if [[ ! -f "$clash_binary" ]]; then
+        echo "❌ Clash二进制文件不存在: $clash_binary"
+        echo "💡 请下载clash二进制文件到 $clash_binary"
+        echo "💡 下载地址: https://github.com/Dreamacro/clash/releases"
+        return 1
+    fi
+    
+    # 检查二进制文件是否可执行
+    if [[ ! -x "$clash_binary" ]]; then
+        echo "⚠️  设置clash二进制文件为可执行..."
+        chmod +x "$clash_binary" || {
+            echo "❌ 无法设置执行权限，请检查文件权限"
+            return 1
+        }
+    fi
+    
+    # 检查配置文件（优先subscription.yaml，回退到config.yaml）
+    local selected_config=""
+    if [[ -f "$config_file" ]]; then
+        selected_config="$config_file"
+        echo "📄 使用配置文件: subscription.yaml"
+    elif [[ -f "$fallback_config" ]]; then
+        selected_config="$fallback_config"
+        echo "📄 使用回退配置文件: config.yaml"
+    else
+        echo "❌ 配置文件不存在:"
+        echo "   - $config_file"
+        echo "   - $fallback_config"
+        echo "💡 请确保至少有一个配置文件存在"
+        return 1
+    fi
+    
+    # 检查clash进程是否已经在运行
+    if pgrep -f "clash.*$(basename "$selected_config")" >/dev/null 2>&1; then
+        echo "⚠️  Clash进程已在运行"
+        echo "💡 使用 'proxyoff' 停止现有进程，或使用 'proxystatus' 查看状态"
+        return 1
+    fi
+    
+    # 切换到clash目录并启动clash进程
+    echo "🚀 启动clash进程..."
+    cd "$clash_dir" || {
+        echo "❌ 无法切换到clash目录"
+        return 1
+    }
+    
+    # 使用nohup启动clash进程
+    nohup ./clash -f "$(basename "$selected_config")" > clash.log 2>&1 &
+    local clash_pid=$!
+    
+    # 等待一小段时间确保进程启动
+    sleep 2
+    
+    # 验证进程是否成功启动
+    if ! kill -0 "$clash_pid" 2>/dev/null; then
+        echo "❌ Clash进程启动失败"
+        echo "📋 查看日志文件获取详细信息: $log_file"
+        if [[ -f "$log_file" ]]; then
+            echo "📋 最近的日志内容:"
+            tail -10 "$log_file"
+        fi
+        return 1
+    fi
+    
+    echo "✅ Clash进程已启动 (PID: $clash_pid)"
+    
+    # 从配置文件中解析端口信息
+    local http_port="7890"  # 默认HTTP端口
+    local socks_port="7891" # 默认SOCKS端口
+    
+    # 尝试从配置文件解析端口
+    if command -v grep >/dev/null 2>&1 && command -v awk >/dev/null 2>&1; then
+        # 解析HTTP端口
+        local parsed_http_port=$(grep -E "^port:" "$selected_config" 2>/dev/null | awk '{print $2}' | tr -d '"' | head -1)
+        if [[ -n "$parsed_http_port" ]] && [[ "$parsed_http_port" =~ ^[0-9]+$ ]]; then
+            http_port="$parsed_http_port"
+        fi
+        
+        # 解析SOCKS端口
+        local parsed_socks_port=$(grep -E "^socks-port:" "$selected_config" 2>/dev/null | awk '{print $2}' | tr -d '"' | head -1)
+        if [[ -n "$parsed_socks_port" ]] && [[ "$parsed_socks_port" =~ ^[0-9]+$ ]]; then
+            socks_port="$parsed_socks_port"
+        fi
+    fi
+    
+    # 设置环境变量
+    export http_proxy="http://127.0.0.1:$http_port"
+    export https_proxy="http://127.0.0.1:$http_port"
+    export all_proxy="socks5://127.0.0.1:$socks_port"
     export HTTP_PROXY="$http_proxy"
     export HTTPS_PROXY="$https_proxy"
     export ALL_PROXY="$all_proxy"
     export no_proxy="localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,172.16.0.0/12"
     export NO_PROXY="$no_proxy"
-    echo "✅ Environment proxy variables set (CLI only)"
+    
+    echo "🌐 代理环境变量已设置:"
+    echo "   HTTP代理: $http_proxy"
+    echo "   HTTPS代理: $https_proxy"
+    echo "   SOCKS代理: $all_proxy"
+    
+    # 测试代理连接
+    echo "🔍 测试代理连接..."
+    if command -v curl >/dev/null 2>&1; then
+        local test_result=$(curl -s --connect-timeout 10 --proxy "$http_proxy" httpbin.org/ip 2>/dev/null || echo "failed")
+        if [[ "$test_result" != "failed" ]]; then
+            echo "✅ 代理连接测试成功"
+        else
+            echo "⚠️  代理连接测试失败，但进程已启动"
+            echo "💡 请检查配置文件和网络连接"
+        fi
+    else
+        echo "⚠️  curl不可用，跳过连接测试"
+    fi
+    
+    echo "✅ 服务器代理已启用"
+    echo "💡 使用 'proxystatus' 查看状态，'proxyoff' 停止代理"
 }
 
-remote_proxyoff() {
-    echo "🔗 Clearing environment proxy variables (remote mode)..."
+# Server专用的proxyoff函数 - 停止clash进程和清理环境变量
+proxyoff() {
+    echo "🔗 停止服务器代理..."
+    
+    local clash_dir="$HOME/.config/clash"
+    local stopped_any=false
+    
+    # 查找并停止clash进程
+    local clash_pids=$(pgrep -f "clash.*\.(yaml|yml)" 2>/dev/null)
+    
+    if [[ -n "$clash_pids" ]]; then
+        echo "🛑 停止clash进程..."
+        for pid in $clash_pids; do
+            if kill -0 "$pid" 2>/dev/null; then
+                echo "   停止进程 PID: $pid"
+                kill "$pid" 2>/dev/null
+                stopped_any=true
+                
+                # 等待进程结束
+                local count=0
+                while kill -0 "$pid" 2>/dev/null && [[ $count -lt 10 ]]; do
+                    sleep 1
+                    ((count++))
+                done
+                
+                # 如果进程仍在运行，强制终止
+                if kill -0 "$pid" 2>/dev/null; then
+                    echo "   强制终止进程 PID: $pid"
+                    kill -9 "$pid" 2>/dev/null
+                fi
+            fi
+        done
+    else
+        echo "ℹ️  未找到运行中的clash进程"
+    fi
+    
+    # 清理环境变量
+    echo "🧹 清理代理环境变量..."
     unset http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY no_proxy NO_PROXY
-    echo "✅ Environment proxy variables cleared"
+    
+    # 显示结果
+    if [[ "$stopped_any" == true ]]; then
+        echo "✅ Clash进程已停止"
+    fi
+    echo "✅ 代理环境变量已清理"
+    
+    # 验证进程确实已停止
+    if pgrep -f "clash.*\.(yaml|yml)" >/dev/null 2>&1; then
+        echo "⚠️  仍有clash进程在运行，请手动检查:"
+        pgrep -f "clash.*\.(yaml|yml)" | while read -r pid; do
+            echo "   PID: $pid - $(ps -p "$pid" -o comm= 2>/dev/null || echo 'unknown')"
+        done
+    else
+        echo "✅ 所有clash进程已停止"
+    fi
 }
 
-remote_proxystatus() {
-    echo "🔗 Proxy Status (Environment Variables Only):"
-    echo "  http_proxy: ${http_proxy:-not set}"
-    echo "  https_proxy: ${https_proxy:-not set}"
-    echo "  all_proxy: ${all_proxy:-not set}"
+# Server专用的proxystatus函数 - 显示进程状态和日志信息
+proxystatus() {
+    echo "🔍 服务器代理状态检查"
+    echo "================================"
+    
+    local clash_dir="$HOME/.config/clash"
+    local log_file="$clash_dir/clash.log"
+    
+    # 检查clash进程状态
+    echo ""
+    echo "📊 进程状态:"
+    local clash_pids=$(pgrep -f "clash.*\.(yaml|yml)" 2>/dev/null)
+    
+    if [[ -n "$clash_pids" ]]; then
+        echo "✅ Clash进程运行中:"
+        for pid in $clash_pids; do
+            if kill -0 "$pid" 2>/dev/null; then
+                local cmd=$(ps -p "$pid" -o args= 2>/dev/null | head -1)
+                local start_time=$(ps -p "$pid" -o lstart= 2>/dev/null)
+                local cpu_mem=$(ps -p "$pid" -o %cpu,%mem= 2>/dev/null)
+                echo "   PID: $pid"
+                echo "   命令: $cmd"
+                echo "   启动时间: $start_time"
+                echo "   CPU/内存: $cpu_mem"
+                echo ""
+            fi
+        done
+    else
+        echo "❌ 未找到运行中的clash进程"
+    fi
+    
+    # 检查环境变量状态
+    echo "🌐 环境变量状态:"
+    if [[ -n "${http_proxy:-}" ]]; then
+        echo "✅ 代理环境变量已设置:"
+        echo "   HTTP代理: ${http_proxy:-未设置}"
+        echo "   HTTPS代理: ${https_proxy:-未设置}"
+        echo "   SOCKS代理: ${all_proxy:-未设置}"
+        echo "   排除列表: ${no_proxy:-未设置}"
+    else
+        echo "❌ 代理环境变量未设置"
+    fi
+    
+    # 检查配置文件状态
+    echo ""
+    echo "📄 配置文件状态:"
+    local config_files=("$clash_dir/subscription.yaml" "$clash_dir/config.yaml")
+    for config in "${config_files[@]}"; do
+        if [[ -f "$config" ]]; then
+            local size=$(ls -lh "$config" 2>/dev/null | awk '{print $5}')
+            local mtime=$(ls -l "$config" 2>/dev/null | awk '{print $6, $7, $8}')
+            echo "✅ $(basename "$config"): $size (修改时间: $mtime)"
+        else
+            echo "❌ $(basename "$config"): 不存在"
+        fi
+    done
+    
+    # 检查日志文件状态
+    echo ""
+    echo "📋 日志文件状态:"
+    if [[ -f "$log_file" ]]; then
+        local log_size=$(ls -lh "$log_file" 2>/dev/null | awk '{print $5}')
+        local log_mtime=$(ls -l "$log_file" 2>/dev/null | awk '{print $6, $7, $8}')
+        echo "✅ clash.log: $log_size (修改时间: $log_mtime)"
+        
+        echo ""
+        echo "📋 最近的日志内容 (最后10行):"
+        echo "--------------------------------"
+        tail -10 "$log_file" 2>/dev/null || echo "无法读取日志文件"
+        echo "--------------------------------"
+    else
+        echo "❌ clash.log: 不存在"
+    fi
+    
+    # 网络连接测试
+    echo ""
+    echo "🌐 网络连接测试:"
+    if [[ -n "${http_proxy:-}" ]] && command -v curl >/dev/null 2>&1; then
+        echo "🔍 测试HTTP代理连接..."
+        local test_result=$(curl -s --connect-timeout 10 --proxy "$http_proxy" httpbin.org/ip 2>/dev/null)
+        if [[ -n "$test_result" ]] && echo "$test_result" | grep -q "origin"; then
+            local proxy_ip=$(echo "$test_result" | grep -o '"origin": "[^"]*"' | cut -d'"' -f4)
+            echo "✅ HTTP代理连接正常 (出口IP: $proxy_ip)"
+        else
+            echo "❌ HTTP代理连接失败"
+        fi
+        
+        if [[ -n "${all_proxy:-}" ]]; then
+            echo "🔍 测试SOCKS代理连接..."
+            local socks_result=$(curl -s --connect-timeout 10 --proxy "$all_proxy" httpbin.org/ip 2>/dev/null)
+            if [[ -n "$socks_result" ]] && echo "$socks_result" | grep -q "origin"; then
+                local socks_ip=$(echo "$socks_result" | grep -o '"origin": "[^"]*"' | cut -d'"' -f4)
+                echo "✅ SOCKS代理连接正常 (出口IP: $socks_ip)"
+            else
+                echo "❌ SOCKS代理连接失败"
+            fi
+        fi
+    else
+        echo "⚠️  无法进行网络测试 (代理未设置或curl不可用)"
+    fi
+    
+    # 端口监听状态检查
+    echo ""
+    echo "🔌 端口监听状态:"
+    if command -v netstat >/dev/null 2>&1; then
+        local listening_ports=$(netstat -tlnp 2>/dev/null | grep ":789[01]" | head -5)
+        if [[ -n "$listening_ports" ]]; then
+            echo "✅ 检测到代理端口监听:"
+            echo "$listening_ports"
+        else
+            echo "❌ 未检测到代理端口监听 (7890/7891)"
+        fi
+    elif command -v ss >/dev/null 2>&1; then
+        local listening_ports=$(ss -tlnp 2>/dev/null | grep ":789[01]" | head -5)
+        if [[ -n "$listening_ports" ]]; then
+            echo "✅ 检测到代理端口监听:"
+            echo "$listening_ports"
+        else
+            echo "❌ 未检测到代理端口监听 (7890/7891)"
+        fi
+    else
+        echo "⚠️  无法检查端口状态 (netstat/ss不可用)"
+    fi
+    
+    echo ""
+    echo "================================"
+    echo "💡 提示:"
+    echo "   - 使用 'proxyon' 启用代理"
+    echo "   - 使用 'proxyoff' 停止代理"
+    echo "   - 日志文件位置: $log_file"
 }
 
-# 为了向后兼容，提供别名（在远程环境中强制覆盖占位函数）
-# 在远程环境中，我们总是使用remote_proxy*函数
-alias proxyon='remote_proxyon'
-alias proxyoff='remote_proxyoff'
-alias proxystatus='remote_proxystatus'
+# 注意: 在远程环境中，proxyon/proxyoff/proxystatus函数已经直接定义
+# 不需要别名，因为这些函数在远程环境中是专门的server版本实现
 {{- end }}
 
 # ========================================
@@ -426,9 +726,9 @@ declare -f upload >/dev/null 2>&1 && export -f upload 2>/dev/null || true
 declare -f session_info >/dev/null 2>&1 && export -f session_info 2>/dev/null || true
 declare -f tmux_quick >/dev/null 2>&1 && export -f tmux_quick 2>/dev/null || true
 declare -f validate_remote_environment >/dev/null 2>&1 && export -f validate_remote_environment 2>/dev/null || true
-declare -f remote_proxyon >/dev/null 2>&1 && export -f remote_proxyon 2>/dev/null || true
-declare -f remote_proxyoff >/dev/null 2>&1 && export -f remote_proxyoff 2>/dev/null || true
-declare -f remote_proxystatus >/dev/null 2>&1 && export -f remote_proxystatus 2>/dev/null || true
+declare -f proxyon >/dev/null 2>&1 && export -f proxyon 2>/dev/null || true
+declare -f proxyoff >/dev/null 2>&1 && export -f proxyoff 2>/dev/null || true
+declare -f proxystatus >/dev/null 2>&1 && export -f proxystatus 2>/dev/null || true
 
 # Note: sysinfo function is defined in this file and will override the basic one from core
 
