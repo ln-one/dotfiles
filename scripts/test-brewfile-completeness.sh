@@ -76,7 +76,7 @@ check_modern_cli_tools() {
     log_info "检查现代化 CLI 工具是否在 Brewfile 中..."
     
     local missing_tools=()
-    local modern_tools=("eza" "bat" "fd" "ripgrep" "fzf" "zoxide" "jq")
+    local modern_tools=("exa" "eza" "bat" "fd" "ripgrep" "fzf" "zoxide" "jq")
     
     for tool in "${modern_tools[@]}"; do
         if ! grep -q "brew \"$tool\"" Brewfile.tmpl; then

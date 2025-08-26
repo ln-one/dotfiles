@@ -56,8 +56,8 @@ check_system_package_paths() {
     
     local found_issues=0
     
-    # 检查 /usr/bin 路径引用
-    if grep -r "/usr/bin/" --include="*.tmpl" . 2>/dev/null | grep -v "#!/usr/bin" | grep -v "/usr/bin/env"; then
+    # 检查 /usr/bin 路径引用 (1Password CLI 是例外)
+    if grep -r "/usr/bin/" --include="*.tmpl" . 2>/dev/null | grep -v "#!/usr/bin" | grep -v "/usr/bin/env" | grep -v "1password\|/usr/bin/op"; then
         log_error "发现 /usr/bin 路径引用"
         found_issues=1
     fi
@@ -68,10 +68,10 @@ check_system_package_paths() {
         found_issues=1
     fi
     
-    # 检查系统包管理器命令
+    # 检查系统包管理器命令 (1Password CLI 是例外)
     local package_managers=("apt" "yum" "dnf" "pacman" "zypper")
     for pm in "${package_managers[@]}"; do
-        if grep -r "command -v $pm\|which $pm\|$pm install\|$pm update" --include="*.tmpl" . 2>/dev/null; then
+        if grep -r "command -v $pm\|which $pm\|$pm install\|$pm update" --include="*.tmpl" --exclude="run_once_install-1password-cli.sh.tmpl" . 2>/dev/null; then
             log_error "发现系统包管理器 $pm 的使用"
             found_issues=1
         fi
