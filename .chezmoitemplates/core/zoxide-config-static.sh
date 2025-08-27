@@ -1,15 +1,11 @@
 # ========================================
 # Zoxide 智能目录跳转配置 (完全静态版本)
 # ========================================
-# 现代化的目录跳转工具，完全静态配置
+# 现代化的目录跳转工具，初始化由 evalcache-config-static.sh 统一处理
 
 {{- if .features.enable_zoxide }}
-# Zoxide 初始化 (静态生成)
-{{- if eq (base .chezmoi.targetFile) ".zshrc" }}
-eval "$(zoxide init zsh)"
-{{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
-eval "$(zoxide init bash)"
-{{- end }}
+# 注意: zoxide init 由 evalcache-config-static.sh 统一处理
+# 这里只提供辅助函数
 
 # 自定义 zoxide 函数
 zproj() {

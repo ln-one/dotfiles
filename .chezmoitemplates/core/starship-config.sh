@@ -1,24 +1,9 @@
 # ========================================
 # Starship 提示符配置模板 (静态版本)
 # ========================================
-# 跨 Shell 的现代化提示符初始化，无运行时检测
+# 跨 Shell 的现代化提示符配置，初始化由 evalcache-config-static.sh 统一处理
 
 {{- if .features.enable_starship }}
-
-# Starship 初始化 (静态生成)
-# 注意: evalcache 配置在 evalcache-config.sh 中处理
-# 这里保留回退逻辑，当 evalcache 不可用时使用
-{{- if eq (base .chezmoi.targetFile) ".zshrc" }}
-    # 如果 evalcache 可用，在 evalcache-config.sh 中处理
-    # 否则使用标准 eval
-    {{- if not .features.enable_evalcache }}
-    eval "$(starship init zsh)"
-    {{- end }}
-{{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
-    {{- if not .features.enable_evalcache }}
-    eval "$(starship init bash)"
-    {{- end }}
-{{- end }}
 
 # 设置配置文件路径
 export STARSHIP_CONFIG="$HOME/.config/starship.toml"

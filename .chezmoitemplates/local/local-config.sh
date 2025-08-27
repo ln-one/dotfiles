@@ -81,17 +81,17 @@ for local_path in "${local_paths[@]}"; do
     fi
 done
 
-# Local Aliases based on available tools
+# Local Aliases based on available tools (静态生成)
 # These aliases adapt to what's actually installed on the local machine
-if command -v eza >/dev/null 2>&1; then
-    alias ll="eza -la --git"
-    alias tree="eza --tree"
-elif command -v exa >/dev/null 2>&1; then
-    alias ll="exa -la --git"
-    alias tree="exa --tree"
-else
-    alias ll="ls -la"
-fi
+{{- if .features.enable_eza }}
+alias ll="eza -la --git"
+alias tree="eza --tree"
+{{- else if .features.enable_exa }}
+alias ll="exa -la --git"
+alias tree="exa --tree"
+{{- else }}
+alias ll="ls -la"
+{{- end }}
 
 # Local Functions
 # Function to quickly navigate to local projects
@@ -112,15 +112,13 @@ if [[ -n "${LOCAL_PROJECTS_DIR:-}" ]] && [[ -d "$LOCAL_PROJECTS_DIR" ]]; then
             compadd "${projects[@]}"
         }
         
-        # 延迟注册补全函数，确保 compinit 已经执行
-        if command -v zsh-defer >/dev/null 2>&1; then
-            zsh-defer -t 1.0 compdef _proj proj
-        else
-            # 如果没有 zsh-defer，检查 compdef 是否可用
-            if command -v compdef >/dev/null 2>&1; then
-                compdef _proj proj
-            fi
-        fi
+        # 延迟注册补全函数，确保 compinit 已经执行 (静态生成)
+        {{- if and (eq (base .chezmoi.targetFile) ".zshrc") .features.enable_zsh_defer }}
+        zsh-defer -t 1.0 compdef _proj proj
+        {{- else if eq (base .chezmoi.targetFile) ".zshrc" }}
+        # 如果没有 zsh-defer，直接注册补全
+        compdef _proj proj
+        {{- end }}
     fi
 fi
 
@@ -136,19 +134,19 @@ detect_local_capabilities() {
         export LOCAL_HAS_GUI=true
     fi
     
-    # Detect available package managers
-    if command -v brew >/dev/null 2>&1; then
-        export LOCAL_HAS_BREW=true
-    fi
+    # Detect available package managers (静态生成)
+    {{- if lookPath "brew" }}
+    export LOCAL_HAS_BREW=true
+    {{- end }}
     
-    # Detect container runtime
-    if command -v docker >/dev/null 2>&1; then
-        export LOCAL_HAS_DOCKER=true
-    fi
+    # Detect container runtime (静态生成)
+    {{- if .features.enable_docker }}
+    export LOCAL_HAS_DOCKER=true
+    {{- end }}
     
-    if command -v podman >/dev/null 2>&1; then
-        export LOCAL_HAS_PODMAN=true
-    fi
+    {{- if lookPath "podman" }}
+    export LOCAL_HAS_PODMAN=true
+    {{- end }}
 }
 
 # Run local capability detection

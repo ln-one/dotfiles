@@ -5,8 +5,8 @@
 # 所有工具检测由chezmoi在编译时决定
 
 {{- if .features.enable_evalcache }}
-# 加载 evalcache 插件 (仅限 Zsh)
 {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
+# 加载 evalcache 插件 (仅限 Zsh)
 if [[ -f "$HOME/.evalcache/evalcache.plugin.zsh" ]]; then
     source "$HOME/.evalcache/evalcache.plugin.zsh"
 fi
@@ -178,59 +178,81 @@ if command -v _evalcache >/dev/null 2>&1; then
         {{- end }}
     }
     
-else
-    # evalcache 不可用时的回退配置
-    echo "⚠️  evalcache 不可用，使用直接初始化"
-    
-    {{- if .features.enable_starship }}
-    {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
-    eval "$(starship init zsh)"
-    {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
-    eval "$(starship init bash)"
-    {{- end }}
-    {{- end }}
-    
-    {{- if .features.enable_zoxide }}
-    {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
-    eval "$(zoxide init zsh)"
-    {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
-    eval "$(zoxide init bash)"
-    {{- end }}
-    {{- end }}
-    
-    {{- if .features.enable_fzf }}
-    {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
-    eval "$(fzf --zsh)"
-    {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
-    eval "$(fzf --bash)"
-    {{- end }}
-    {{- end }}
 fi
+
+{{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+# ========================================
+# Bash 直接初始化配置 (无 evalcache)
+# ========================================
+
+{{- if .features.enable_starship }}
+# Starship 提示符
+eval "$(starship init bash)"
+{{- end }}
+
+{{- if .features.enable_zoxide }}
+# Zoxide 智能目录跳转
+eval "$(zoxide init bash)"
+{{- end }}
+
+{{- if .features.enable_fzf }}
+# FZF 模糊搜索
+eval "$(fzf --bash)"
+{{- end }}
+
+# Homebrew 环境 (总是启用)
+{{- if eq .chezmoi.os "linux" }}
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+{{- else if eq .chezmoi.os "darwin" }}
+eval "$(/opt/homebrew/bin/brew shellenv)"
+{{- end }}
+
+{{- if .features.enable_conda }}
+# Conda 环境管理
+eval "$(conda shell.bash hook)"
+{{- end }}
 
 {{- end }}
 {{- else }}
 # Evalcache 功能已禁用，使用直接初始化
-{{- if .features.enable_starship }}
 {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
+# ZSH 直接初始化
+{{- if .features.enable_starship }}
 eval "$(starship init zsh)"
-{{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
-eval "$(starship init bash)"
-{{- end }}
 {{- end }}
 
 {{- if .features.enable_zoxide }}
-{{- if eq (base .chezmoi.targetFile) ".zshrc" }}
 eval "$(zoxide init zsh)"
-{{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
-eval "$(zoxide init bash)"
-{{- end }}
 {{- end }}
 
 {{- if .features.enable_fzf }}
-{{- if eq (base .chezmoi.targetFile) ".zshrc" }}
 eval "$(fzf --zsh)"
+{{- end }}
+
 {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+# Bash 直接初始化
+{{- if .features.enable_starship }}
+eval "$(starship init bash)"
+{{- end }}
+
+{{- if .features.enable_zoxide }}
+eval "$(zoxide init bash)"
+{{- end }}
+
+{{- if .features.enable_fzf }}
 eval "$(fzf --bash)"
 {{- end }}
+
+# Homebrew 环境 (总是启用)
+{{- if eq .chezmoi.os "linux" }}
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+{{- else if eq .chezmoi.os "darwin" }}
+eval "$(/opt/homebrew/bin/brew shellenv)"
+{{- end }}
+
+{{- if .features.enable_conda }}
+eval "$(conda shell.bash hook)"
+{{- end }}
+
 {{- end }}
 {{- end }}

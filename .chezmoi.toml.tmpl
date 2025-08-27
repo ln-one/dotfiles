@@ -58,7 +58,21 @@
   enable_fzf_new = false    # 启用新版 fzf (0.48.0+) 集成方式
   {{- end }}
   {{- if lookPath "fd" }}
+  {{- if lookPath "fd" }}
   enable_fd = true          # 启用 fd 文件搜索工具
+  {{- else }}
+  enable_fd = false         # 启用 fd 文件搜索工具 (未安装)
+  {{- end }}
+  {{- if lookPath "eza" }}
+  enable_eza = true         # 启用 eza 现代化 ls 替代品
+  {{- else }}
+  enable_eza = false        # 启用 eza 现代化 ls 替代品 (未安装)
+  {{- end }}
+  {{- if lookPath "exa" }}
+  enable_exa = true         # 启用 exa 现代化 ls 替代品
+  {{- else }}
+  enable_exa = false        # 启用 exa 现代化 ls 替代品 (未安装)
+  {{- end }}
   {{- else }}
   enable_fd = false         # 启用 fd 文件搜索工具 (未安装)
   {{- end }}

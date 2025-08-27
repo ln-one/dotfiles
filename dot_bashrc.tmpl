@@ -102,25 +102,25 @@ if ! shopt -oq posix; then
 fi
 
 # ========================================
-# CLI 工具补全配置
+# CLI 工具补全配置 (静态生成)
 # ========================================
 # chezmoi 配置管理工具补全
-if command -v chezmoi >/dev/null 2>&1; then
-    eval "$(chezmoi completion bash)"
-fi
+{{- if lookPath "chezmoi" }}
+eval "$(chezmoi completion bash)"
+{{- end }}
 
 # 其他常用 CLI 工具补全
-if command -v gh >/dev/null 2>&1; then
-    eval "$(gh completion -s bash)"
-fi
+{{- if lookPath "gh" }}
+eval "$(gh completion -s bash)"
+{{- end }}
 
-if command -v kubectl >/dev/null 2>&1; then
-    source <(kubectl completion bash)
-fi
+{{- if .features.enable_kubectl }}
+source <(kubectl completion bash)
+{{- end }}
 
-if command -v docker >/dev/null 2>&1; then
-    eval "$(docker completion bash)"
-fi
+{{- if .features.enable_docker }}
+eval "$(docker completion bash)"
+{{- end }}
 
 # ========================================
 # 本地自定义配置
