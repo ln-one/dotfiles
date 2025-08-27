@@ -4,17 +4,18 @@
 # 基于功能标志的静态别名，无运行时检测
 
 # ========================================
-# 文件和目录操作 (基于功能标志)
+# 文件和目录操作 (基于功能标志和工具偏好)
 # ========================================
 
-{{- if eq .preferences.ls_tool "eza" }}
+{{- $ls_tool := .preferences.ls_tool | default "ls" }}
+{{- if eq $ls_tool "eza" }}
 # Eza 别名 (静态配置)
 alias ls='eza --color=auto --icons'
 alias ll='eza -alF --color=auto --icons --git'
 alias la='eza -a --color=auto --icons'
 alias l='eza -F --color=auto --icons'
 alias tree='eza --tree --color=auto --icons'
-{{- else if eq .preferences.ls_tool "exa" }}
+{{- else if eq $ls_tool "exa" }}
 # Exa 别名 (静态配置)
 alias ls='exa --color=auto --icons'
 alias ll='exa -alF --color=auto --icons --git'

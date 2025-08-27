@@ -65,11 +65,12 @@ if [ -n "$ZSH_VERSION" ]; then
     {{- end }}
     
     # 重新加载别名 (覆盖框架的默认设置)
-    {{ includeTemplate "core/aliases.sh" . }}
+        # 核心别名配置 (静态版本)
+    {{ includeTemplate "core/aliases-static.sh" . }}
 fi
 
-# 初始化 zsh-defer (仅在启用 Zim 时，必须在 evalcache 之前)
-{{- if .features.enable_zim }}
+# 初始化 zsh-defer (仅在zsh和启用 Zim 时，必须在 evalcache 之前)
+{{- if and .features.enable_zim (eq (base .chezmoi.targetFile) ".zshrc") }}
 {{ includeTemplate "core/zsh-defer-init.sh" . }}
 
 # 延迟加载语法高亮以加速启动 - 静态配置

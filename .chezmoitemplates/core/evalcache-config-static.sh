@@ -101,18 +101,34 @@ if command -v _evalcache >/dev/null 2>&1; then
     {{- if .features.enable_fzf }}
     # FZF 模糊搜索 (延迟初始化)
     {{- if .features.enable_zsh_defer }}
+    {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
     zsh-defer -a eval "$(fzf --zsh)"
+    {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+    eval "$(fzf --bash)"
+    {{- end }}
     {{- else }}
+    {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
     eval "$(fzf --zsh)"
+    {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+    eval "$(fzf --bash)"
+    {{- end }}
     {{- end }}
     {{- end }}
     
     {{- if .features.enable_zoxide }}
     # Zoxide 智能目录跳转 (延迟初始化)
     {{- if .features.enable_zsh_defer }}
+    {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
     zsh-defer -a _evalcache zoxide init zsh
+    {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+    _evalcache zoxide init bash
+    {{- end }}
     {{- else }}
+    {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
     _evalcache zoxide init zsh
+    {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+    _evalcache zoxide init bash
+    {{- end }}
     {{- end }}
     {{- end }}
     
@@ -155,7 +171,11 @@ if command -v _evalcache >/dev/null 2>&1; then
     rebuild_evalcache() {
         echo "🔄 重建 evalcache 缓存..."
         clear_evalcache
+        {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
         exec zsh
+        {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+        exec bash
+        {{- end }}
     }
     
 else
@@ -163,15 +183,27 @@ else
     echo "⚠️  evalcache 不可用，使用直接初始化"
     
     {{- if .features.enable_starship }}
+    {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
     eval "$(starship init zsh)"
+    {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+    eval "$(starship init bash)"
+    {{- end }}
     {{- end }}
     
     {{- if .features.enable_zoxide }}
+    {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
     eval "$(zoxide init zsh)"
+    {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+    eval "$(zoxide init bash)"
+    {{- end }}
     {{- end }}
     
     {{- if .features.enable_fzf }}
+    {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
     eval "$(fzf --zsh)"
+    {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+    eval "$(fzf --bash)"
+    {{- end }}
     {{- end }}
 fi
 
@@ -179,14 +211,26 @@ fi
 {{- else }}
 # Evalcache 功能已禁用，使用直接初始化
 {{- if .features.enable_starship }}
+{{- if eq (base .chezmoi.targetFile) ".zshrc" }}
 eval "$(starship init zsh)"
+{{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+eval "$(starship init bash)"
+{{- end }}
 {{- end }}
 
 {{- if .features.enable_zoxide }}
+{{- if eq (base .chezmoi.targetFile) ".zshrc" }}
 eval "$(zoxide init zsh)"
+{{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+eval "$(zoxide init bash)"
+{{- end }}
 {{- end }}
 
 {{- if .features.enable_fzf }}
+{{- if eq (base .chezmoi.targetFile) ".zshrc" }}
 eval "$(fzf --zsh)"
+{{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+eval "$(fzf --bash)"
+{{- end }}
 {{- end }}
 {{- end }}
