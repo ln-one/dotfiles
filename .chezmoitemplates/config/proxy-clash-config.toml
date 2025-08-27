@@ -1,0 +1,16 @@
+# Clash 配置文件解析
+# 从 Clash 配置中提取端口信息并生成代理配置
+
+# 使用 Clash {{ .config_type }} 配置文件 ({{ if eq .config_type "subscription" }}远程环境{{ else }}Desktop环境{{ end }})
+enabled = true
+source = "{{ .config_type }}"
+{{- if eq .config_type "subscription" }}
+config_file = "{{ .config_file }}"
+log_file = "clash.log"
+{{- end }}
+host = "127.0.0.1"
+http_port = {{ .clash.port | default 7890 }}
+socks_port = {{ index .clash "socks-port" | default 7891 }}
+http_proxy = "http://127.0.0.1:{{ .clash.port | default 7890 }}"
+https_proxy = "http://127.0.0.1:{{ .clash.port | default 7890 }}"
+socks_proxy = "socks5://127.0.0.1:{{ index .clash "socks-port" | default 7891 }}"

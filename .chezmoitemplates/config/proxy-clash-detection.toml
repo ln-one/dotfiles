@@ -1,0 +1,30 @@
+# Clash 代理配置检测
+# 处理 Clash 配置文件的检测和端口解析
+
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "windows") }}
+  {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") (env "SSH_TTY") }}
+    {{- /* 远程环境：优先检查 subscription.yaml，然后回退到 config.yaml */ -}}
+    {{- $subscription_config := joinPath .chezmoi.homeDir ".config/clash/subscription.yaml" }}
+    {{- $clash_config := joinPath .chezmoi.homeDir ".config/clash/config.yaml" }}
+    {{- if stat $subscription_config }}
+      {{- $clash := include $subscription_config | fromYaml }}
+{{ includeTemplate "config/proxy-clash-config.toml" (dict "clash" $clash "config_type" "subscription" "config_file" "subscription.yaml") }}
+    {{- else if stat $clash_config }}
+      {{- $clash := include $clash_config | fromYaml }}
+{{ includeTemplate "config/proxy-clash-config.toml" (dict "clash" $clash "config_type" "clash" "config_file" "config.yaml") }}
+    {{- else }}
+{{ includeTemplate "config/proxy-default.toml" . }}
+    {{- end }}
+  {{- else }}
+    {{- /* Desktop环境：保持现有逻辑 */ -}}
+    {{- $clash_config := joinPath .chezmoi.homeDir ".config/clash/config.yaml" }}
+    {{- if stat $clash_config }}
+      {{- $clash := include $clash_config | fromYaml }}
+{{ includeTemplate "config/proxy-clash-config.toml" (dict "clash" $clash "config_type" "clash" "config_file" "config.yaml") }}
+    {{- else }}
+{{ includeTemplate "config/proxy-disabled.toml" . }}
+    {{- end }}
+  {{- end }}
+{{- else }}
+{{ includeTemplate "config/proxy-disabled.toml" . }}
+{{- end }}

@@ -1,0 +1,15 @@
+# 环境特定包配置
+# 根据不同环境定义所需的包列表
+
+# 环境特定配置
+[data.environments.desktop]
+  packages = ["firefox", "code", "docker"]
+  services = ["docker", "ssh"]
+  
+[data.environments.server]
+  packages = ["htop", "tmux", "vim"]
+  services = ["ssh"]
+  
+[data.environments.container]
+  packages = ["curl", "git"]
+  services = []
