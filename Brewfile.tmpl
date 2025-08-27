@@ -10,8 +10,7 @@ brew "unzip"            # 压缩文件处理
 brew "tree"             # 目录树显示
 
 # 现代化 CLI 工具 (替代传统工具)
-brew "eza"              # 现代化的 ls 替代品 (主要使用)
-brew "exa"              # 现代化的 ls 替代品 (备用)
+brew "eza"              # 现代化的 ls 替代品 (exa 的活跃分支)
 brew "bat"              # 现代化的 cat 替代品 (统一使用 bat，不再使用 batcat)
 brew "fd"               # 现代化的 find 替代品 (统一使用 fd，不再使用 fd-find)
 brew "ripgrep"          # 现代化的 grep 替代品
@@ -29,7 +28,8 @@ cask "1password/tap/1password-cli"  # macOS 通过 Homebrew tap 安装
 # 这是一个例外情况，不能通过 Homebrew 统一管理
 
 # Shell 和终端工具
-brew "zsh"              # 现代 Shell
+brew "zsh"              # 现代 Shell (macOS 默认)
+brew "bash"             # 现代 Bash (macOS 自带版本较老)
 brew "tmux"             # 终端复用器
 brew "starship"         # 跨 Shell 提示符
 
@@ -64,8 +64,7 @@ cask "font-meslo-lg-nerd-font"
 
 {{- else if eq .chezmoi.os "linux" }}
 # Linux 特定工具
-brew "gcc"              # 编译器
-brew "make"             # 构建工具
+# 注意: gcc 和 make 应通过系统包管理器安装 (apt install build-essential)
 
 {{- end }}
 
