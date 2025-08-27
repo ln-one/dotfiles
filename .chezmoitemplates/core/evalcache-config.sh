@@ -177,6 +177,11 @@ if command -v _evalcache >/dev/null 2>&1; then
     
     # 检查 zsh-defer 是否可用
     if command -v zsh-defer >/dev/null 2>&1; then
+        # chezmoi 配置管理工具补全 (延迟加载)
+        if command -v chezmoi >/dev/null 2>&1; then
+            zsh-defer _evalcache chezmoi completion zsh
+        fi
+        
         # gh GitHub CLI 补全 (延迟加载)
         if command -v gh >/dev/null 2>&1; then
             zsh-defer _evalcache gh completion -s zsh
@@ -193,6 +198,11 @@ if command -v _evalcache >/dev/null 2>&1; then
         fi
     else
         # 回退到原来的 evalcache 方式
+        # chezmoi 配置管理工具补全 (补全通常较慢，可以缓存)
+        if command -v chezmoi >/dev/null 2>&1; then
+            _evalcache chezmoi completion zsh
+        fi
+        
         # gh GitHub CLI 补全 (补全通常较慢，可以缓存)
         if command -v gh >/dev/null 2>&1; then
             _evalcache gh completion -s zsh
@@ -367,6 +377,10 @@ else
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     fi
     {{- end }}
+    
+    if command -v chezmoi >/dev/null 2>&1; then
+        eval "$(chezmoi completion zsh)"
+    fi
     
     if command -v gh >/dev/null 2>&1; then
         eval "$(gh completion -s zsh)"

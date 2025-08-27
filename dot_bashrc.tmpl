@@ -102,6 +102,27 @@ if ! shopt -oq posix; then
 fi
 
 # ========================================
+# CLI 工具补全配置
+# ========================================
+# chezmoi 配置管理工具补全
+if command -v chezmoi >/dev/null 2>&1; then
+    eval "$(chezmoi completion bash)"
+fi
+
+# 其他常用 CLI 工具补全
+if command -v gh >/dev/null 2>&1; then
+    eval "$(gh completion -s bash)"
+fi
+
+if command -v kubectl >/dev/null 2>&1; then
+    source <(kubectl completion bash)
+fi
+
+if command -v docker >/dev/null 2>&1; then
+    eval "$(docker completion bash)"
+fi
+
+# ========================================
 # 本地自定义配置
 # ========================================
 [ -f ~/.bashrc.local ] && source ~/.bashrc.local
