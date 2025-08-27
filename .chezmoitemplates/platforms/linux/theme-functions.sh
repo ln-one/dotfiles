@@ -22,7 +22,8 @@ dark() {
     fi
     
     # 备用方案：直接设置 WhiteSur 暗色主题
-    if [[ -d "$THEME_DIR" ]] && command -v gsettings >/dev/null 2>&1; then
+    {{- if .features.enable_gsettings }}
+    if [[ -d "$THEME_DIR" ]]; then
         echo "设置 WhiteSur 暗色主题..."
         
         # 进入主题目录并执行完整的主题切换流程
@@ -43,11 +44,13 @@ dark() {
             gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
             
             # 更新 fcitx5 主题（如果存在）
+            {{- if .features.enable_fcitx5 }}
             local fcitx5_config="$HOME/.config/fcitx5/conf/classicui.conf"
-            if command -v fcitx5 >/dev/null 2>&1 && [[ -f "$fcitx5_config" ]]; then
+            if [[ -f "$fcitx5_config" ]]; then
                 sed -i "s/^Theme=.*/Theme=macOS-dark/" "$fcitx5_config" 2>/dev/null || true
                 fcitx5 -r 2>/dev/null || true
             fi
+            {{- end }}
         )
         
         echo "✅ 已切换到 WhiteSur 暗色主题"
@@ -56,6 +59,7 @@ dark() {
         gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark' 2>/dev/null || true
         gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
     fi
+    {{- end }}
 }
 
 # Switch to light theme (WhiteSur Light)
@@ -70,7 +74,8 @@ light() {
     fi
     
     # 备用方案：直接设置 WhiteSur 亮色主题
-    if [[ -d "$THEME_DIR" ]] && command -v gsettings >/dev/null 2>&1; then
+    {{- if .features.enable_gsettings }}
+    if [[ -d "$THEME_DIR" ]]; then
         echo "设置 WhiteSur 亮色主题..."
         
         # 进入主题目录并执行完整的主题切换流程
@@ -91,11 +96,13 @@ light() {
             gsettings set org.gnome.desktop.interface color-scheme 'prefer-light' 2>/dev/null || true
             
             # 更新 fcitx5 主题（如果存在）
+            {{- if .features.enable_fcitx5 }}
             local fcitx5_config="$HOME/.config/fcitx5/conf/classicui.conf"
-            if command -v fcitx5 >/dev/null 2>&1 && [[ -f "$fcitx5_config" ]]; then
+            if [[ -f "$fcitx5_config" ]]; then
                 sed -i "s/^Theme=.*/Theme=macOS-light/" "$fcitx5_config" 2>/dev/null || true
                 fcitx5 -r 2>/dev/null || true
             fi
+            {{- end }}
         )
         
         echo "✅ 已切换到 WhiteSur 亮色主题"
@@ -104,6 +111,7 @@ light() {
         gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita' 2>/dev/null || true
         gsettings set org.gnome.desktop.interface color-scheme 'prefer-light' 2>/dev/null || true
     fi
+    {{- end }}
 }
 
 # Show theme status
@@ -118,32 +126,34 @@ themestatus() {
     fi
     
     # 备用方案：直接查询 gsettings
-    if command -v gsettings >/dev/null 2>&1; then
-        local gtk_theme=$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null | tr -d "'")
-        local shell_theme=$(gsettings get org.gnome.shell.extensions.user-theme name 2>/dev/null | tr -d "'")
-        local color_scheme=$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null | tr -d "'")
-        
-        echo "🖥️  GNOME 主题:"
-        echo "  GTK: ${gtk_theme:-未知}"
-        echo "  Shell: ${shell_theme:-未知}"
-        echo "  配色: ${color_scheme:-未知}"
-        
-        # 检查 WhiteSur 主题是否安装
-        if [[ -d "$THEME_DIR" ]]; then
-            echo "  WhiteSur: ✅ 已安装"
-        else
-            echo "  WhiteSur: ❌ 未安装"
-        fi
-        
-        # 检查 fcitx5 主题
-        local fcitx5_config="$HOME/.config/fcitx5/conf/classicui.conf"
-        if [[ -f "$fcitx5_config" ]]; then
-            local fcitx5_theme=$(grep "^Theme=" "$fcitx5_config" 2>/dev/null | cut -d'=' -f2 || echo "未设置")
-            echo "  fcitx5: ${fcitx5_theme}"
-        fi
+    {{- if .features.enable_gsettings }}
+    local gtk_theme=$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null | tr -d "'")
+    local shell_theme=$(gsettings get org.gnome.shell.extensions.user-theme name 2>/dev/null | tr -d "'")
+    local color_scheme=$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null | tr -d "'")
+    
+    echo "🖥️  GNOME 主题:"
+    echo "  GTK: ${gtk_theme:-未知}"
+    echo "  Shell: ${shell_theme:-未知}"
+    echo "  配色: ${color_scheme:-未知}"
+    
+    # 检查 WhiteSur 主题是否安装
+    if [[ -d "$THEME_DIR" ]]; then
+        echo "  WhiteSur: ✅ 已安装"
     else
-        echo "❌ gsettings 不可用"
+        echo "  WhiteSur: ❌ 未安装"
     fi
+    
+    # 检查 fcitx5 主题
+    {{- if .features.enable_fcitx5 }}
+    local fcitx5_config="$HOME/.config/fcitx5/conf/classicui.conf"
+    if [[ -f "$fcitx5_config" ]]; then
+        local fcitx5_theme=$(grep "^Theme=" "$fcitx5_config" 2>/dev/null | cut -d'=' -f2 || echo "未设置")
+        echo "  fcitx5: ${fcitx5_theme}"
+    fi
+    {{- end }}
+    {{- else }}
+    echo "❌ gsettings 不可用"
+    {{- end }}
 }
 
 {{- else }}

@@ -13,19 +13,19 @@ if [[ -n "${ZSH_VERSION}" ]]; then
     # 禁用 Zim 版本检查以提高启动速度
     zstyle ':zim' disable-version-check yes
     
-    # 自动下载和安装 Zim (如果不存在)
+    # 自动下载和安装 Zim (如果不存在) - 静态配置
     if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
         echo "正在下载 Zim 框架管理器..."
-        if command -v curl >/dev/null 2>&1; then
-            curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
-                https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
-        elif command -v wget >/dev/null 2>&1; then
-            mkdir -p ${ZIM_HOME} && wget -nv -O ${ZIM_HOME}/zimfw.zsh \
-                https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
-        else
-            echo "错误: 需要 curl 或 wget 来下载 Zim 框架管理器"
-            return 1
-        fi
+        {{- if .features.enable_curl }}
+        curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
+            https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+        {{- else if .features.enable_wget }}
+        mkdir -p ${ZIM_HOME} && wget -nv -O ${ZIM_HOME}/zimfw.zsh \
+            https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+        {{- else }}
+        echo "错误: 需要 curl 或 wget 来下载 Zim 框架管理器"
+        return 1
+        {{- end }}
     fi
     
     # 自动安装缺失模块并更新初始化脚本

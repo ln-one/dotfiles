@@ -1,10 +1,36 @@
 #!/bin/bash
 
-# 修复 compinit 警告的脚本
+# 修复 compinit 和 compdef 相关警告的脚本
 # 根据 Zim 故障排除指南修复 compinit 被多次调用的问题
+# 新增：修复 compdef 命令未找到的问题
 
-echo "🔧 修复 compinit 冲突警告..."
-echo "================================"
+echo "🔧 修复 compinit/compdef 冲突警告..."
+echo "===================================="
+
+# 检查是否在 zsh 中运行
+if [[ -z "${ZSH_VERSION:-}" ]]; then
+    echo "❌ 此脚本需要在 zsh 中运行以进行完整诊断"
+    echo "当前 shell: $0"
+    echo "建议运行: zsh $0"
+fi
+
+echo ""
+echo "🔍 诊断当前补全系统状态..."
+
+# 检查 compdef 是否可用
+if command -v compdef >/dev/null 2>&1; then
+    echo "✅ compdef 命令可用"
+else
+    echo "❌ compdef 命令不可用 - 这可能是错误的根源"
+    echo "💡 这通常表示 compinit 未正确初始化"
+fi
+
+# 检查 zsh-defer 状态
+if command -v zsh-defer >/dev/null 2>&1; then
+    echo "✅ zsh-defer 可用"
+else
+    echo "⚠️  zsh-defer 不可用"
+fi
 
 # 1. 确保 skip_global_compinit=1 在 .zshenv 中设置
 echo "📋 检查 skip_global_compinit 设置"

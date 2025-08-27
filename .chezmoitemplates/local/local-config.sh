@@ -111,7 +111,16 @@ if [[ -n "${LOCAL_PROJECTS_DIR:-}" ]] && [[ -d "$LOCAL_PROJECTS_DIR" ]]; then
             projects=("${projects[@]##*/}")
             compadd "${projects[@]}"
         }
-        compdef _proj proj
+        
+        # 延迟注册补全函数，确保 compinit 已经执行
+        if command -v zsh-defer >/dev/null 2>&1; then
+            zsh-defer -t 1.0 compdef _proj proj
+        else
+            # 如果没有 zsh-defer，检查 compdef 是否可用
+            if command -v compdef >/dev/null 2>&1; then
+                compdef _proj proj
+            fi
+        fi
     fi
 fi
 

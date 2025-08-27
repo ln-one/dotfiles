@@ -1,0 +1,192 @@
+# ========================================
+# Evalcache 性能优化配置 (完全静态版本)
+# ========================================
+# 基于功能标志的静态配置，完全消除运行时检测
+# 所有工具检测由chezmoi在编译时决定
+
+{{- if .features.enable_evalcache }}
+# 加载 evalcache 插件 (仅限 Zsh)
+{{- if eq (base .chezmoi.targetFile) ".zshrc" }}
+if [[ -f "$HOME/.evalcache/evalcache.plugin.zsh" ]]; then
+    source "$HOME/.evalcache/evalcache.plugin.zsh"
+fi
+
+# Evalcache 静态配置
+if command -v _evalcache >/dev/null 2>&1; then
+    # ========================================
+    # 立即初始化的工具 (高优先级)
+    # ========================================
+    
+    {{- if .features.enable_starship }}
+    # Starship 提示符 (最高优先级)
+    _evalcache starship init zsh
+    {{- end }}
+    
+    # ========================================
+    # 延迟初始化的工具 (静态配置)
+    # ========================================
+    
+    {{- if .features.enable_zsh_defer }}
+    # zsh-defer 可用，使用延迟初始化
+    # Python 环境管理 (延迟初始化)
+    {{- if .features.enable_pyenv }}
+    zsh-defer -a _evalcache pyenv init --path
+    zsh-defer -a _evalcache pyenv init -
+    zsh-defer -a _evalcache pyenv virtualenv-init -
+    {{- end }}
+    
+    # Ruby 环境管理 (延迟初始化)
+        {{- if .features.enable_rbenv }}
+        zsh-defer -a _evalcache rbenv init -
+        {{- end }}
+        
+        # Node.js 环境管理 (延迟初始化)
+        {{- if .features.enable_fnm }}
+        zsh-defer -a _evalcache fnm env --use-on-cd
+        {{- end }}
+        
+        # 工具版本管理器 (延迟初始化)
+        {{- if .features.enable_mise }}
+    zsh-defer -a _evalcache mise activate zsh
+    {{- end }}
+    
+    # Homebrew 环境 (延迟初始化)
+    {{- if eq .chezmoi.os "linux" }}
+    zsh-defer -a eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    {{- else if eq .chezmoi.os "darwin" }}
+    zsh-defer -a eval "$(/opt/homebrew/bin/brew shellenv)"
+    {{- end }}
+    
+    {{- else }}
+    # 无 zsh-defer 时的直接初始化
+    {{- if .features.enable_pyenv }}
+    _evalcache pyenv init --path
+    _evalcache pyenv init -
+    _evalcache pyenv virtualenv-init -
+    {{- end }}
+    
+    {{- if .features.enable_rbenv }}
+    _evalcache rbenv init -
+    {{- end }}
+    
+    {{- if .features.enable_fnm }}
+    _evalcache fnm env --use-on-cd
+    {{- end }}
+    
+    {{- if .features.enable_mise }}
+    _evalcache mise activate zsh
+    {{- end }}
+    
+    # Homebrew 环境
+    {{- if eq .chezmoi.os "linux" }}
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    {{- else if eq .chezmoi.os "darwin" }}
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+    {{- end }}
+    {{- end }}
+    
+    # ========================================
+    # 其他工具的延迟初始化 (静态配置)
+    # ========================================
+    
+    {{- if .features.enable_conda }}
+    # Conda 环境管理 (延迟初始化)
+    {{- if .features.enable_zsh_defer }}
+    zsh-defer -a _evalcache conda shell.zsh hook
+    {{- else }}
+    _evalcache conda shell.zsh hook
+    {{- end }}
+    {{- end }}
+    
+    {{- if .features.enable_fzf }}
+    # FZF 模糊搜索 (延迟初始化)
+    {{- if .features.enable_zsh_defer }}
+    zsh-defer -a eval "$(fzf --zsh)"
+    {{- else }}
+    eval "$(fzf --zsh)"
+    {{- end }}
+    {{- end }}
+    
+    {{- if .features.enable_zoxide }}
+    # Zoxide 智能目录跳转 (延迟初始化)
+    {{- if .features.enable_zsh_defer }}
+    zsh-defer -a _evalcache zoxide init zsh
+    {{- else }}
+    _evalcache zoxide init zsh
+    {{- end }}
+    {{- end }}
+    
+    # ========================================
+    # 补全系统延迟初始化 (静态配置)
+    # ========================================
+    
+    {{- if .features.enable_zsh_defer }}
+    # 延迟加载常用工具的补全
+    {{- if .features.enable_docker }}
+    zsh-defer -a compdef _docker docker
+    {{- end }}
+    
+    {{- if .features.enable_kubectl }}
+    zsh-defer -a compdef _kubectl kubectl
+    {{- end }}
+    {{- else }}
+    # 直接加载补全（无 zsh-defer）
+    {{- if .features.enable_docker }}
+    compdef _docker docker
+    {{- end }}
+    
+    {{- if .features.enable_kubectl }}
+    compdef _kubectl kubectl
+    {{- end }}
+    {{- end }}
+    
+    # ========================================
+    # Evalcache 缓存管理函数
+    # ========================================
+    
+    # 清理 evalcache 缓存
+    clear_evalcache() {
+        echo "🧹 清理 evalcache 缓存..."
+        _evalcache_clear
+        echo "✅ Evalcache 缓存已清理"
+    }
+    
+    # 重建 evalcache 缓存
+    rebuild_evalcache() {
+        echo "🔄 重建 evalcache 缓存..."
+        clear_evalcache
+        exec zsh
+    }
+    
+else
+    # evalcache 不可用时的回退配置
+    echo "⚠️  evalcache 不可用，使用直接初始化"
+    
+    {{- if .features.enable_starship }}
+    eval "$(starship init zsh)"
+    {{- end }}
+    
+    {{- if .features.enable_zoxide }}
+    eval "$(zoxide init zsh)"
+    {{- end }}
+    
+    {{- if .features.enable_fzf }}
+    eval "$(fzf --zsh)"
+    {{- end }}
+fi
+
+{{- end }}
+{{- else }}
+# Evalcache 功能已禁用，使用直接初始化
+{{- if .features.enable_starship }}
+eval "$(starship init zsh)"
+{{- end }}
+
+{{- if .features.enable_zoxide }}
+eval "$(zoxide init zsh)"
+{{- end }}
+
+{{- if .features.enable_fzf }}
+eval "$(fzf --zsh)"
+{{- end }}
+{{- end }}

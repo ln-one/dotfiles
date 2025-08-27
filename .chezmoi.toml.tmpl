@@ -33,6 +33,7 @@
   shell = "zsh"
   editor = "nvim"
   theme = "dark"
+  ls_tool = "eza"  # 可选: eza, exa, ls
   
 [data.features]
   enable_ai_tools = true
@@ -44,10 +45,60 @@
   {{- end }}
   enable_oh_my_zsh = false  # 禁用 Oh My Zsh
   enable_zim = true         # 启用 Zim 框架
+  {{- if lookPath "starship" }}
   enable_starship = true    # 启用 Starship 提示符
+  {{- else }}
+  enable_starship = false   # 启用 Starship 提示符 (未安装)
+  {{- end }}
+  {{- if lookPath "fzf" }}
   enable_fzf = true         # 启用 fzf 模糊搜索
+  enable_fzf_new = true     # 启用新版 fzf (0.48.0+) 集成方式
+  {{- else }}
+  enable_fzf = false        # 启用 fzf 模糊搜索 (未安装)
+  enable_fzf_new = false    # 启用新版 fzf (0.48.0+) 集成方式
+  {{- end }}
+  {{- if lookPath "fd" }}
+  enable_fd = true          # 启用 fd 文件搜索工具
+  {{- else }}
+  enable_fd = false         # 启用 fd 文件搜索工具 (未安装)
+  {{- end }}
+  {{- if lookPath "zoxide" }}
   enable_zoxide = true      # 启用 zoxide 智能目录跳转
+  {{- else }}
+  enable_zoxide = false     # 启用 zoxide 智能目录跳转 (未安装)
+  {{- end }}
+  {{- if lookPath "_evalcache" }}
   enable_evalcache = true   # 启用 evalcache 缓存以加速 shell 启动
+  {{- else }}
+  enable_evalcache = false  # 启用 evalcache 缓存以加速 shell 启动 (未安装)
+  {{- end }}
+  
+  # 开发环境管理 (基于实际安装情况)
+  {{- if lookPath "pyenv" }}
+  enable_pyenv = true       # Python 版本管理
+  {{- else }}
+  enable_pyenv = false      # Python 版本管理 (未安装)
+  {{- end }}
+  {{- if lookPath "rbenv" }}
+  enable_rbenv = true       # Ruby 版本管理
+  {{- else }}
+  enable_rbenv = false      # Ruby 版本管理 (未安装)
+  {{- end }}
+  {{- if lookPath "fnm" }}
+  enable_fnm = true         # Node.js 版本管理
+  {{- else }}
+  enable_fnm = false        # Node.js 版本管理 (未安装)
+  {{- end }}
+  {{- if lookPath "mise" }}
+  enable_mise = true        # 通用工具版本管理
+  {{- else }}
+  enable_mise = false       # 通用工具版本管理 (未安装)
+  {{- end }}
+  {{- if or (lookPath "conda") (stat (joinPath .chezmoi.homeDir "miniconda3")) (stat (joinPath .chezmoi.homeDir "anaconda3")) }}
+  enable_conda = true       # Conda 环境管理
+  {{- else }}
+  enable_conda = false      # Conda 环境管理 (未安装)
+  {{- end }}
   
   # 开发语言支持
   enable_node = true
@@ -55,8 +106,54 @@
   enable_go = false
   enable_rust = false
   
-  # 容器和虚拟化
+  # 容器和虚拟化 (基于实际安装情况)
+  {{- if lookPath "docker" }}
   enable_docker = true
+  {{- else }}
+  enable_docker = false     # Docker (未安装)
+  {{- end }}
+  {{- if lookPath "kubectl" }}
+  enable_kubectl = true     # Kubernetes CLI
+  {{- else }}
+  enable_kubectl = false    # Kubernetes CLI (未安装)
+  {{- end }}
+  
+  # 系统工具 (基于实际安装情况)
+  {{- if lookPath "ssh" }}
+  enable_ssh = true         # SSH 工具支持
+  {{- else }}
+  enable_ssh = false        # SSH 工具支持 (未安装)
+  {{- end }}
+  {{- if stat (joinPath .chezmoi.homeDir ".zim/modules/zsh-defer") }}
+  enable_zsh_defer = true   # zsh-defer 延迟加载
+  {{- else }}
+  enable_zsh_defer = false  # zsh-defer 延迟加载 (未安装)
+  {{- end }}
+  {{- if lookPath "curl" }}
+  enable_curl = true        # curl HTTP 客户端
+  {{- else }}
+  enable_curl = false       # curl HTTP 客户端 (未安装)
+  {{- end }}
+  {{- if lookPath "wget" }}
+  enable_wget = true        # wget 下载工具
+  {{- else }}
+  enable_wget = false       # wget 下载工具 (未安装)
+  {{- end }}
+  {{- if lookPath "gsettings" }}
+  enable_gsettings = true   # GNOME gsettings 配置
+  {{- else }}
+  enable_gsettings = false  # GNOME gsettings 配置 (未安装)
+  {{- end }}
+  {{- if lookPath "dropbox" }}
+  enable_dropbox = true     # Dropbox 同步工具
+  {{- else }}
+  enable_dropbox = false    # Dropbox 同步工具 (未安装)
+  {{- end }}
+  {{- if lookPath "fcitx5" }}
+  enable_fcitx5 = true      # fcitx5 输入法
+  {{- else }}
+  enable_fcitx5 = false     # fcitx5 输入法 (未安装)
+  {{- end }}
 
 # ========================================
 # 代理配置 (简化版)

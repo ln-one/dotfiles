@@ -33,25 +33,23 @@ proxyon() {
         export no_proxy="localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,172.16.0.0/12"
         export NO_PROXY="$no_proxy"
         
-{{- if lookPath "gsettings" }}
-        # 配置 GNOME 系统代理
-        if command -v gsettings >/dev/null 2>&1; then
-            echo "配置 GNOME 系统代理..."
-            gsettings set org.gnome.system.proxy mode "manual" 2>/dev/null || true
-            gsettings set org.gnome.system.proxy.http host "$PROXY_HOST" 2>/dev/null || true
-            gsettings set org.gnome.system.proxy.http port "$PROXY_HTTP_PORT" 2>/dev/null || true
-            gsettings set org.gnome.system.proxy.https host "$PROXY_HOST" 2>/dev/null || true
-            gsettings set org.gnome.system.proxy.https port "$PROXY_HTTP_PORT" 2>/dev/null || true
-            gsettings set org.gnome.system.proxy.socks host "$PROXY_HOST" 2>/dev/null || true
-            gsettings set org.gnome.system.proxy.socks port "$PROXY_SOCKS_PORT" 2>/dev/null || true
-        fi
+{{- if .features.enable_gsettings }}
+        # 配置 GNOME 系统代理 (静态生成)
+        echo "配置 GNOME 系统代理..."
+        gsettings set org.gnome.system.proxy mode "manual" 2>/dev/null || true
+        gsettings set org.gnome.system.proxy.http host "$PROXY_HOST" 2>/dev/null || true
+        gsettings set org.gnome.system.proxy.http port "$PROXY_HTTP_PORT" 2>/dev/null || true
+        gsettings set org.gnome.system.proxy.https host "$PROXY_HOST" 2>/dev/null || true
+        gsettings set org.gnome.system.proxy.https port "$PROXY_HTTP_PORT" 2>/dev/null || true
+        gsettings set org.gnome.system.proxy.socks host "$PROXY_HOST" 2>/dev/null || true
+        gsettings set org.gnome.system.proxy.socks port "$PROXY_SOCKS_PORT" 2>/dev/null || true
 {{- end }}
         
         # 启动 Dropbox (如果可用)
-        if command -v dropbox >/dev/null 2>&1; then
-            echo "启动 Dropbox..."
-            dropbox start -i 2>/dev/null || true
-        fi
+        {{- if .features.enable_dropbox }}
+        echo "启动 Dropbox..."
+        dropbox start -i 2>/dev/null || true
+        {{- end }}
         
         echo "✅ 代理已启用 (Clash + 环境变量)"
     else
@@ -86,19 +84,17 @@ proxyoff() {
     # 2. 清除环境变量
     unset http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY no_proxy NO_PROXY
     
-{{- if lookPath "gsettings" }}
-    # 3. 禁用 GNOME 系统代理
-    if command -v gsettings >/dev/null 2>&1; then
-        echo "禁用 GNOME 系统代理..."
-        gsettings set org.gnome.system.proxy mode "none" 2>/dev/null || true
-    fi
+{{- if .features.enable_gsettings }}
+    # 3. 禁用 GNOME 系统代理 (静态生成)
+    echo "禁用 GNOME 系统代理..."
+    gsettings set org.gnome.system.proxy mode "none" 2>/dev/null || true
 {{- end }}
     
     # 4. 停止 Dropbox (如果可用)
-    if command -v dropbox >/dev/null 2>&1; then
-        echo "停止 Dropbox..."
-        dropbox stop 2>/dev/null || true
-    fi
+    {{- if .features.enable_dropbox }}
+    echo "停止 Dropbox..."
+    dropbox stop 2>/dev/null || true
+    {{- end }}
     
     echo "✅ 代理已关闭"
 }
@@ -122,32 +118,30 @@ proxystatus() {
         echo "🔴 Clash: 未运行"
     fi
     
-{{- if lookPath "gsettings" }}
-    # GNOME 代理状态
-    if command -v gsettings >/dev/null 2>&1; then
-        local gnome_proxy_mode=$(gsettings get org.gnome.system.proxy mode 2>/dev/null | tr -d "'")
-        echo "🖥️  GNOME 代理: ${gnome_proxy_mode:-未知}"
-    fi
+{{- if .features.enable_gsettings }}
+    # GNOME 代理状态 (静态生成)
+    local gnome_proxy_mode=$(gsettings get org.gnome.system.proxy mode 2>/dev/null | tr -d "'")
+    echo "🖥️  GNOME 代理: ${gnome_proxy_mode:-未知}"
 {{- end }}
     
     # Dropbox 状态
-    if command -v dropbox >/dev/null 2>&1; then
-        local dropbox_status=$(dropbox status 2>/dev/null | head -1 || echo "未知")
-        echo "📦 Dropbox: $dropbox_status"
-    fi
+    {{- if .features.enable_dropbox }}
+    local dropbox_status=$(dropbox status 2>/dev/null | head -1 || echo "未知")
+    echo "📦 Dropbox: $dropbox_status"
+    {{- end }}
     
     # 网络连接测试
     echo ""
     echo "🌐 连接测试:"
-    if command -v curl >/dev/null 2>&1; then
-        if curl -s --connect-timeout 3 httpbin.org/ip >/dev/null 2>&1; then
-            echo "🟢 网络连接: 正常"
-        else
-            echo "🔴 网络连接: 异常"
-        fi
+    {{- if .features.enable_curl }}
+    if curl -s --connect-timeout 3 httpbin.org/ip >/dev/null 2>&1; then
+        echo "🟢 网络连接: 正常"
     else
-        echo "ℹ️  curl 未安装，无法测试连接"
+        echo "🔴 网络连接: 异常"
     fi
+    {{- else }}
+    echo "ℹ️  curl 未安装，无法测试连接"
+    {{- end }}
     
     # 配置信息
     echo ""

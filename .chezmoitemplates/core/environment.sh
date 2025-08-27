@@ -21,7 +21,7 @@ export LC_ALL="en_US.UTF-8"
 export LC_CTYPE="en_US.UTF-8"
 
 {{- if .features.enable_1password }}
-# SSH Agent 集成 (1Password) (Requirements: 7.2)
+# SSH Agent 集成 (1Password) (Requirements: 7.2) - 静态配置
 {{- if eq .chezmoi.os "darwin" }}
 SSH_AGENT_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 {{- else if eq .chezmoi.os "linux" }}
@@ -29,11 +29,10 @@ SSH_AGENT_SOCK="$HOME/.1password/agent.sock"
 {{- end }}
 if [[ -S "$SSH_AGENT_SOCK" ]]; then
     export SSH_AUTH_SOCK="$SSH_AGENT_SOCK"
-    # 验证 1Password SSH Agent 是否可用
-    if command -v ssh-add >/dev/null 2>&1; then
-        # 静默检查 SSH Agent 状态
-        ssh-add -l >/dev/null 2>&1 || true
-    fi
+    {{- if .features.enable_ssh }}
+    # 静默检查 SSH Agent 状态 (静态生成)
+    ssh-add -l >/dev/null 2>&1 || true
+    {{- end }}
 fi
 {{- end }}
 

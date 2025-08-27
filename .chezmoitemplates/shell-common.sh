@@ -15,6 +15,15 @@ export LSCOLORS=ExFxCxDxBxegedabagacad
 export PAGER="less"
 
 # ========================================
+# 第0层：功能配置层 (Feature Configuration Layer)
+# ========================================
+# 中央功能配置 - 由chezmoi静态确定所有功能可用性
+# 优先级：最高 (决定所有后续层的行为)
+
+# 功能标志和静态配置
+{{ includeTemplate "config/features-static.sh" . }}
+
+# ========================================
 # 第1层：核心配置层 (Core Layer)
 # ========================================
 # 所有环境通用的基础功能
@@ -23,8 +32,8 @@ export PAGER="less"
 # 核心环境变量和基础配置
 {{ includeTemplate "core/environment.sh" . }}
 
-# 通用别名定义
-{{ includeTemplate "core/aliases.sh" . }}
+# 通用别名定义 (完全静态版本)
+{{ includeTemplate "core/aliases-static.sh" . }}
 
 # 基础函数库
 {{ includeTemplate "core/basic-functions.sh" . }}
@@ -63,69 +72,94 @@ fi
 {{- if .features.enable_zim }}
 {{ includeTemplate "core/zsh-defer-init.sh" . }}
 
-# 延迟加载语法高亮以加速启动
-if command -v zsh-defer >/dev/null 2>&1; then
-    # 手动安装和延迟加载 zsh-syntax-highlighting
-    if [[ ! -d "${ZIM_HOME}/modules/zsh-syntax-highlighting" ]]; then
-        # 如果模块不存在，先安装
-        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZIM_HOME}/modules/zsh-syntax-highlighting" 2>/dev/null || true
-    fi
-    
-    # 延迟加载语法高亮
-    if [[ -f "${ZIM_HOME}/modules/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
-        zsh-defer source "${ZIM_HOME}/modules/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-    fi
-    
-    # 延迟加载补全系统
-    zsh-defer -c '
-        # 初始化补全系统
+# 延迟加载语法高亮以加速启动 - 静态配置
+{{- if .features.enable_zsh_defer }}
+# 手动安装和延迟加载 zsh-syntax-highlighting
+if [[ ! -d "${ZIM_HOME}/modules/zsh-syntax-highlighting" ]]; then
+    # 如果模块不存在，先安装
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZIM_HOME}/modules/zsh-syntax-highlighting" 2>/dev/null || true
+fi
+
+# 延迟加载语法高亮
+if [[ -f "${ZIM_HOME}/modules/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+    zsh-defer source "${ZIM_HOME}/modules/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+# 延迟加载补全系统
+zsh-defer -c '
+    # 初始化补全系统
+{{- else }}
+# 直接加载语法高亮（无 zsh-defer）
+if [[ -f "${ZIM_HOME}/modules/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+    source "${ZIM_HOME}/modules/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+# 直接初始化补全系统
+{{- end }}
         autoload -Uz compinit
-        
-        # 优化补全加载 - 每天只检查一次
-        local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
-        if [[ $zcompdump(#qNmh+24) ]]; then
-            compinit -d "$zcompdump"
-        else
-            compinit -C -d "$zcompdump"
-        fi
-        
-        # 加载 Zim 补全模块
-        if [[ -f "${ZIM_HOME}/modules/completion/init.zsh" ]]; then
-            source "${ZIM_HOME}/modules/completion/init.zsh"
-        fi
-    '
     
-    # 延迟配置历史子字符串搜索键绑定
-    zsh-defer -c '
-        # 配置历史子字符串搜索的键绑定
-        if [[ -n "${widgets[history-substring-search-up]}" ]]; then
-            # 绑定上下箭头键到历史子字符串搜索
-            bindkey "^[[A" history-substring-search-up      # 上箭头
-            bindkey "^[[B" history-substring-search-down    # 下箭头
-            
-            # 兼容不同终端的键码
-            bindkey "^[OA" history-substring-search-up      # 上箭头 (某些终端)
-            bindkey "^[OB" history-substring-search-down    # 下箭头 (某些终端)
-            
-            # 在 vi 模式下也启用
-            bindkey -M vicmd "k" history-substring-search-up
-            bindkey -M vicmd "j" history-substring-search-down
-        fi
-    '
+    # 优化补全加载 - 每天只检查一次
+    local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+    if [[ $zcompdump(#qNmh+24) ]]; then
+        compinit -d "$zcompdump"
+    else
+        compinit -C -d "$zcompdump"
+    fi
+    
+    # 加载 Zim 补全模块
+    if [[ -f "${ZIM_HOME}/modules/completion/init.zsh" ]]; then
+        source "${ZIM_HOME}/modules/completion/init.zsh"
+    fi
+{{- if .features.enable_zsh_defer }}
+'
+
+# 延迟配置历史子字符串搜索键绑定
+zsh-defer -c '
+    # 配置历史子字符串搜索的键绑定
+    if [[ -n "${widgets[history-substring-search-up]}" ]]; then
+        # 绑定上下箭头键到历史子字符串搜索
+        bindkey "^[[A" history-substring-search-up      # 上箭头
+        bindkey "^[[B" history-substring-search-down    # 下箭头
+        
+        # 兼容不同终端的键码
+        bindkey "^[OA" history-substring-search-up      # 上箭头 (某些终端)
+        bindkey "^[OB" history-substring-search-down    # 下箭头 (某些终端)
+        
+        # 在 vi 模式下也启用
+        bindkey -M vicmd "k" history-substring-search-up
+        bindkey -M vicmd "j" history-substring-search-down
+    fi
+'
+{{- else }}
+
+# 直接配置历史子字符串搜索键绑定（无 zsh-defer）
+if [[ -n "${widgets[history-substring-search-up]}" ]]; then
+    # 绑定上下箭头键到历史子字符串搜索
+    bindkey "^[[A" history-substring-search-up      # 上箭头
+    bindkey "^[[B" history-substring-search-down    # 下箭头
+    
+    # 兼容不同终端的键码
+    bindkey "^[OA" history-substring-search-up      # 上箭头 (某些终端)
+    bindkey "^[OB" history-substring-search-down    # 下箭头 (某些终端)
+    
+    # 在 vi 模式下也启用
+    bindkey -M vicmd "k" history-substring-search-up
+    bindkey -M vicmd "j" history-substring-search-down
 fi
 {{- end }}
+{{- end }}
 
-# Evalcache 配置 - 缓存 eval 语句以加速启动 (优先加载)
-{{ includeTemplate "core/evalcache-config.sh" . }}
+# Evalcache 配置 - 缓存 eval 语句以加速启动 (完全静态版本)
+{{ includeTemplate "core/evalcache-config-static.sh" . }}
 
-# 提示符配置 (Starship) - 支持多种 shell
+# 提示符配置 (Starship) - 支持多种 shell (静态版本)
 {{ includeTemplate "core/starship-config.sh" . }}
 
-# 模糊搜索工具 (fzf) - 支持多种 shell
-{{ includeTemplate "core/fzf-config.sh" . }}
+# FZF 模糊搜索配置 (完全静态版本)
+{{ includeTemplate "core/fzf-config-static.sh" . }}
 
-# 智能目录跳转 (zoxide) - 支持多种 shell
-{{ includeTemplate "core/zoxide-config.sh" . }}
+# 智能目录跳转 (zoxide) - 支持多种 shell (完全静态版本)
+{{ includeTemplate "core/zoxide-config-static.sh" . }}
 
 # ========================================
 # 第2层：平台配置层 (Platform Layer)
@@ -149,8 +183,8 @@ fi
 # 优先级：较高 (覆盖平台配置)
 
 {{- if eq .environment "desktop" }}
-# 桌面环境：完整功能配置
-{{ includeTemplate "environments/desktop.sh" . }}
+# 桌面环境：完整功能配置 (静态版本)
+{{ includeTemplate "environments/desktop-static.sh" . }}
 {{- else if eq .environment "remote" }}
 # 远程环境：轻量化配置
 {{ includeTemplate "environments/remote.sh" . }}
