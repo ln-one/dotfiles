@@ -57,7 +57,11 @@
   enable_fzf = false        # 启用 fzf 模糊搜索 (未安装)
   enable_fzf_new = false    # 启用新版 fzf (0.48.0+) 集成方式
   {{- end }}
-  {{- if lookPath "fd" }}
+  {{- if or (stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "share/forgit/forgit.plugin.zsh")) (stat (joinPath .chezmoi.homeDir ".forgit/forgit.plugin.zsh")) }}
+  enable_forgit = true      # 启用 forgit Git的fzf增强工具
+  {{- else }}
+  enable_forgit = false     # 启用 forgit Git的fzf增强工具 (未安装)
+  {{- end }}
   {{- if lookPath "fd" }}
   enable_fd = true          # 启用 fd 文件搜索工具
   {{- else }}
@@ -73,21 +77,33 @@
   {{- else }}
   enable_exa = false        # 启用 exa 现代化 ls 替代品 (未安装)
   {{- end }}
-  {{- else }}
-  enable_fd = false         # 启用 fd 文件搜索工具 (未安装)
-  {{- end }}
   {{- if lookPath "zoxide" }}
   enable_zoxide = true      # 启用 zoxide 智能目录跳转
   {{- else }}
   enable_zoxide = false     # 启用 zoxide 智能目录跳转 (未安装)
   {{- end }}
-  {{- if lookPath "_evalcache" }}
+  {{- if lookPath "atool" }}
+  enable_atool = true       # 启用 atool 压缩文件工具
+  {{- else }}
+  enable_atool = false      # 启用 atool 压缩文件工具 (未安装)
+  {{- end }}
+  {{- if lookPath "bat" }}
+  enable_bat = true         # 启用 bat 语法高亮工具
+  {{- else }}
+  enable_bat = false        # 启用 bat 语法高亮工具 (未安装)
+  {{- end }}
+  {{- if stat (joinPath .chezmoi.homeDir ".evalcache/evalcache.plugin.zsh") }}
   enable_evalcache = true   # 启用 evalcache 缓存以加速 shell 启动
   {{- else }}
   enable_evalcache = false  # 启用 evalcache 缓存以加速 shell 启动 (未安装)
   {{- end }}
   
   # 开发环境管理 (基于实际安装情况)
+  {{- if lookPath "git" }}
+  enable_git = true         # 启用 Git 版本控制工具
+  {{- else }}
+  enable_git = false        # 启用 Git 版本控制工具 (未安装)
+  {{- end }}
   {{- if lookPath "pyenv" }}
   enable_pyenv = true       # Python 版本管理
   {{- else }}
@@ -167,6 +183,181 @@
   enable_fcitx5 = true      # fcitx5 输入法
   {{- else }}
   enable_fcitx5 = false     # fcitx5 输入法 (未安装)
+  {{- end }}
+
+  # 编辑器工具 (基于实际安装情况)
+  {{- if lookPath "code" }}
+  enable_vscode = true      # Visual Studio Code
+  {{- else }}
+  enable_vscode = false     # Visual Studio Code (未安装)
+  {{- end }}
+  {{- if lookPath "vim" }}
+  enable_vim = true         # Vim 编辑器
+  {{- else }}
+  enable_vim = false        # Vim 编辑器 (未安装)
+  {{- end }}
+  {{- if lookPath "nvim" }}
+  enable_nvim = true        # Neovim 编辑器
+  {{- else }}
+  enable_nvim = false       # Neovim 编辑器 (未安装)
+  {{- end }}
+  {{- if lookPath "nano" }}
+  enable_nano = true        # Nano 编辑器
+  {{- else }}
+  enable_nano = false       # Nano 编辑器 (未安装)
+  {{- end }}
+  {{- if lookPath "vi" }}
+  enable_vi = true          # Vi 编辑器
+  {{- else }}
+  enable_vi = false         # Vi 编辑器 (未安装)
+  {{- end }}
+
+  # 系统监控工具 (基于实际安装情况)
+  {{- if lookPath "htop" }}
+  enable_htop = true        # htop 进程监控
+  {{- else }}
+  enable_htop = false       # htop 进程监控 (未安装)
+  {{- end }}
+  {{- if lookPath "top" }}
+  enable_top = true         # top 进程监控
+  {{- else }}
+  enable_top = false        # top 进程监控 (未安装)
+  {{- end }}
+  {{- if lookPath "free" }}
+  enable_free = true        # free 内存监控
+  {{- else }}
+  enable_free = false       # free 内存监控 (未安装)
+  {{- end }}
+  {{- if lookPath "ps" }}
+  enable_ps = true          # ps 进程列表
+  {{- else }}
+  enable_ps = false         # ps 进程列表 (未安装)
+  {{- end }}
+  {{- if lookPath "netstat" }}
+  enable_netstat = true     # netstat 网络状态
+  {{- else }}
+  enable_netstat = false    # netstat 网络状态 (未安装)
+  {{- end }}
+  {{- if lookPath "ss" }}
+  enable_ss = true          # ss 网络套接字
+  {{- else }}
+  enable_ss = false         # ss 网络套接字 (未安装)
+  {{- end }}
+
+  # 开发环境工具 (基于实际安装情况)
+  {{- if lookPath "python3" }}
+  enable_python3 = true     # Python 3
+  {{- else }}
+  enable_python3 = false    # Python 3 (未安装)
+  {{- end }}
+  {{- if lookPath "python" }}
+  enable_python2 = true     # Python 2
+  {{- else }}
+  enable_python2 = false    # Python 2 (未安装)
+  {{- end }}
+  {{- if lookPath "tmux" }}
+  enable_tmux = true        # tmux 终端复用器
+  {{- else }}
+  enable_tmux = false       # tmux 终端复用器 (未安装)
+  {{- end }}
+  {{- if lookPath "grep" }}
+  enable_grep = true        # grep 文本搜索
+  {{- else }}
+  enable_grep = false       # grep 文本搜索 (未安装)
+  {{- end }}
+  {{- if lookPath "awk" }}
+  enable_awk = true         # awk 文本处理
+  {{- else }}
+  enable_awk = false        # awk 文本处理 (未安装)
+  {{- end }}
+
+  # IDE 工具 (基于实际安装情况)
+  {{- if lookPath "idea" }}
+  enable_intellij = true    # IntelliJ IDEA
+  {{- else }}
+  enable_intellij = false   # IntelliJ IDEA (未安装)
+  {{- end }}
+  {{- if lookPath "webstorm" }}
+  enable_webstorm = true    # WebStorm
+  {{- else }}
+  enable_webstorm = false   # WebStorm (未安装)
+  {{- end }}
+  {{- if lookPath "pycharm" }}
+  enable_pycharm = true     # PyCharm
+  {{- else }}
+  enable_pycharm = false    # PyCharm (未安装)
+  {{- end }}
+  {{- if lookPath "gitg" }}
+  enable_gitg = true        # GitG Git GUI
+  {{- else }}
+  enable_gitg = false       # GitG Git GUI (未安装)
+  {{- end }}
+  {{- if lookPath "gitk" }}
+  enable_gitk = true        # GitK Git GUI
+  {{- else }}
+  enable_gitk = false       # GitK Git GUI (未安装)
+  {{- end }}
+
+  # WSL 特定工具 (基于环境和安装情况)
+  {{- if and (eq .chezmoi.os "linux") (stat "/proc/version") (regexMatch "microsoft" (cat "/proc/version")) }}
+  is_wsl = true             # WSL 环境
+  {{- if lookPath "clip.exe" }}
+  enable_wsl_clipboard = true  # WSL 剪贴板
+  {{- else }}
+  enable_wsl_clipboard = false # WSL 剪贴板 (未安装)
+  {{- end }}
+  {{- if lookPath "explorer.exe" }}
+  enable_wsl_explorer = true   # WSL 文件浏览器
+  {{- else }}
+  enable_wsl_explorer = false  # WSL 文件浏览器 (未安装)
+  {{- end }}
+  {{- if lookPath "powershell.exe" }}
+  enable_wsl_powershell = true # WSL PowerShell
+  {{- else }}
+  enable_wsl_powershell = false # WSL PowerShell (未安装)
+  {{- end }}
+  {{- if lookPath "wslg" }}
+  enable_wslg = true        # WSLg GUI 支持
+  {{- else }}
+  enable_wslg = false       # WSLg GUI 支持 (未安装)
+  {{- end }}
+  {{- if lookPath "git-credential-manager-core.exe" }}
+  enable_wsl_git_credential_manager = "core"  # WSL Git 凭据管理器
+  {{- else if lookPath "git-credential-manager.exe" }}
+  enable_wsl_git_credential_manager = "legacy" # WSL Git 凭据管理器 (旧版)
+  {{- else }}
+  enable_wsl_git_credential_manager = false    # WSL Git 凭据管理器 (未安装)
+  {{- end }}
+  {{- if lookPath "docker.exe" }}
+  enable_wsl_docker = true  # WSL Docker
+  {{- else }}
+  enable_wsl_docker = false # WSL Docker (未安装)
+  {{- end }}
+  {{- else }}
+  is_wsl = false            # 非 WSL 环境
+  enable_wsl_clipboard = false
+  enable_wsl_explorer = false
+  enable_wsl_powershell = false
+  enable_wslg = false
+  enable_wsl_git_credential_manager = false
+  enable_wsl_docker = false
+  {{- end }}
+
+  # macOS 特定工具 (基于环境和安装情况)
+  {{- if eq .chezmoi.os "darwin" }}
+  {{- if lookPath "mas" }}
+  enable_mas = true         # Mac App Store CLI
+  {{- else }}
+  enable_mas = false        # Mac App Store CLI (未安装)
+  {{- end }}
+  {{- if lookPath "mackup" }}
+  enable_mackup = true      # Mackup 备份工具
+  {{- else }}
+  enable_mackup = false     # Mackup 备份工具 (未安装)
+  {{- end }}
+  {{- else }}
+  enable_mas = false
+  enable_mackup = false
   {{- end }}
 
 # ========================================

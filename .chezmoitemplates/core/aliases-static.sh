@@ -164,7 +164,13 @@ mkcd() {
     mkdir -p "$1" && cd "$1"
 }
 
-# 提取各种压缩文件
+# 提取各种压缩文件 - 使用现有工具
+{{- if .features.enable_atool }}
+# 使用atool - 专业的压缩文件处理工具
+alias extract='atool --extract --subdir'
+alias compress='apack'
+{{- else }}
+# 备用的简单提取函数
 extract() {
     if [ -f "$1" ]; then
         case $1 in
@@ -185,6 +191,7 @@ extract() {
         echo "'$1' 不是有效文件"
     fi
 }
+{{- end }}
 
 # 查找文件
 ff() {

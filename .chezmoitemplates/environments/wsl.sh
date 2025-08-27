@@ -29,29 +29,31 @@ export WINDOWS_PROGRAM_FILES="/mnt/c/Program Files"
 export WINDOWS_PROGRAM_FILES_X86="/mnt/c/Program Files (x86)"
 
 # WSL-optimized editor preferences
-if command -v code >/dev/null 2>&1; then
-    # VS Code with WSL integration
-    export EDITOR="code --wait"
-    export VISUAL="code --wait"
-    export GIT_EDITOR="code --wait"
-elif command -v vim >/dev/null 2>&1; then
-    export EDITOR="vim"
-    export VISUAL="vim"
-    export GIT_EDITOR="vim"
-elif command -v nano >/dev/null 2>&1; then
-    export EDITOR="nano"
-    export VISUAL="nano"
-    export GIT_EDITOR="nano"
-fi
+{{- if .features.enable_vscode }}
+# VS Code with WSL integration
+export EDITOR="code --wait"
+export VISUAL="code --wait"
+export GIT_EDITOR="code --wait"
+{{- else if .features.enable_vim }}
+export EDITOR="vim"
+export VISUAL="vim"
+export GIT_EDITOR="vim"
+{{- else if .features.enable_nano }}
+export EDITOR="nano"
+export VISUAL="nano"
+export GIT_EDITOR="nano"
+{{- end }}
 
 # WSL Display Configuration (for GUI apps)
 if [[ -n "${WSL_DISTRO_NAME:-}" ]]; then
     # WSL2 with WSLg (Windows 11)
-    if command -v wslg >/dev/null 2>&1 || [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
+    {{- if .features.enable_wslg }}
+    # WSLg GUI support detected
         export DISPLAY="${DISPLAY:-:0}"
         export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
         export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-$USER}"
         export GUI_AVAILABLE="true"
+    {{- end }}
     # WSL2 with X11 forwarding
     elif [[ -n "${DISPLAY:-}" ]]; then
         export GUI_AVAILABLE="true"
@@ -72,22 +74,22 @@ fi
 # ========================================
 
 # File listing with Windows integration
-if command -v eza >/dev/null 2>&1; then
-    alias ls='eza --color=auto'
-    alias ll='eza -l --color=auto'
-    alias la='eza -la --color=auto'
-    alias lw='eza -la --color=auto /mnt/c/Users/$USER'  # Windows home
-elif command -v exa >/dev/null 2>&1; then
-    alias ls='exa --color=auto'
-    alias ll='exa -l --color=auto'
-    alias la='exa -la --color=auto'
-    alias lw='exa -la --color=auto /mnt/c/Users/$USER'
-else
-    alias ls='ls --color=auto'
-    alias ll='ls -l --color=auto'
-    alias la='ls -la --color=auto'
-    alias lw='ls -la --color=auto /mnt/c/Users/$USER'
-fi
+{{- if .features.enable_eza }}
+alias ls='eza --color=auto'
+alias ll='eza -l --color=auto'
+alias la='eza -la --color=auto'
+alias lw='eza -la --color=auto /mnt/c/Users/$USER'  # Windows home
+{{- else if .features.enable_exa }}
+alias ls='exa --color=auto'
+alias ll='exa -l --color=auto'
+alias la='exa -la --color=auto'
+alias lw='exa -la --color=auto /mnt/c/Users/$USER'
+{{- else }}
+alias ls='ls --color=auto'
+alias ll='ls -l --color=auto'
+alias la='ls -la --color=auto'
+alias lw='ls -la --color=auto /mnt/c/Users/$USER'
+{{- end }}
 
 # Windows directory shortcuts
 alias cdw='cd /mnt/c/Users/$USER'
@@ -150,21 +152,21 @@ wslpath_convert() {
 }
 
 # Windows clipboard integration
-if command -v clip.exe >/dev/null 2>&1; then
-    # Copy to Windows clipboard
-    pbcopy() {
-        if [[ -p /dev/stdin ]]; then
-            cat | clip.exe
-        else
-            echo "$*" | clip.exe
-        fi
-    }
-    
-    # Paste from Windows clipboard (requires PowerShell)
-    pbpaste() {
-        powershell.exe -Command "Get-Clipboard" 2>/dev/null | sed 's/\r$//'
-    }
-fi
+{{- if .features.enable_wsl_clipboard }}
+# Copy to Windows clipboard
+pbcopy() {
+    if [[ -p /dev/stdin ]]; then
+        cat | clip.exe
+    else
+        echo "$*" | clip.exe
+    fi
+}
+
+# Paste from Windows clipboard (requires PowerShell)
+pbpaste() {
+    powershell.exe -Command "Get-Clipboard" 2>/dev/null | sed 's/\r$//'
+}
+{{- end }}
 
 # WSL system information
 wsl_info() {
@@ -193,23 +195,23 @@ wsl_info() {
     # Windows integration status
     echo ""
     echo "🔗 Windows Integration:"
-    if command -v explorer.exe >/dev/null 2>&1; then
-        echo "  ✅ Windows Explorer"
-    else
-        echo "  ❌ Windows Explorer"
-    fi
+    {{- if .features.enable_wsl_explorer }}
+    echo "  ✅ Windows Explorer"
+    {{- else }}
+    echo "  ❌ Windows Explorer"
+    {{- end }}
     
-    if command -v powershell.exe >/dev/null 2>&1; then
-        echo "  ✅ PowerShell"
-    else
-        echo "  ❌ PowerShell"
-    fi
+    {{- if .features.enable_wsl_powershell }}
+    echo "  ✅ PowerShell"
+    {{- else }}
+    echo "  ❌ PowerShell"
+    {{- end }}
     
-    if command -v clip.exe >/dev/null 2>&1; then
-        echo "  ✅ Clipboard Integration"
-    else
-        echo "  ❌ Clipboard Integration"
-    fi
+    {{- if .features.enable_wsl_clipboard }}
+    echo "  ✅ Clipboard Integration"
+    {{- else }}
+    echo "  ❌ Clipboard Integration"
+    {{- end }}
 }
 
 # Windows service management
@@ -256,14 +258,14 @@ serve_wsl() {
     echo "🪟 Windows Access: http://$(hostname).local:$port"
     echo "   Or use: http://$(hostname -I | awk '{print $1}'):$port"
     
-    if command -v python3 >/dev/null 2>&1; then
-        cd "$directory" && python3 -m http.server "$port"
-    elif command -v python >/dev/null 2>&1; then
-        cd "$directory" && python -m SimpleHTTPServer "$port"
-    else
-        echo "❌ Python not available"
-        return 1
-    fi
+    {{- if .features.enable_python3 }}
+    cd "$directory" && python3 -m http.server "$port"
+    {{- else if .features.enable_python2 }}
+    cd "$directory" && python -m SimpleHTTPServer "$port"
+    {{- else }}
+    echo "❌ Python not available"
+    return 1
+    {{- end }}
 }
 
 # Git configuration for WSL
@@ -271,12 +273,13 @@ setup_git_wsl() {
     echo "🔧 Configuring Git for WSL environment..."
     
     # Use Windows credential manager if available
-    if command -v git-credential-manager-core.exe >/dev/null 2>&1; then
-        git config --global credential.helper "/mnt/c/Program\ Files/Git/mingw64/libexec/git-core/git-credential-manager-core.exe"
-        echo "✅ Configured Windows Git Credential Manager"
-    elif command -v git-credential-manager.exe >/dev/null 2>&1; then
-        git config --global credential.helper "/mnt/c/Program\ Files/Git/mingw64/libexec/git-core/git-credential-manager.exe"
-        echo "✅ Configured Windows Git Credential Manager (legacy)"
+    {{- if eq .features.enable_wsl_git_credential_manager "core" }}
+    git config --global credential.helper "/mnt/c/Program\ Files/Git/mingw64/libexec/git-core/git-credential-manager-core.exe"
+    echo "✅ Configured Windows Git Credential Manager"
+    {{- else if eq .features.enable_wsl_git_credential_manager "legacy" }}
+    git config --global credential.helper "/mnt/c/Program\ Files/Git/mingw64/libexec/git-core/git-credential-manager.exe"
+    echo "✅ Configured Windows Git Credential Manager (legacy)"
+    {{- end }}
     fi
     
     # Set line ending handling for cross-platform compatibility
@@ -294,10 +297,12 @@ setup_docker_wsl() {
     if [[ -S "/var/run/docker.sock" ]]; then
         echo "✅ Docker Desktop WSL integration detected"
         export DOCKER_HOST="unix:///var/run/docker.sock"
-    elif command -v docker.exe >/dev/null 2>&1; then
+    {{- if .features.enable_wsl_docker }}
+    elif true; then  # docker.exe is available
         echo "🐋 Using Windows Docker Desktop"
         alias docker='docker.exe'
         alias docker-compose='docker-compose.exe'
+    {{- end }}
     else
         echo "❌ Docker not available in WSL"
     fi

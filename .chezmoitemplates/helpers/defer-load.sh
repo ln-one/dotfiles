@@ -36,16 +36,16 @@
 
 {{- if $condition }}
 # 延迟加载: {{ $command | regexReplaceAll "\"" "'" | trunc 50 }}...
-if command -v zsh-defer >/dev/null 2>&1; then
+{{- if .features.enable_zsh_defer }}
     {{- if $delay }}
-    zsh-defer -t {{ $delay }}{{ if $priority }} -p {{ $priority }}{{ end }} {{ $command }}
+zsh-defer -t {{ $delay }}{{ if $priority }} -p {{ $priority }}{{ end }} {{ $command }}
     {{- else if $priority }}
-    zsh-defer -p {{ $priority }} {{ $command }}
+zsh-defer -p {{ $priority }} {{ $command }}
     {{- else }}
-    zsh-defer {{ $command }}
+zsh-defer {{ $command }}
     {{- end }}
-else
-    # zsh-defer 不可用，直接执行
-    {{ $fallback }}
-fi
+{{- else }}
+# zsh-defer 不可用，直接执行
+{{ $fallback }}
+{{- end }}
 {{- end }}

@@ -6,23 +6,23 @@
 # IDE和编辑器启动器
 {{- if eq .chezmoi.os "linux" }}
 # VS Code
-if command -v code >/dev/null 2>&1; then
-    alias vscode='code'
-    alias ide='code'
-fi
+{{- if .features.enable_vscode }}
+alias vscode='code'
+alias ide='code'
+{{- end }}
 
 # JetBrains IDEs
-if command -v idea >/dev/null 2>&1; then
-    alias intellij='idea'
-fi
+{{- if .features.enable_intellij }}
+alias intellij='idea'
+{{- end }}
 
-if command -v webstorm >/dev/null 2>&1; then
-    alias webstorm='webstorm'
-fi
+{{- if .features.enable_webstorm }}
+alias webstorm='webstorm'
+{{- end }}
 
-if command -v pycharm >/dev/null 2>&1; then
-    alias pycharm='pycharm'
-fi
+{{- if .features.enable_pycharm }}
+alias pycharm='pycharm'
+{{- end }}
 
 {{- else if eq .chezmoi.os "darwin" }}
 # macOS IDE启动器
@@ -205,21 +205,21 @@ EOF
     echo "✅ 项目 '$project_name' 已创建并初始化"
     
     # 在支持的IDE中打开项目
-    if command -v code >/dev/null 2>&1; then
-        code .
-    fi
+    {{- if .features.enable_vscode }}
+    code .
+    {{- end }}
 }
 
 # Git GUI工具
 {{- if eq .chezmoi.os "linux" }}
-if command -v gitg >/dev/null 2>&1; then
-    alias gitgui='gitg'
-elif command -v gitk >/dev/null 2>&1; then
-    alias gitgui='gitk'
-fi
+{{- if .features.enable_gitg }}
+alias gitgui='gitg'
+{{- else if .features.enable_gitk }}
+alias gitgui='gitk'
+{{- end }}
 
 {{- else if eq .chezmoi.os "darwin" }}
-if command -v gitk >/dev/null 2>&1; then
-    alias gitgui='gitk'
-fi
+{{- if .features.enable_gitk }}
+alias gitgui='gitk'
+{{- end }}
 {{- end }}

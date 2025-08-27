@@ -48,36 +48,35 @@ macos_version() {
 }
 
 # App Store 应用管理 (需要 mas)
-if command -v mas >/dev/null 2>&1; then
-    # 列出已安装的 App Store 应用
-    mas_list() {
-        echo "📱 已安装的 App Store 应用:"
-        mas list
-    }
-    
-    # 更新所有 App Store 应用
-    mas_upgrade() {
-        echo "🔄 更新所有 App Store 应用..."
-        mas upgrade
-    }
-    
-    # 搜索 App Store 应用
-    mas_search() {
-        if [[ -z "$1" ]]; then
-            echo "用法: mas_search <应用名称>"
-            return 1
-        fi
-        echo "🔍 搜索 App Store 应用: $1"
-        mas search "$1"
-    }
-fi
+{{- if .features.enable_mas }}
+# 列出已安装的 App Store 应用
+mas_list() {
+    echo "📱 已安装的 App Store 应用:"
+    mas list
+}
+
+# 更新所有 App Store 应用
+mas_upgrade() {
+    echo "🔄 更新所有 App Store 应用..."
+    mas upgrade
+}
+
+# 搜索 App Store 应用
+mas_search() {
+    if [[ -z "$1" ]]; then
+        echo "用法: mas_search <应用名称>"
+        return 1
+    fi
+    echo "🔍 搜索 App Store 应用: $1"
+    mas search "$1"
+}
+{{- end }}
 
 # Homebrew Cask 应用管理
-if command -v brew >/dev/null 2>&1; then
-    # 列出已安装的 Cask 应用
-    cask_list() {
-        echo "📦 已安装的 Homebrew Cask 应用:"
-        brew list --cask
+# 列出已安装的 Cask 应用
+cask_list() {
+    echo "📦 已安装的 Homebrew Cask 应用:"
+    brew list --cask
     }
     
     # 更新所有 Cask 应用
@@ -106,18 +105,19 @@ if command -v brew >/dev/null 2>&1; then
 fi
 
 # 应用配置备份 (需要 mackup)
-if command -v mackup >/dev/null 2>&1; then
-    # 备份应用配置
-    backup_configs() {
-        echo "💾 备份应用配置..."
-        mackup backup
-    }
-    
-    # 恢复应用配置
-    restore_configs() {
-        echo "📥 恢复应用配置..."
-        mackup restore
-    }
+{{- if .features.enable_mackup }}
+# 备份应用配置
+backup_configs() {
+    echo "💾 备份应用配置..."
+    mackup backup
+}
+
+# 恢复应用配置
+restore_configs() {
+    echo "📥 恢复应用配置..."
+    mackup restore
+}
+{{- end }}
     
     # 列出支持的应用
     mackup_list() {

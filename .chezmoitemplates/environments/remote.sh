@@ -31,19 +31,19 @@ export HISTSIZE=5000
 export SAVEHIST=5000
 
 # Lightweight Editor Preferences (Remote Priority)
-if command -v vim >/dev/null 2>&1; then
-    export EDITOR="vim"
-    export VISUAL="vim"
-    export GIT_EDITOR="vim"
-elif command -v nano >/dev/null 2>&1; then
-    export EDITOR="nano"
-    export VISUAL="nano"
-    export GIT_EDITOR="nano"
-elif command -v vi >/dev/null 2>&1; then
-    export EDITOR="vi"
-    export VISUAL="vi"
-    export GIT_EDITOR="vi"
-fi
+{{- if .features.enable_vim }}
+export EDITOR="vim"
+export VISUAL="vim"
+export GIT_EDITOR="vim"
+{{- else if .features.enable_nano }}
+export EDITOR="nano"
+export VISUAL="nano"
+export GIT_EDITOR="nano"
+{{- else if .features.enable_vi }}
+export EDITOR="vi"
+export VISUAL="vi"
+export GIT_EDITOR="vi"
+{{- end }}
 
 # Disable GUI-related variables
 unset DISPLAY 2>/dev/null || true
@@ -54,43 +54,43 @@ unset WAYLAND_DISPLAY 2>/dev/null || true
 # ========================================
 
 # Use Homebrew standard bat command (no more batcat aliases)
-if command -v bat >/dev/null 2>&1; then
-    alias cat='bat --paging=never'
-fi
+{{- if .features.enable_bat }}
+alias cat='bat --paging=never'
+{{- end }}
 
 # Remote-specific file listing (lightweight, no icons for performance)
-if command -v eza >/dev/null 2>&1; then
-    # Use eza without icons for better performance over SSH
-    alias rls='eza --color=auto'
-    alias rll='eza -l --color=auto'
-    alias rla='eza -la --color=auto'
-elif command -v exa >/dev/null 2>&1; then
-    # Use exa without icons for better performance over SSH
-    alias rls='exa --color=auto'
-    alias rll='exa -l --color=auto'
-    alias rla='exa -la --color=auto'
-else
-    # Fallback to standard ls with colors
-    {{- if eq .chezmoi.os "linux" }}
-    alias rls='ls --color=auto'
-    alias rll='ls -l --color=auto'
-    alias rla='ls -la --color=auto'
-    {{- else if eq .chezmoi.os "darwin" }}
-    alias rls='ls -G'
-    alias rll='ls -lG'
-    alias rla='ls -laG'
-    {{- end }}
-fi
+{{- if .features.enable_eza }}
+# Use eza without icons for better performance over SSH
+alias rls='eza --color=auto'
+alias rll='eza -l --color=auto'
+alias rla='eza -la --color=auto'
+{{- else if .features.enable_exa }}
+# Use exa without icons for better performance over SSH
+alias rls='exa --color=auto'
+alias rll='exa -l --color=auto'
+alias rla='exa -la --color=auto'
+{{- else }}
+# Fallback to standard ls with colors
+{{- if eq .chezmoi.os "linux" }}
+alias rls='ls --color=auto'
+alias rll='ls -l --color=auto'
+alias rla='ls -la --color=auto'
+{{- else if eq .chezmoi.os "darwin" }}
+alias rls='ls -G'
+alias rll='ls -lG'
+alias rla='ls -laG'
+{{- end }}
+{{- end }}
 
 # Note: Core aliases.sh will handle the main ls/ll/la aliases
 # These remote-specific aliases (rls/rll/rla) are for explicit remote usage
 
 # Lightweight system monitoring
-if command -v htop >/dev/null 2>&1; then
-    alias top='htop'
-elif command -v top >/dev/null 2>&1; then
-    alias monitor='top'
-fi
+{{- if .features.enable_htop }}
+alias top='htop'
+{{- else if .features.enable_top }}
+alias monitor='top'
+{{- end }}
 
 # Network utilities
 alias myip='curl -s ifconfig.me || curl -s ipinfo.io/ip'
@@ -201,15 +201,15 @@ processes() {
     echo "🔄 Running Processes (Top 10 by CPU):"
     echo ""
     
-    if command -v ps >/dev/null 2>&1; then
+    {{- if .features.enable_ps }}
         {{- if eq .chezmoi.os "linux" }}
         ps aux --sort=-%cpu | head -11
         {{- else if eq .chezmoi.os "darwin" }}
         ps aux -r | head -11
         {{- end }}
-    else
+    {{- else }}
         echo "❌ ps command not available"
-    fi
+    {{- end }}
 }
 
 # ========================================

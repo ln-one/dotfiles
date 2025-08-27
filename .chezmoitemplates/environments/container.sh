@@ -27,15 +27,15 @@ export TERM="${TERM:-xterm}"
 export COLORTERM="${COLORTERM:-}"
 
 # Container-optimized editor (prefer vi for minimal footprint)
-if command -v vi >/dev/null 2>&1; then
-    export EDITOR="vi"
-    export VISUAL="vi"
-    export GIT_EDITOR="vi"
-elif command -v nano >/dev/null 2>&1; then
-    export EDITOR="nano"
-    export VISUAL="nano"
-    export GIT_EDITOR="nano"
-fi
+{{- if .features.enable_vi }}
+export EDITOR="vi"
+export VISUAL="vi"
+export GIT_EDITOR="vi"
+{{- else if .features.enable_nano }}
+export EDITOR="nano"
+export VISUAL="nano"
+export GIT_EDITOR="nano"
+{{- end }}
 
 # Disable unnecessary GUI variables
 unset DISPLAY 2>/dev/null || true

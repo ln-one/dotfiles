@@ -17,6 +17,7 @@ brew "ripgrep"          # 现代化的 grep 替代品
 brew "fzf"              # 模糊搜索工具
 brew "zoxide"           # 智能目录跳转工具
 brew "jq"               # JSON 处理工具
+brew "atool"            # 统一压缩文件处理工具 (替代自定义extract函数)
 
 # 1Password CLI (仅 macOS 通过 Homebrew)
 {{- if and (hasKey . "features") .features.enable_1password (eq .chezmoi.os "darwin") }}
@@ -37,6 +38,7 @@ brew "starship"         # 跨 Shell 提示符
 {{- if and (hasKey . "features") .features.enable_node }}
 brew "fnm"              # 快速 Node.js 版本管理器
 {{- end }}
+brew "forgit"           # Git的fzf增强工具 (替代自定义git函数)
 
 # 编辑器和开发工具
 brew "neovim"           # 现代化的 Vim

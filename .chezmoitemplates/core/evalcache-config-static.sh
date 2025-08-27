@@ -12,10 +12,9 @@ if [[ -f "$HOME/.evalcache/evalcache.plugin.zsh" ]]; then
 fi
 
 # Evalcache 静态配置
-if command -v _evalcache >/dev/null 2>&1; then
-    # ========================================
-    # 立即初始化的工具 (高优先级)
-    # ========================================
+# ========================================
+# 立即初始化的工具 (高优先级)
+# ========================================
     
     {{- if .features.enable_starship }}
     # Starship 提示符 (最高优先级)
@@ -42,7 +41,8 @@ if command -v _evalcache >/dev/null 2>&1; then
         
         # Node.js 环境管理 (延迟初始化)
         {{- if .features.enable_fnm }}
-        zsh-defer -a _evalcache fnm env --use-on-cd
+        # Node.js 环境管理 (延迟初始化，静默模式)
+        zsh-defer -a _evalcache fnm env
         {{- end }}
         
         # 工具版本管理器 (延迟初始化)
@@ -70,7 +70,8 @@ if command -v _evalcache >/dev/null 2>&1; then
     {{- end }}
     
     {{- if .features.enable_fnm }}
-    _evalcache fnm env --use-on-cd
+    # Node.js 环境管理 (静默模式)
+    _evalcache fnm env
     {{- end }}
     
     {{- if .features.enable_mise }}
@@ -177,8 +178,6 @@ if command -v _evalcache >/dev/null 2>&1; then
         exec bash
         {{- end }}
     }
-    
-fi
 
 {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
 # ========================================
