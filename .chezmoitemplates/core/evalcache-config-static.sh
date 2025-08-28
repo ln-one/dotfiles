@@ -52,9 +52,9 @@ fi
     
     # Homebrew 环境 (延迟初始化)
     {{- if eq .chezmoi.os "linux" }}
-    zsh-defer -a eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     {{- else if eq .chezmoi.os "darwin" }}
-    zsh-defer -a eval "$(/opt/homebrew/bin/brew shellenv)"
+    eval "$(/opt/homebrew/bin/brew shellenv)"
     {{- end }}
     
     {{- else }}
@@ -187,9 +187,7 @@ eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"
 {{- end }}
 
-{{- if .features.enable_fzf }}
-eval "$(fzf --zsh)"
-{{- end }}
+
 
 {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
 # Bash 直接初始化
@@ -201,9 +199,6 @@ eval "$(starship init bash)"
 eval "$(zoxide init bash)"
 {{- end }}
 
-{{- if .features.enable_fzf }}
-eval "$(fzf --bash)"
-{{- end }}
 
 # Homebrew 环境 (总是启用)
 {{- if eq .chezmoi.os "linux" }}
@@ -216,5 +211,16 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(conda shell.bash hook)"
 {{- end }}
 
+{{- end }}
+{{- end }}
+
+{{- if eq (base .chezmoi.targetFile) ".zshrc" }}
+{{- if .features.enable_fzf }}
+eval "$(fzf --zsh)"
+{{- end }}
+
+{{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
+{{- if .features.enable_fzf }}
+eval "$(fzf --bash)"
 {{- end }}
 {{- end }}

@@ -1,15 +1,10 @@
 # 环境变量配置模板
 # 由 Chezmoi 管理，根据平台和用户配置动态生成
 
-# 基础路径变量 (Requirements: 2.4)
+# 基础路径变量
 export USER_HOME="{{ .chezmoi.homeDir }}"
 export CONFIG_DIR="{{ .paths.config }}"
 export LOCAL_BIN="{{ .chezmoi.homeDir }}/.local/bin"
-
-# 确保 ~/.local/bin 在 PATH 中
-if [[ ":$PATH:" != *":$LOCAL_BIN:"* ]]; then
-    export PATH="$LOCAL_BIN:$PATH"
-fi
 
 # 编辑器配置
 export EDITOR="{{ .preferences.editor }}"
@@ -21,7 +16,7 @@ export LC_ALL="en_US.UTF-8"
 export LC_CTYPE="en_US.UTF-8"
 
 {{- if .features.enable_1password }}
-# SSH Agent 集成 (1Password) (Requirements: 7.2) - 静态配置
+# SSH Agent 集成 (1Password)
 {{- if eq .chezmoi.os "darwin" }}
 SSH_AGENT_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 {{- else if eq .chezmoi.os "linux" }}
@@ -47,8 +42,6 @@ export HOMEBREW_PREFIX="/opt/homebrew"
 export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
 {{- end }}
 {{- end }}
-
-
 
 # 平台特定环境变量
 {{- if eq .chezmoi.os "linux" }}
