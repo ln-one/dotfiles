@@ -152,8 +152,6 @@ fi
 # 提示符配置 (Starship) - 支持多种 shell (静态版本)
 {{ includeTemplate "core/starship-config.sh" . }}
 
-# 智能目录跳转 (zoxide) - 支持多种 shell (完全静态版本)
-{{ includeTemplate "core/zoxide-config-static.sh" . }}
 
 # ========================================
 # 第2层：平台配置层 (Platform Layer)

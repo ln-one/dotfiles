@@ -141,28 +141,6 @@ fi
     compdef _kubectl kubectl
     {{- end }}
     {{- end }}
-    
-    # ========================================
-    # Evalcache 缓存管理函数
-    # ========================================
-    
-    # 清理 evalcache 缓存
-    clear_evalcache() {
-        echo "🧹 清理 evalcache 缓存..."
-        _evalcache_clear
-        echo "✅ Evalcache 缓存已清理"
-    }
-    
-    # 重建 evalcache 缓存
-    rebuild_evalcache() {
-        echo "🔄 重建 evalcache 缓存..."
-        clear_evalcache
-        {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
-        exec zsh
-        {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
-        exec bash
-        {{- end }}
-    }
 
 {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
 # ========================================
