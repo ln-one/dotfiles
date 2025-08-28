@@ -42,8 +42,6 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
-alias ~='cd ~'
-alias -- -='cd -'
 
 # 创建父目录
 alias mkdir='mkdir -pv'
@@ -54,7 +52,6 @@ alias cp='cp -i'
 alias mv='mv -i'
 
 # 磁盘使用
-alias du='du -h'
 alias df='df -h'
 
 # 进程查看
@@ -82,16 +79,6 @@ alias cpuinfo='sysctl -n machdep.cpu.brand_string'
 # 开发相关
 # ========================================
 
-# Git 简化
-alias gs='git status'
-alias ga='git add'
-alias gc='git commit'
-alias gp='git push'
-alias gl='git pull'
-alias gd='git diff'
-alias gb='git branch'
-alias gco='git checkout'
-alias glog='git log --oneline --graph --decorate'
 
 # Docker 简化 (基于功能标志)
 {{- if eq .environment "desktop" }}
@@ -145,15 +132,6 @@ alias service='sudo systemctl'
 alias journal='sudo journalctl'
 {{- end }}
 
-# ========================================
-# 目录跳转增强 (基于功能标志)
-# ========================================
-
-{{- if .features.enable_zoxide }}
-# Zoxide 目录跳转别名 (静态配置)
-alias j='z'
-alias ji='zi'
-{{- end }}
 
 # ========================================
 # 有用的函数
@@ -193,25 +171,5 @@ extract() {
 }
 {{- end }}
 
-# 查找文件
-ff() {
-    find . -name "*$1*" 2>/dev/null
-}
 
-# 备份文件
-backup() {
-    cp "$1"{,.bak}
-}
 
-# 端口占用查看
-port() {
-    if [ $# -eq 0 ]; then
-        echo "用法: port <端口号>"
-        return 1
-    fi
-    {{- if eq .chezmoi.os "linux" }}
-    lsof -i :$1
-    {{- else if eq .chezmoi.os "darwin" }}
-    lsof -i :$1
-    {{- end }}
-}
