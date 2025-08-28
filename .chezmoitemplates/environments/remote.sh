@@ -226,5 +226,4 @@ proxyoff() {
         echo "✅ 所有clash进程已停止"
     fi
 }
-
-
+{{- end }}
