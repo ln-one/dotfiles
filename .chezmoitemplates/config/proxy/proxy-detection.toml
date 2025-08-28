@@ -13,5 +13,5 @@ http_proxy = "{{ $http_proxy | default "" }}"
 https_proxy = "{{ $https_proxy | default "" }}"
 socks_proxy = "{{ $socks_proxy | default "" }}"
 {{- else }}
-{{ includeTemplate "config/proxy-clash-detection.toml" . }}
+{{ includeTemplate "config/proxy/proxy-clash-detection.toml" . }}
 {{- end }}

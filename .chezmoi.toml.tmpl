@@ -5,378 +5,62 @@
 # 复杂逻辑已拆分到独立的模板文件中
 
 [data]
-  # 基础系统信息
-  os = "{{ .chezmoi.os }}"
-  arch = "{{ .chezmoi.arch }}"
-  hostname = "{{ .chezmoi.hostname }}"
-  username = "{{ .chezmoi.username }}"
-  
   # 环境类型检测 - 优先检查SSH连接
   {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") (env "SSH_TTY") }}
-  environment = "remote"
+    environment = "remote"
   {{- else if and (stat "/proc/version") (regexMatch "microsoft" (cat "/proc/version")) }}
-  environment = "wsl"
+    environment = "wsl"
   {{- else if env "CONTAINER" }}
-  environment = "container"
+    environment = "container"
   {{- else }}
-  environment = "desktop"
+    environment = "desktop"
   {{- end }}
-  
+
   # 统一使用 Homebrew 包管理器
   package_manager = "brew"
 
 [data.user]
   name = "{{ .chezmoi.username }}"
   email = "ln1.opensource@gmail.com"  # 需要用户自定义
-  
+
 [data.preferences]
   shell = "zsh"
   editor = "nvim"
   theme = "dark"
   ls_tool = "eza"  # 可选: eza, exa, ls
-  
+
 [data.features]
-  enable_ai_tools = true
-  enable_proxy = true
-  {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") }}
-  enable_1password = false  # 远程环境禁用 1Password
-  {{- else }}
-  enable_1password = true   # 本地环境启用 1Password
-  {{- end }}
-  enable_oh_my_zsh = false  # 禁用 Oh My Zsh
-  enable_zim = true         # 启用 Zim 框架
-  {{- if lookPath "starship" }}
-  enable_starship = true    # 启用 Starship 提示符
-  {{- else }}
-  enable_starship = false   # 启用 Starship 提示符 (未安装)
-  {{- end }}
-  {{- if lookPath "fzf" }}
-  enable_fzf = true         # 启用 fzf 模糊搜索
-  enable_fzf_new = true     # 启用新版 fzf (0.48.0+) 集成方式
-  {{- else }}
-  enable_fzf = false        # 启用 fzf 模糊搜索 (未安装)
-  enable_fzf_new = false    # 启用新版 fzf (0.48.0+) 集成方式
-  {{- end }}
-  {{- if or (stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "share/forgit/forgit.plugin.zsh")) (stat (joinPath .chezmoi.homeDir ".forgit/forgit.plugin.zsh")) }}
-  enable_forgit = true      # 启用 forgit Git的fzf增强工具
-  {{- else }}
-  enable_forgit = false     # 启用 forgit Git的fzf增强工具 (未安装)
-  {{- end }}
-  {{- if lookPath "fd" }}
-  enable_fd = true          # 启用 fd 文件搜索工具
-  {{- else }}
-  enable_fd = false         # 启用 fd 文件搜索工具 (未安装)
-  {{- end }}
-  {{- if lookPath "eza" }}
-  enable_eza = true         # 启用 eza 现代化 ls 替代品
-  {{- else }}
-  enable_eza = false        # 启用 eza 现代化 ls 替代品 (未安装)
-  {{- end }}
-  {{- if lookPath "exa" }}
-  enable_exa = true         # 启用 exa 现代化 ls 替代品
-  {{- else }}
-  enable_exa = false        # 启用 exa 现代化 ls 替代品 (未安装)
-  {{- end }}
-  {{- if lookPath "zoxide" }}
-  enable_zoxide = true      # 启用 zoxide 智能目录跳转
-  {{- else }}
-  enable_zoxide = false     # 启用 zoxide 智能目录跳转 (未安装)
-  {{- end }}
-  {{- if lookPath "atool" }}
-  enable_atool = true       # 启用 atool 压缩文件工具
-  {{- else }}
-  enable_atool = false      # 启用 atool 压缩文件工具 (未安装)
-  {{- end }}
-  {{- if lookPath "bat" }}
-  enable_bat = true         # 启用 bat 语法高亮工具
-  {{- else }}
-  enable_bat = false        # 启用 bat 语法高亮工具 (未安装)
-  {{- end }}
-  {{- if stat (joinPath .chezmoi.homeDir ".evalcache/evalcache.plugin.zsh") }}
-  enable_evalcache = true   # 启用 evalcache 缓存以加速 shell 启动
-  {{- else }}
-  enable_evalcache = false  # 启用 evalcache 缓存以加速 shell 启动 (未安装)
-  {{- end }}
-  
-  # 开发环境管理 (基于实际安装情况)
-  {{- if lookPath "git" }}
-  enable_git = true         # 启用 Git 版本控制工具
-  {{- else }}
-  enable_git = false        # 启用 Git 版本控制工具 (未安装)
-  {{- end }}
-  {{- if lookPath "pyenv" }}
-  enable_pyenv = true       # Python 版本管理
-  {{- else }}
-  enable_pyenv = false      # Python 版本管理 (未安装)
-  {{- end }}
-  {{- if lookPath "rbenv" }}
-  enable_rbenv = true       # Ruby 版本管理
-  {{- else }}
-  enable_rbenv = false      # Ruby 版本管理 (未安装)
-  {{- end }}
-  {{- if lookPath "fnm" }}
-  enable_fnm = true         # Node.js 版本管理
-  {{- else }}
-  enable_fnm = false        # Node.js 版本管理 (未安装)
-  {{- end }}
-  {{- if lookPath "mise" }}
-  enable_mise = true        # 通用工具版本管理
-  {{- else }}
-  enable_mise = false       # 通用工具版本管理 (未安装)
-  {{- end }}
-  {{- if or (lookPath "conda") (stat (joinPath .chezmoi.homeDir "miniconda3")) (stat (joinPath .chezmoi.homeDir "anaconda3")) }}
-  enable_conda = true       # Conda 环境管理
-  {{- else }}
-  enable_conda = false      # Conda 环境管理 (未安装)
-  {{- end }}
-  
-  # 开发语言支持
-  enable_node = true
-  enable_python = true
-  enable_go = false
-  enable_rust = false
-  
-  # 容器和虚拟化 (基于实际安装情况)
-  {{- if lookPath "docker" }}
-  enable_docker = true
-  {{- else }}
-  enable_docker = false     # Docker (未安装)
-  {{- end }}
-  {{- if lookPath "kubectl" }}
-  enable_kubectl = true     # Kubernetes CLI
-  {{- else }}
-  enable_kubectl = false    # Kubernetes CLI (未安装)
-  {{- end }}
-  
-  # 系统工具 (基于实际安装情况)
-  {{- if lookPath "ssh" }}
-  enable_ssh = true         # SSH 工具支持
-  {{- else }}
-  enable_ssh = false        # SSH 工具支持 (未安装)
-  {{- end }}
-  {{- if stat (joinPath .chezmoi.homeDir ".zim/modules/zsh-defer") }}
-  enable_zsh_defer = true   # zsh-defer 延迟加载
-  {{- else }}
-  enable_zsh_defer = false  # zsh-defer 延迟加载 (未安装)
-  {{- end }}
-  {{- if lookPath "curl" }}
-  enable_curl = true        # curl HTTP 客户端
-  {{- else }}
-  enable_curl = false       # curl HTTP 客户端 (未安装)
-  {{- end }}
-  {{- if lookPath "wget" }}
-  enable_wget = true        # wget 下载工具
-  {{- else }}
-  enable_wget = false       # wget 下载工具 (未安装)
-  {{- end }}
-  {{- if lookPath "gsettings" }}
-  enable_gsettings = true   # GNOME gsettings 配置
-  {{- else }}
-  enable_gsettings = false  # GNOME gsettings 配置 (未安装)
-  {{- end }}
-  {{- if lookPath "dropbox" }}
-  enable_dropbox = true     # Dropbox 同步工具
-  {{- else }}
-  enable_dropbox = false    # Dropbox 同步工具 (未安装)
-  {{- end }}
-  {{- if lookPath "fcitx5" }}
-  enable_fcitx5 = true      # fcitx5 输入法
-  {{- else }}
-  enable_fcitx5 = false     # fcitx5 输入法 (未安装)
-  {{- end }}
-
-  # 编辑器工具 (基于实际安装情况)
-  {{- if lookPath "code" }}
-  enable_vscode = true      # Visual Studio Code
-  {{- else }}
-  enable_vscode = false     # Visual Studio Code (未安装)
-  {{- end }}
-  {{- if lookPath "vim" }}
-  enable_vim = true         # Vim 编辑器
-  {{- else }}
-  enable_vim = false        # Vim 编辑器 (未安装)
-  {{- end }}
-  {{- if lookPath "nvim" }}
-  enable_nvim = true        # Neovim 编辑器
-  {{- else }}
-  enable_nvim = false       # Neovim 编辑器 (未安装)
-  {{- end }}
-  {{- if lookPath "nano" }}
-  enable_nano = true        # Nano 编辑器
-  {{- else }}
-  enable_nano = false       # Nano 编辑器 (未安装)
-  {{- end }}
-  {{- if lookPath "vi" }}
-  enable_vi = true          # Vi 编辑器
-  {{- else }}
-  enable_vi = false         # Vi 编辑器 (未安装)
-  {{- end }}
-
-  # 系统监控工具 (基于实际安装情况)
-  {{- if lookPath "htop" }}
-  enable_htop = true        # htop 进程监控
-  {{- else }}
-  enable_htop = false       # htop 进程监控 (未安装)
-  {{- end }}
-  {{- if lookPath "top" }}
-  enable_top = true         # top 进程监控
-  {{- else }}
-  enable_top = false        # top 进程监控 (未安装)
-  {{- end }}
-  {{- if lookPath "free" }}
-  enable_free = true        # free 内存监控
-  {{- else }}
-  enable_free = false       # free 内存监控 (未安装)
-  {{- end }}
-  {{- if lookPath "ps" }}
-  enable_ps = true          # ps 进程列表
-  {{- else }}
-  enable_ps = false         # ps 进程列表 (未安装)
-  {{- end }}
-  {{- if lookPath "netstat" }}
-  enable_netstat = true     # netstat 网络状态
-  {{- else }}
-  enable_netstat = false    # netstat 网络状态 (未安装)
-  {{- end }}
-  {{- if lookPath "ss" }}
-  enable_ss = true          # ss 网络套接字
-  {{- else }}
-  enable_ss = false         # ss 网络套接字 (未安装)
-  {{- end }}
-
-  # 开发环境工具 (基于实际安装情况)
-  {{- if lookPath "python3" }}
-  enable_python3 = true     # Python 3
-  {{- else }}
-  enable_python3 = false    # Python 3 (未安装)
-  {{- end }}
-  {{- if lookPath "python" }}
-  enable_python2 = true     # Python 2
-  {{- else }}
-  enable_python2 = false    # Python 2 (未安装)
-  {{- end }}
-  {{- if lookPath "tmux" }}
-  enable_tmux = true        # tmux 终端复用器
-  {{- else }}
-  enable_tmux = false       # tmux 终端复用器 (未安装)
-  {{- end }}
-  {{- if lookPath "grep" }}
-  enable_grep = true        # grep 文本搜索
-  {{- else }}
-  enable_grep = false       # grep 文本搜索 (未安装)
-  {{- end }}
-  {{- if lookPath "awk" }}
-  enable_awk = true         # awk 文本处理
-  {{- else }}
-  enable_awk = false        # awk 文本处理 (未安装)
-  {{- end }}
-
-  # IDE 工具 (基于实际安装情况)
-  {{- if lookPath "idea" }}
-  enable_intellij = true    # IntelliJ IDEA
-  {{- else }}
-  enable_intellij = false   # IntelliJ IDEA (未安装)
-  {{- end }}
-  {{- if lookPath "webstorm" }}
-  enable_webstorm = true    # WebStorm
-  {{- else }}
-  enable_webstorm = false   # WebStorm (未安装)
-  {{- end }}
-  {{- if lookPath "pycharm" }}
-  enable_pycharm = true     # PyCharm
-  {{- else }}
-  enable_pycharm = false    # PyCharm (未安装)
-  {{- end }}
-  {{- if lookPath "gitg" }}
-  enable_gitg = true        # GitG Git GUI
-  {{- else }}
-  enable_gitg = false       # GitG Git GUI (未安装)
-  {{- end }}
-  {{- if lookPath "gitk" }}
-  enable_gitk = true        # GitK Git GUI
-  {{- else }}
-  enable_gitk = false       # GitK Git GUI (未安装)
-  {{- end }}
-
-  # WSL 特定工具 (基于环境和安装情况)
-  {{- if and (eq .chezmoi.os "linux") (stat "/proc/version") (regexMatch "microsoft" (cat "/proc/version")) }}
-  is_wsl = true             # WSL 环境
-  {{- if lookPath "clip.exe" }}
-  enable_wsl_clipboard = true  # WSL 剪贴板
-  {{- else }}
-  enable_wsl_clipboard = false # WSL 剪贴板 (未安装)
-  {{- end }}
-  {{- if lookPath "explorer.exe" }}
-  enable_wsl_explorer = true   # WSL 文件浏览器
-  {{- else }}
-  enable_wsl_explorer = false  # WSL 文件浏览器 (未安装)
-  {{- end }}
-  {{- if lookPath "powershell.exe" }}
-  enable_wsl_powershell = true # WSL PowerShell
-  {{- else }}
-  enable_wsl_powershell = false # WSL PowerShell (未安装)
-  {{- end }}
-  {{- if lookPath "wslg" }}
-  enable_wslg = true        # WSLg GUI 支持
-  {{- else }}
-  enable_wslg = false       # WSLg GUI 支持 (未安装)
-  {{- end }}
-  {{- if lookPath "git-credential-manager-core.exe" }}
-  enable_wsl_git_credential_manager = "core"  # WSL Git 凭据管理器
-  {{- else if lookPath "git-credential-manager.exe" }}
-  enable_wsl_git_credential_manager = "legacy" # WSL Git 凭据管理器 (旧版)
-  {{- else }}
-  enable_wsl_git_credential_manager = false    # WSL Git 凭据管理器 (未安装)
-  {{- end }}
-  {{- if lookPath "docker.exe" }}
-  enable_wsl_docker = true  # WSL Docker
-  {{- else }}
-  enable_wsl_docker = false # WSL Docker (未安装)
-  {{- end }}
-  {{- else }}
-  is_wsl = false            # 非 WSL 环境
-  enable_wsl_clipboard = false
-  enable_wsl_explorer = false
-  enable_wsl_powershell = false
-  enable_wslg = false
-  enable_wsl_git_credential_manager = false
-  enable_wsl_docker = false
-  {{- end }}
-
-  # macOS 特定工具 (基于环境和安装情况)
+  {{ includeTemplate "config/features/core-features.toml" . }}
+  {{ includeTemplate "config/features/dev-features.toml" . }}
   {{- if eq .chezmoi.os "darwin" }}
-  {{- if lookPath "mas" }}
-  enable_mas = true         # Mac App Store CLI
-  {{- else }}
-  enable_mas = false        # Mac App Store CLI (未安装)
+    {{ includeTemplate "config/features/macos-features.toml" . }}
   {{- end }}
-  {{- if lookPath "mackup" }}
-  enable_mackup = true      # Mackup 备份工具
-  {{- else }}
-  enable_mackup = false     # Mackup 备份工具 (未安装)
+  {{- if eq .chezmoi.os "linux" }}
+    {{ includeTemplate "config/features/linux-features.toml" . }}
   {{- end }}
-  {{- else }}
-  enable_mas = false
-  enable_mackup = false
+  {{- if eq .chezmoi.os "windows" }}
+    {{ includeTemplate "config/features/windows-features.toml" . }}
   {{- end }}
 
 # ========================================
 # 代理配置 (简化版)
 # ========================================
-# 复杂的代理检测逻辑已移至独立模板文件
+
 [data.proxy]
-{{ includeTemplate "config/proxy-detection.toml" . }}
-  
+  {{ includeTemplate "config/proxy/proxy-detection.toml" . }}
+
 [data.packages]
   # 核心工具包列表 (统一使用 Homebrew 标准包名)
-  brew = ["git", "curl", "wget", "fzf", "ripgrep", "fd", "bat", "eza", "zoxide"]
+  brew = [
+    "git", "curl", "wget", "fzf", "ripgrep", "fd", "bat", "eza", "zoxide"
+  ]
   # 注意: 不再使用 apt 包名映射，统一通过 Homebrew 管理
-  
+
   # 必需工具列表 (按优先级分组)
   essential = ["git", "curl", "wget", "unzip"]
   modern_cli = ["eza", "bat", "fd", "ripgrep", "fzf", "jq", "zoxide"]
   development = ["neovim", "tmux", "htop", "tree"]
-  
+
 [data.paths]
   dotfiles = "{{ .chezmoi.sourceDir }}"
   projects = "{{ .chezmoi.homeDir }}/Projects"
@@ -385,6 +69,7 @@
 # ========================================
 # 环境特定配置 (简化版)
 # ========================================
+
 {{ includeTemplate "config/environment-packages.toml" . }}
 
 # ========================================
@@ -403,9 +88,9 @@
 {{- $op_available := and (or (lookPath "op") (stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/op")) (stat "/usr/bin/op")) (not (or (env "SSH_CONNECTION") (env "SSH_CLIENT"))) }}
 {{- $is_remote := or (env "SSH_CONNECTION") (env "SSH_CLIENT") }}
 {{- if and (hasKey . "features") .features.enable_1password $op_available (not $is_remote) }}
-{{ includeTemplate "config/secrets-1password.toml" . }}
+  {{ includeTemplate "config/secrets/secrets-1password.toml" . }}
 {{- else }}
-{{ includeTemplate "config/secrets-fallback.toml" . }}
+  {{ includeTemplate "config/secrets/secrets-fallback.toml" . }}
 {{- end }}
 
 # 禁用加密 (我们使用 1Password 管理密钥)
