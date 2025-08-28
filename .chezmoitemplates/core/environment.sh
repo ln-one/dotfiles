@@ -52,13 +52,26 @@ export LC_CTYPE="en_US.UTF-8"
   {{- end }}
 {{- end }}
 
-# Homebrew 环境 (延迟初始化)
-    {{- if eq .chezmoi.os "linux" }}
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    {{- else if eq .chezmoi.os "darwin" }}
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-    {{- end }}
-    
+# Homebrew environment (deferred initialization)
+{{- if eq .chezmoi.os "linux" }}
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+{{- else if eq .chezmoi.os "darwin" }}
+eval "$(/opt/homebrew/bin/brew shellenv)"
+{{- end }}
+
+{{- if .features.enable_starship }}
+
+# Set Starship config file path
+export STARSHIP_CONFIG="$HOME/.config/starship.toml"
+
+{{- if eq .environment "remote" }}
+# Remote environment optimization: disable some time-consuming modules
+export STARSHIP_CACHE="$HOME/.cache/starship"
+# Create cache directory
+mkdir -p "$HOME/.cache/starship"
+{{- end }}
+{{- end }}
+
 # Platform-specific environment variables
 {{- if eq .chezmoi.os "linux" }}
   # Linux specific configuration
