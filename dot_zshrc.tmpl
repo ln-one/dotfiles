@@ -1,25 +1,27 @@
 # ========================================
-# Zsh 配置文件 (Chezmoi 管理)
+# Zsh configuration file (managed by Chezmoi)
 # ========================================
-# 性能监控 (开发时使用)
+
+# Performance monitoring (for development)
 # zmodload zsh/zprof
 
 {{ includeTemplate "shell-common.sh" . }}
-# Shell 性能优化
-{{ includeTemplate "shell/zsh/zsh-performance-tweaks.sh" . }}
-# Shell 特定配置 (仅在对应 shell 中加载)
-{{- if eq (base .chezmoi.targetFile) ".zshrc" }}
-# Zsh 特定配置
 
-# Zsh 框架配置 - 根据特性标志选择框架
+# Shell performance tweaks
+{{ includeTemplate "shell/zsh/zsh-performance-tweaks.sh" . }}
+
+# Shell-specific configuration (only loaded in this shell)
+{{- if eq (base .chezmoi.targetFile) ".zshrc" }}
+
+# Zsh-specific configuration
+
+# Zsh framework config - select framework based on feature flag
 {{- if .features.enable_zim }}
-# Zim 框架配置 (包含补全系统管理)
 {{ includeTemplate "shell/zsh/zim-config.sh" . }}
 {{- else }}
-# 无框架模式 - 仅加载基础 Zsh 配置
-# 基础补全系统 (仅在无框架模式下手动初始化)
+# No framework mode - only load basic Zsh config
 autoload -Uz compinit
-# 优化补全加载 - 每天只检查一次
+# Optimize completion loading - check once per day
 local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
 if [[ $zcompdump(#qNmh+24) ]]; then
     compinit -d "$zcompdump"
@@ -29,14 +31,14 @@ fi
 {{- end }}
 {{- end }}
 
-# 初始化 zsh-defer (仅在zsh和启用 Zim 时，必须在 evalcache 之前)
+# Initialize zsh-defer (only in zsh and with Zim enabled, must be before evalcache)
 {{- if and .features.enable_zim (eq (base .chezmoi.targetFile) ".zshrc") }}
 {{ includeTemplate "shell/zsh/zsh-defer-init.sh" . }}
 
-# Evalcache 配置 - 缓存 eval 语句以加速启动 (完全静态版本)
+# Evalcache config - cache eval statements for faster startup (static version)
 {{ includeTemplate "shell/zsh/zsh_init.sh" . }}
 
 {{- end }}
 
-# 性能监控结果 (开发时使用)
+# Performance monitoring result (for development)
 # zprof
