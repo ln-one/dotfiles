@@ -1,19 +1,6 @@
 # ========================================
 # Chezmoi 分层配置加载器 (Layered Configuration Loader)
 # ========================================
-# 实现四层配置架构：核心→平台→环境→用户
-# 在 chezmoi apply 时静态确定配置，无运行时检测
-# Requirements: 6.1, 6.2
-
-# 基础颜色和分页器配置
-export CLICOLOR=1
-{{- if eq .chezmoi.os "linux" }}
-export LS_COLORS='di=34:ln=35:so=32:pi=33:ex=31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
-{{- else if eq .chezmoi.os "darwin" }}
-export LSCOLORS=ExFxCxDxBxegedabagacad
-{{- end }}
-export PAGER="less"
-
 
 # ========================================
 # 第1层：核心配置层 (Core Layer)
@@ -25,47 +12,10 @@ export PAGER="less"
 {{ includeTemplate "core/environment.sh" . }}
 
 # 通用别名定义 (完全静态版本)
-{{ includeTemplate "core/aliases-static.sh" . }}
+{{ includeTemplate "core/aliases.sh" . }}
 
 # 基础函数库
-{{ includeTemplate "core/basic-functions.sh" . }}
-
-# Shell 特定配置 (仅在对应 shell 中加载)
-{{- if eq (base .chezmoi.targetFile) ".zshrc" }}
-# Zsh 特定配置
-# Shell 性能优化
-{{ includeTemplate "core/zsh-performance-tweaks.sh" . }}
-
-# Zsh 框架配置 - 根据特性标志选择框架
-{{- if .features.enable_zim }}
-# Zim 框架配置 (包含补全系统管理)
-{{ includeTemplate "core/zim-config.sh" . }}
-{{- else if .features.enable_oh_my_zsh }}
-# Oh My Zsh 框架配置
-{{ includeTemplate "core/oh-my-zsh-config.sh" . }}
-{{- else }}
-# 无框架模式 - 仅加载基础 Zsh 配置
-# 基础补全系统 (仅在无框架模式下手动初始化)
-autoload -Uz compinit
-# 优化补全加载 - 每天只检查一次
-local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
-if [[ $zcompdump(#qNmh+24) ]]; then
-    compinit -d "$zcompdump"
-else
-    compinit -C -d "$zcompdump"
-fi
-{{- end }}
-{{- end }}
-
-# 初始化 zsh-defer (仅在zsh和启用 Zim 时，必须在 evalcache 之前)
-{{- if and .features.enable_zim (eq (base .chezmoi.targetFile) ".zshrc") }}
-{{ includeTemplate "core/zsh-defer-init.sh" . }}
-
-
-{{- end }}
-
-# Evalcache 配置 - 缓存 eval 语句以加速启动 (完全静态版本)
-{{ includeTemplate "core/evalcache-config-static.sh" . }}
+{{ includeTemplate "core/functions.sh" . }}
 
 # 提示符配置 (Starship) - 支持多种 shell (静态版本)
 {{ includeTemplate "core/starship-config.sh" . }}

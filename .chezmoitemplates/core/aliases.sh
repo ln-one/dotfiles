@@ -89,15 +89,6 @@ alias dlog='docker logs -f'
 # Quick Actions
 # ========================================
 
-# Quick edit common files
-alias zshrc='$EDITOR ~/.zshrc'
-alias bashrc='$EDITOR ~/.bashrc'
-alias vimrc='$EDITOR ~/.vimrc'
-
-# Reload config
-alias reload='source ~/.zshrc'
-alias src='source ~/.zshrc'
-
 # Clear screen
 alias c='clear'
 alias cls='clear'

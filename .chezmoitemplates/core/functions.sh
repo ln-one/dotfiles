@@ -5,12 +5,12 @@
 
 # Create directory and enter it
 mkcd() {
-    if [[ -z "$1" ]]; then
+    if [ -z "$1" ]; then
         echo "Usage: mkcd <directory>"
         return 1
     fi
     mkdir -p "$1" && cd "$1"
-    echo "✅ Created and entered directory: $1"
+    echo "Created and entered directory: $1"
 }
 
 # Extract various archive files - uses available tools
