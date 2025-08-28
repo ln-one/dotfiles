@@ -1,11 +1,13 @@
 # ========================================
-# Chezmoi 主配置文件 (简化版)
+# Chezmoi Main Configuration (Simplified)
+# ----------------------------------------
+# - Dynamically generates config based on platform/environment
+# - Complex logic is split into separate template files
 # ========================================
-# 根据平台和环境动态生成配置
-# 复杂逻辑已拆分到独立的模板文件中
 
+# ========== Environment Detection ==========
 [data]
-  # 环境类型检测 - 优先检查SSH连接
+  # Detect environment type (prefer SSH)
   {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") (env "SSH_TTY") }}
     environment = "remote"
   {{- else if and (stat "/proc/version") (regexMatch "microsoft" (cat "/proc/version")) }}
@@ -16,19 +18,22 @@
     environment = "desktop"
   {{- end }}
 
-  # 统一使用 Homebrew 包管理器
+  # Use Homebrew as package manager
   package_manager = "brew"
 
+# ========== User Info ==========
 [data.user]
   name = "{{ .chezmoi.username }}"
-  email = "ln1.opensource@gmail.com"  # 需要用户自定义
+  email = "ln1.opensource@gmail.com"  # User should customize
 
+# ========== Preferences ==========
 [data.preferences]
   shell = "zsh"
   editor = "nvim"
   theme = "dark"
-  ls_tool = "eza"  # 可选: eza, exa, ls
+  ls_tool = "eza"  # Options: eza, exa, ls
 
+# ========== Features ==========
 [data.features]
   {{ includeTemplate "config/features/core-features.toml" . }}
   {{ includeTemplate "config/features/dev-features.toml" . }}
@@ -42,39 +47,33 @@
     {{ includeTemplate "config/features/windows-features.toml" . }}
   {{- end }}
 
-# ========================================
-# 代理配置 (简化版)
-# ========================================
-
+# ========== Proxy ==========
 [data.proxy]
   {{ includeTemplate "config/proxy/proxy-detection.toml" . }}
 
+# ========== Packages ==========
 [data.packages]
-  # 核心工具包列表 (统一使用 Homebrew 标准包名)
+  # Core tools (Homebrew standard names)
   brew = [
     "git", "curl", "wget", "fzf", "ripgrep", "fd", "bat", "eza", "zoxide"
   ]
-  # 注意: 不再使用 apt 包名映射，统一通过 Homebrew 管理
+  # No apt mapping, managed by Homebrew
 
-  # 必需工具列表 (按优先级分组)
+  # Essential tools (by priority group)
   essential = ["git", "curl", "wget", "unzip"]
   modern_cli = ["eza", "bat", "fd", "ripgrep", "fzf", "jq", "zoxide"]
   development = ["neovim", "tmux", "htop", "tree"]
 
+# ========== Paths ==========
 [data.paths]
   dotfiles = "{{ .chezmoi.sourceDir }}"
   projects = "{{ .chezmoi.homeDir }}/Projects"
   config = "{{ .chezmoi.homeDir }}/.config"
 
-# ========================================
-# 环境特定配置 (简化版)
-# ========================================
-
+# ========== Environment-specific ==========
 {{ includeTemplate "config/environment-packages.toml" . }}
 
-# ========================================
-# Chezmoi 行为配置
-# ========================================
+# ========== Chezmoi Behavior ==========
 [edit]
   command = "{{ if stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/code") }}{{ joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/code" }}{{ else if stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/nvim") }}{{ joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/nvim" }}{{ else }}vi{{ end }}"
 
@@ -82,9 +81,7 @@
   autoCommit = true
   autoPush = false
 
-# ========================================
-# 密钥管理配置 (简化版)
-# ========================================
+# ========== Secrets ==========
 {{- $op_available := and (or (lookPath "op") (stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/op")) (stat "/usr/bin/op")) (not (or (env "SSH_CONNECTION") (env "SSH_CLIENT"))) }}
 {{- $is_remote := or (env "SSH_CONNECTION") (env "SSH_CLIENT") }}
 {{- if and (hasKey . "features") .features.enable_1password $op_available (not $is_remote) }}
@@ -93,5 +90,4 @@
   {{ includeTemplate "config/secrets/secrets-fallback.toml" . }}
 {{- end }}
 
-# 禁用加密 (我们使用 1Password 管理密钥)
 encryption = ""
