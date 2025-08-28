@@ -17,6 +17,7 @@
 # 基础函数库
 {{ includeTemplate "core/functions.sh" . }}
 
+{{ includeTemplate "core/fzf.sh" . }}
 
 
 # ========================================
