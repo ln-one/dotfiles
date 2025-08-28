@@ -1,25 +1,25 @@
 # ========================================
-# 通用别名定义 (完全静态版本)
+# Common Aliases (Fully Static Version)
 # ========================================
-# 基于功能标志的静态别名，无运行时检测
+# Static aliases based on feature flags, no runtime detection
 
 {{- $ls_tool := .preferences.ls_tool | default "ls" }}
 {{- if eq $ls_tool "eza" }}
-# Eza 别名 (静态配置)
+# Eza aliases (static config)
 alias ls='eza --color=auto --icons'
 alias ll='eza -alF --color=auto --icons --git'
 alias la='eza -a --color=auto --icons'
 alias l='eza -F --color=auto --icons'
 alias tree='eza --tree --color=auto --icons'
 {{- else if eq $ls_tool "exa" }}
-# Exa 别名 (静态配置)
+# Exa aliases (static config)
 alias ls='exa --color=auto --icons'
 alias ll='exa -alF --color=auto --icons --git'
 alias la='exa -a --color=auto --icons'
 alias l='exa -F --color=auto --icons'
 alias tree='exa --tree --color=auto --icons'
 {{- else }}
-# 传统 ls 别名
+# Traditional ls aliases
 {{- if eq .chezmoi.os "linux" }}
 alias ls='ls --color=auto'
 alias ll='ls -alF --color=auto'
@@ -33,36 +33,36 @@ alias l='ls -CFG'
 {{- end }}
 {{- end }}
 
-# 目录操作
+# Directory navigation
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
 
-# 创建父目录
+# Create parent directories
 alias mkdir='mkdir -pv'
 
-# 安全操作
+# Safe operations
 alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
 
-# 磁盘使用
+# Disk usage
 alias df='df -h'
 
-# 进程查看
+# Process viewing
 alias psg='ps aux | grep -v grep | grep -i -e VSZ -e'
 alias psgrep='ps aux | grep -v grep | grep'
 
 # ========================================
-# 网络和系统
+# Network and System
 # ========================================
 
-# 网络
+# Network
 alias ping='ping -c 5'
 alias ports='netstat -tulanp'
 
-# 系统信息
+# System info
 {{- if eq .chezmoi.os "linux" }}
 alias meminfo='free -m -l -t'
 alias cpuinfo='lscpu'
@@ -72,11 +72,10 @@ alias cpuinfo='sysctl -n machdep.cpu.brand_string'
 {{- end }}
 
 # ========================================
-# 开发相关
+# Development
 # ========================================
 
-
-# Docker 简化 (基于功能标志)
+# Docker shortcuts (based on feature flag)
 {{- if eq .environment "desktop" }}
 alias d='docker'
 alias dc='docker-compose'
@@ -87,32 +86,32 @@ alias dlog='docker logs -f'
 {{- end }}
 
 # ========================================
-# 快捷操作
+# Quick Actions
 # ========================================
 
-# 快速编辑常用文件
+# Quick edit common files
 alias zshrc='$EDITOR ~/.zshrc'
 alias bashrc='$EDITOR ~/.bashrc'
 alias vimrc='$EDITOR ~/.vimrc'
 
-# 重新加载配置
+# Reload config
 alias reload='source ~/.zshrc'
 alias src='source ~/.zshrc'
 
-# 清屏
+# Clear screen
 alias c='clear'
 alias cls='clear'
 
-# 历史查找
+# History search
 alias h='history'
 alias hg='history | grep'
 
 # ========================================
-# 平台特定别名
+# Platform-specific Aliases
 # ========================================
 
 {{- if eq .chezmoi.os "darwin" }}
-# macOS 特定别名
+# macOS specific aliases
 alias finder='open -a Finder .'
 alias preview='open -a Preview'
 alias flushdns='sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder'
@@ -120,10 +119,7 @@ alias showfiles='defaults write com.apple.finder AppleShowAllFiles YES; killall 
 alias hidefiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app'
 
 {{- else if eq .chezmoi.os "linux" }}
-# Linux 特定别名
-alias apt-update='sudo apt update && sudo apt upgrade'
-alias apt-install='sudo apt install'
-alias apt-search='apt search'
+# Linux specific aliases
 alias service='sudo systemctl'
 alias journal='sudo journalctl'
 {{- end }}

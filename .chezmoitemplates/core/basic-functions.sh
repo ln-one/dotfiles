@@ -1,25 +1,25 @@
 # ========================================
 # Basic Utility Functions
 # ========================================
-# 基础实用函数模块
+# Basic utility function module
 
-# 创建目录并进入
+# Create directory and enter it
 mkcd() {
     if [[ -z "$1" ]]; then
-        echo "用法: mkcd <目录名>"
+        echo "Usage: mkcd <directory>"
         return 1
     fi
     mkdir -p "$1" && cd "$1"
-    echo "✅ 创建并进入目录: $1"
+    echo "✅ Created and entered directory: $1"
 }
 
-# 提取各种压缩文件 - 使用现有工具
+# Extract various archive files - uses available tools
 {{- if .features.enable_atool }}
-# 使用atool - 专业的压缩文件处理工具
+# Use atool - advanced archive handling
 alias extract='atool --extract --subdir'
 alias compress='apack'
 {{- else }}
-# 备用的简单提取函数
+# Fallback simple extract function
 extract() {
     if [ -f "$1" ]; then
         case $1 in
@@ -34,15 +34,15 @@ extract() {
             *.zip)       unzip "$1"       ;;
             *.Z)         uncompress "$1"  ;;
             *.7z)        7z x "$1"        ;;
-            *)           echo "'$1' 无法提取" ;;
+            *)           echo "'$1' cannot be extracted" ;;
         esac
     else
-        echo "'$1' 不是有效文件"
+        echo "'$1' is not a valid file"
     fi
 }
 {{- end }}
 
-# 系统信息 (简化版) - 仅在非远程环境中定义
+# System info (simplified) - only defined in non-remote environments
 {{- if ne .environment "remote" }}
 sysinfo() {
     echo "=== System Information ==="

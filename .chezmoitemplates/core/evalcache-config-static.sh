@@ -3,6 +3,82 @@
 # ========================================
 # 基于功能标志的静态配置，完全消除运行时检测
 # 所有工具检测由chezmoi在编译时决定
+# 延迟加载语法高亮以加速启动 - 静态配置
+{{- if .features.enable_zsh_defer }}
+# 手动安装和延迟加载 zsh-syntax-highlighting
+if [[ ! -d "${ZIM_HOME}/modules/zsh-syntax-highlighting" ]]; then
+    # 如果模块不存在，先安装
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZIM_HOME}/modules/zsh-syntax-highlighting" 2>/dev/null || true
+fi
+
+# 延迟加载语法高亮
+if [[ -f "${ZIM_HOME}/modules/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+    zsh-defer source "${ZIM_HOME}/modules/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+# 延迟加载补全系统
+zsh-defer -c '
+    # 初始化补全系统
+{{- else }}
+# 直接加载语法高亮（无 zsh-defer）
+if [[ -f "${ZIM_HOME}/modules/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+    source "${ZIM_HOME}/modules/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+# 直接初始化补全系统
+{{- end }}
+        autoload -Uz compinit
+    
+    # 优化补全加载 - 每天只检查一次
+    local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+    if [[ $zcompdump(#qNmh+24) ]]; then
+        compinit -d "$zcompdump"
+    else
+        compinit -C -d "$zcompdump"
+    fi
+    
+    # 加载 Zim 补全模块
+    if [[ -f "${ZIM_HOME}/modules/completion/init.zsh" ]]; then
+        source "${ZIM_HOME}/modules/completion/init.zsh"
+    fi
+{{- if .features.enable_zsh_defer }}
+'
+
+# 延迟配置历史子字符串搜索键绑定
+zsh-defer -c '
+    # 配置历史子字符串搜索的键绑定
+    if [[ -n "${widgets[history-substring-search-up]}" ]]; then
+        # 绑定上下箭头键到历史子字符串搜索
+        bindkey "^[[A" history-substring-search-up      # 上箭头
+        bindkey "^[[B" history-substring-search-down    # 下箭头
+        
+        # 兼容不同终端的键码
+        bindkey "^[OA" history-substring-search-up      # 上箭头 (某些终端)
+        bindkey "^[OB" history-substring-search-down    # 下箭头 (某些终端)
+        
+        # 在 vi 模式下也启用
+        bindkey -M vicmd "k" history-substring-search-up
+        bindkey -M vicmd "j" history-substring-search-down
+    fi
+'
+{{- else }}
+
+# 直接配置历史子字符串搜索键绑定（无 zsh-defer）
+if [[ -n "${widgets[history-substring-search-up]}" ]]; then
+    # 绑定上下箭头键到历史子字符串搜索
+    bindkey "^[[A" history-substring-search-up      # 上箭头
+    bindkey "^[[B" history-substring-search-down    # 下箭头
+    
+    # 兼容不同终端的键码
+    bindkey "^[OA" history-substring-search-up      # 上箭头 (某些终端)
+    bindkey "^[OB" history-substring-search-down    # 下箭头 (某些终端)
+    
+    # 在 vi 模式下也启用
+    bindkey -M vicmd "k" history-substring-search-up
+    bindkey -M vicmd "j" history-substring-search-down
+fi
+{{- end }}
+
 
 {{- if .features.enable_evalcache }}
 {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
