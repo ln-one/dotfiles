@@ -1,49 +1,43 @@
 # ========================================
 # Theme Management Functions
 # ========================================
-# WhiteSur 主题切换功能 (迁移自原 system-tools.sh)
 
 {{- if and (eq .chezmoi.os "linux") (not (env "SSH_CONNECTION")) (lookPath "gsettings") }}
 # Only load theme functions on Linux desktop with GNOME
 
-# WhiteSur 主题配置
 THEME_DIR="${THEME_DIR:-$HOME/.Theme/WhiteSur-gtk-theme}"
 THEME_SCRIPT="$DOTFILES_DIR/scripts/tools/theme-manager.sh"
 
+# Color helpers
+_red()   { printf '\033[0;31m%s\033[0m\n' "$*"; }
+_green() { printf '\033[0;32m%s\033[0m\n' "$*"; }
+_yellow(){ printf '\033[0;33m%s\033[0m\n' "$*"; }
+_blue()  { printf '\033[0;34m%s\033[0m\n' "$*"; }
+_cyan()  { printf '\033[0;36m%s\033[0m\n' "$*"; }
+_bold()  { printf '\033[1m%s\033[0m\n' "$*"; }
+
 # Switch to dark theme (WhiteSur Dark)
 dark() {
-    echo "🌙 切换到暗色主题..."
-    
-    # 优先使用主题管理脚本
+    _cyan "Switching to dark theme..."
+
     if [[ -x "$THEME_SCRIPT" ]]; then
-        echo "使用主题管理脚本切换到暗色主题..."
+        _cyan "Using theme manager script for dark theme..."
         "$THEME_SCRIPT" dark
         return $?
     fi
-    
-    # 备用方案：直接设置 WhiteSur 暗色主题
+
     {{- if .features.enable_gsettings }}
     if [[ -d "$THEME_DIR" ]]; then
-        echo "设置 WhiteSur 暗色主题..."
-        
-        # 进入主题目录并执行完整的主题切换流程
+        _cyan "Setting WhiteSur dark theme..."
         (
-            cd "$THEME_DIR" || { echo "❌ 无法进入主题目录"; return 1; }
-            
-            # 设置 GTK 和 Shell 主题
+            cd "$THEME_DIR" || { _red "Cannot enter theme directory"; return 1; }
             gsettings set org.gnome.desktop.interface gtk-theme 'WhiteSur-Dark-blue' 2>/dev/null || true
             gsettings set org.gnome.shell.extensions.user-theme name 'WhiteSur-Dark-blue' 2>/dev/null || true
-            
-            # 运行主题安装脚本以应用链接
             if [[ -x "./install.sh" ]]; then
-                echo "运行主题安装脚本..."
-                ./install.sh -l 2>/dev/null || echo "⚠️  主题安装脚本执行失败"
+                _cyan "Running theme install script..."
+                ./install.sh -l 2>/dev/null || _yellow "Theme install script failed"
             fi
-            
-            # 设置系统配色方案
             gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
-            
-            # 更新 fcitx5 主题（如果存在）
             {{- if .features.enable_fcitx5 }}
             local fcitx5_config="$HOME/.config/fcitx5/conf/classicui.conf"
             if [[ -f "$fcitx5_config" ]]; then
@@ -52,10 +46,9 @@ dark() {
             fi
             {{- end }}
         )
-        
-        echo "✅ 已切换到 WhiteSur 暗色主题"
+        _green "Switched to WhiteSur dark theme"
     else
-        echo "⚠️  WhiteSur 主题未安装，使用默认暗色主题"
+        _yellow "WhiteSur theme not installed, using default dark theme"
         gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark' 2>/dev/null || true
         gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
     fi
@@ -64,38 +57,26 @@ dark() {
 
 # Switch to light theme (WhiteSur Light)
 light() {
-    echo "☀️ 切换到亮色主题..."
-    
-    # 优先使用主题管理脚本
+    _cyan "Switching to light theme..."
+
     if [[ -x "$THEME_SCRIPT" ]]; then
-        echo "使用主题管理脚本切换到亮色主题..."
+        _cyan "Using theme manager script for light theme..."
         "$THEME_SCRIPT" light
         return $?
     fi
-    
-    # 备用方案：直接设置 WhiteSur 亮色主题
+
     {{- if .features.enable_gsettings }}
     if [[ -d "$THEME_DIR" ]]; then
-        echo "设置 WhiteSur 亮色主题..."
-        
-        # 进入主题目录并执行完整的主题切换流程
+        _cyan "Setting WhiteSur light theme..."
         (
-            cd "$THEME_DIR" || { echo "❌ 无法进入主题目录"; return 1; }
-            
-            # 设置 GTK 和 Shell 主题
+            cd "$THEME_DIR" || { _red "Cannot enter theme directory"; return 1; }
             gsettings set org.gnome.desktop.interface gtk-theme 'WhiteSur-Light-blue' 2>/dev/null || true
             gsettings set org.gnome.shell.extensions.user-theme name 'WhiteSur-Light-blue' 2>/dev/null || true
-            
-            # 运行主题安装脚本以应用链接（亮色模式）
             if [[ -x "./install.sh" ]]; then
-                echo "运行主题安装脚本..."
-                ./install.sh -l -c light 2>/dev/null || echo "⚠️  主题安装脚本执行失败"
+                _cyan "Running theme install script..."
+                ./install.sh -l -c light 2>/dev/null || _yellow "Theme install script failed"
             fi
-            
-            # 设置系统配色方案
             gsettings set org.gnome.desktop.interface color-scheme 'prefer-light' 2>/dev/null || true
-            
-            # 更新 fcitx5 主题（如果存在）
             {{- if .features.enable_fcitx5 }}
             local fcitx5_config="$HOME/.config/fcitx5/conf/classicui.conf"
             if [[ -f "$fcitx5_config" ]]; then
@@ -104,10 +85,9 @@ light() {
             fi
             {{- end }}
         )
-        
-        echo "✅ 已切换到 WhiteSur 亮色主题"
+        _green "Switched to WhiteSur light theme"
     else
-        echo "⚠️  WhiteSur 主题未安装，使用默认亮色主题"
+        _yellow "WhiteSur theme not installed, using default light theme"
         gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita' 2>/dev/null || true
         gsettings set org.gnome.desktop.interface color-scheme 'prefer-light' 2>/dev/null || true
     fi
@@ -116,57 +96,42 @@ light() {
 
 # Show theme status
 themestatus() {
-    echo "🎨 主题状态检查:"
+    _bold "Theme status:"
     echo ""
-    
-    # 优先使用主题管理脚本
+
     if [[ -x "$THEME_SCRIPT" ]]; then
         "$THEME_SCRIPT" status
         return
     fi
-    
-    # 备用方案：直接查询 gsettings
+
     {{- if .features.enable_gsettings }}
     local gtk_theme=$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null | tr -d "'")
     local shell_theme=$(gsettings get org.gnome.shell.extensions.user-theme name 2>/dev/null | tr -d "'")
     local color_scheme=$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null | tr -d "'")
-    
-    echo "🖥️  GNOME 主题:"
-    echo "  GTK: ${gtk_theme:-未知}"
-    echo "  Shell: ${shell_theme:-未知}"
-    echo "  配色: ${color_scheme:-未知}"
-    
-    # 检查 WhiteSur 主题是否安装
+    _cyan "GNOME theme:"
+    echo "  GTK: ${gtk_theme:-unknown}"
+    echo "  Shell: ${shell_theme:-unknown}"
+    echo "  Color scheme: ${color_scheme:-unknown}"
     if [[ -d "$THEME_DIR" ]]; then
-        echo "  WhiteSur: ✅ 已安装"
+        _green "  WhiteSur: installed"
     else
-        echo "  WhiteSur: ❌ 未安装"
+        _red "  WhiteSur: not installed"
     fi
-    
-    # 检查 fcitx5 主题
     {{- if .features.enable_fcitx5 }}
     local fcitx5_config="$HOME/.config/fcitx5/conf/classicui.conf"
     if [[ -f "$fcitx5_config" ]]; then
-        local fcitx5_theme=$(grep "^Theme=" "$fcitx5_config" 2>/dev/null | cut -d'=' -f2 || echo "未设置")
-        echo "  fcitx5: ${fcitx5_theme}"
+        local fcitx5_theme=$(grep "^Theme=" "$fcitx5_config" 2>/dev/null | cut -d'=' -f2 || echo "unset")
+        _cyan "  fcitx5: ${fcitx5_theme}"
     fi
     {{- end }}
     {{- else }}
-    echo "❌ gsettings 不可用"
+    _red "gsettings not available"
     {{- end }}
 }
 
 {{- else }}
 # Placeholder functions for non-GNOME environments
-dark() {
-    echo "ℹ️  WhiteSur 主题切换功能仅在 Linux GNOME 桌面环境中可用"
-}
-
-light() {
-    echo "ℹ️  WhiteSur 主题切换功能仅在 Linux GNOME 桌面环境中可用"
-}
-
-themestatus() {
-    echo "ℹ️  主题状态检查功能仅在 Linux GNOME 桌面环境中可用"
-}
+dark()   { _yellow "WhiteSur theme switching is only available on Linux GNOME desktop"; }
+light()  { _yellow "WhiteSur theme switching is only available on Linux GNOME desktop"; }
+themestatus() { _yellow "Theme status is only available on Linux GNOME desktop"; }
 {{- end }}

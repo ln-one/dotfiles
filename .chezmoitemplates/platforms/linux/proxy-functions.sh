@@ -1,29 +1,34 @@
 # ========================================
 # Proxy Management Functions (Linux Only)
 # ========================================
-# Clash 代理管理功能 (迁移自原 system-tools.sh)
-# 仅在 Linux 桌面环境加载，macOS 不使用此功能
 
 {{- if and (eq .chezmoi.os "linux") (not (env "SSH_CONNECTION")) }}
 # Only load proxy functions on Linux desktop environments
 
-# Clash 代理配置
 CLASH_DIR="${CLASH_DIR:-$HOME/.config/clash}"
 PROXY_HOST="${PROXY_HOST:-127.0.0.1}"
 PROXY_HTTP_PORT="${PROXY_HTTP_PORT:-7890}"
 PROXY_SOCKS_PORT="${PROXY_SOCKS_PORT:-7891}"
 
-# Enable proxy (启动 Clash + 设置环境变量)
+# Color helpers
+_red()   { printf '\033[0;31m%s\033[0m\n' "$*"; }
+_green() { printf '\033[0;32m%s\033[0m\n' "$*"; }
+_yellow(){ printf '\033[0;33m%s\033[0m\n' "$*"; }
+_blue()  { printf '\033[0;34m%s\033[0m\n' "$*"; }
+_cyan()  { printf '\033[0;36m%s\033[0m\n' "$*"; }
+_bold()  { printf '\033[1m%s\033[0m\n' "$*"; }
+
+# Enable proxy (start Clash + set environment variables)
 proxyon() {
-    echo "🔗 启用代理..."
-    
-    # 1. 启动 Clash 代理服务
+    _cyan "Enabling proxy..."
+
+    # Start Clash proxy service
     if [[ -n "$CLASH_DIR" ]] && [[ -d "$CLASH_DIR" ]] && [[ -f "$CLASH_DIR/clash" ]]; then
-        echo "启动 Clash 代理服务..."
+        _cyan "Starting Clash proxy service..."
         (cd "$CLASH_DIR" && ./clash -d . &)
-        sleep 2  # 等待 Clash 启动
-        
-        # 设置环境变量代理
+        sleep 2
+
+        # Set environment variable proxies
         export http_proxy="http://${PROXY_HOST}:${PROXY_HTTP_PORT}"
         export https_proxy="http://${PROXY_HOST}:${PROXY_HTTP_PORT}"
         export all_proxy="socks5://${PROXY_HOST}:${PROXY_SOCKS_PORT}"
@@ -32,10 +37,10 @@ proxyon() {
         export ALL_PROXY="$all_proxy"
         export no_proxy="localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,172.16.0.0/12"
         export NO_PROXY="$no_proxy"
-        
+
 {{- if .features.enable_gsettings }}
-        # 配置 GNOME 系统代理 (静态生成)
-        echo "配置 GNOME 系统代理..."
+        # Configure GNOME system proxy (static)
+        _cyan "Configuring GNOME system proxy..."
         gsettings set org.gnome.system.proxy mode "manual" 2>/dev/null || true
         gsettings set org.gnome.system.proxy.http host "$PROXY_HOST" 2>/dev/null || true
         gsettings set org.gnome.system.proxy.http port "$PROXY_HTTP_PORT" 2>/dev/null || true
@@ -44,19 +49,18 @@ proxyon() {
         gsettings set org.gnome.system.proxy.socks host "$PROXY_HOST" 2>/dev/null || true
         gsettings set org.gnome.system.proxy.socks port "$PROXY_SOCKS_PORT" 2>/dev/null || true
 {{- end }}
-        
-        # 启动 Dropbox (如果可用)
+
+        # Start Dropbox if enabled
         {{- if .features.enable_dropbox }}
-        echo "启动 Dropbox..."
+        _cyan "Starting Dropbox..."
         dropbox start -i 2>/dev/null || true
         {{- end }}
-        
-        echo "✅ 代理已启用 (Clash + 环境变量)"
+
+        _green "Proxy enabled (Clash + environment variables)"
     else
-        echo "⚠️  Clash 未找到或未配置 (CLASH_DIR: $CLASH_DIR)"
-        echo "仅设置环境变量代理..."
-        
-        # 仅设置环境变量代理
+        _yellow "Clash not found or not configured (CLASH_DIR: $CLASH_DIR)"
+        _cyan "Setting environment variable proxies only..."
+
         export http_proxy="http://${PROXY_HOST}:${PROXY_HTTP_PORT}"
         export https_proxy="http://${PROXY_HOST}:${PROXY_HTTP_PORT}"
         export all_proxy="socks5://${PROXY_HOST}:${PROXY_SOCKS_PORT}"
@@ -65,111 +69,108 @@ proxyon() {
         export ALL_PROXY="$all_proxy"
         export no_proxy="localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,172.16.0.0/12"
         export NO_PROXY="$no_proxy"
-        
-        echo "✅ 环境变量代理已设置"
+
+        _green "Environment variable proxies set"
     fi
 }
 
-# Disable proxy (关闭 Clash + 清除环境变量)
+# Disable proxy (stop Clash + unset environment variables)
 proxyoff() {
-    echo "🔗 关闭代理..."
-    
-    # 1. 关闭 Clash 进程
+    _cyan "Disabling proxy..."
+
+    # Stop Clash process
     if pgrep clash >/dev/null 2>&1; then
-        echo "关闭 Clash 进程..."
+        _cyan "Stopping Clash process..."
         pkill clash
-        echo "Clash 进程已终止"
+        _green "Clash process terminated"
     fi
-    
-    # 2. 清除环境变量
+
+    # Unset environment variables
     unset http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY no_proxy NO_PROXY
-    
+
 {{- if .features.enable_gsettings }}
-    # 3. 禁用 GNOME 系统代理 (静态生成)
-    echo "禁用 GNOME 系统代理..."
+    # Disable GNOME system proxy (static)
+    _cyan "Disabling GNOME system proxy..."
     gsettings set org.gnome.system.proxy mode "none" 2>/dev/null || true
 {{- end }}
-    
-    # 4. 停止 Dropbox (如果可用)
+
+    # Stop Dropbox if enabled
     {{- if .features.enable_dropbox }}
-    echo "停止 Dropbox..."
+    _cyan "Stopping Dropbox..."
     dropbox stop 2>/dev/null || true
     {{- end }}
-    
-    echo "✅ 代理已关闭"
+
+    _green "Proxy disabled"
 }
 
 # Show proxy status
 proxystatus() {
-    echo "🔗 代理状态检查:"
+    _bold "Proxy status:"
     echo ""
-    
-    # 环境变量状态
-    echo "📋 环境变量:"
-    echo "  http_proxy: ${http_proxy:-未设置}"
-    echo "  https_proxy: ${https_proxy:-未设置}"
-    echo "  all_proxy: ${all_proxy:-未设置}"
+
+    # Environment variable status
+    _cyan "Environment variables:"
+    echo "  http_proxy: ${http_proxy:-unset}"
+    echo "  https_proxy: ${https_proxy:-unset}"
+    echo "  all_proxy: ${all_proxy:-unset}"
     echo ""
-    
-    # Clash 进程状态
+
+    # Clash process status
     if pgrep clash >/dev/null 2>&1; then
-        echo "🟢 Clash: 运行中 (PID: $(pgrep clash))"
+        _green "Clash: running (PID: $(pgrep clash))"
     else
-        echo "🔴 Clash: 未运行"
+        _red "Clash: not running"
     fi
-    
+
 {{- if .features.enable_gsettings }}
-    # GNOME 代理状态 (静态生成)
+    # GNOME proxy status (static)
     local gnome_proxy_mode=$(gsettings get org.gnome.system.proxy mode 2>/dev/null | tr -d "'")
-    echo "🖥️  GNOME 代理: ${gnome_proxy_mode:-未知}"
+    _cyan "GNOME proxy: ${gnome_proxy_mode:-unknown}"
 {{- end }}
-    
-    # Dropbox 状态
+
+    # Dropbox status
     {{- if .features.enable_dropbox }}
-    local dropbox_status=$(dropbox status 2>/dev/null | head -1 || echo "未知")
-    echo "📦 Dropbox: $dropbox_status"
+    local dropbox_status=$(dropbox status 2>/dev/null | head -1 || echo "unknown")
+    _cyan "Dropbox: $dropbox_status"
     {{- end }}
-    
-    # 网络连接测试
+
+    # Network connectivity test
     echo ""
-    echo "🌐 连接测试:"
+    _cyan "Connectivity test:"
     {{- if .features.enable_curl }}
     if curl -s --connect-timeout 3 httpbin.org/ip >/dev/null 2>&1; then
-        echo "🟢 网络连接: 正常"
+        _green "Network: OK"
     else
-        echo "🔴 网络连接: 异常"
+        _red "Network: Error"
     fi
     {{- else }}
-    echo "ℹ️  curl 未安装，无法测试连接"
+    _yellow "curl not installed, cannot test connectivity"
     {{- end }}
-    
-    # 配置信息
+
+    # Config info
     echo ""
-    echo "⚙️  配置信息:"
-    echo "  CLASH_DIR: ${CLASH_DIR:-未设置}"
+    _cyan "Config info:"
+    echo "  CLASH_DIR: ${CLASH_DIR:-unset}"
     echo "  PROXY_HOST: ${PROXY_HOST}"
     echo "  HTTP_PORT: ${PROXY_HTTP_PORT}"
     echo "  SOCKS_PORT: ${PROXY_SOCKS_PORT}"
 }
 
 {{- else if eq .chezmoi.os "darwin" }}
-# macOS 不加载代理功能
-# 提供占位函数以避免命令未找到错误
+# macOS does not load proxy functions, provide stubs to avoid command not found errors
 proxyon() {
-    echo "ℹ️  代理管理功能仅在 Linux 环境中可用"
+    _yellow "Proxy management is only available on Linux"
 }
 
 proxyoff() {
-    echo "ℹ️  代理管理功能仅在 Linux 环境中可用"
+    _yellow "Proxy management is only available on Linux"
 }
 
 proxyai() {
-    echo "ℹ️  代理管理功能仅在 Linux 环境中可用"
+    _yellow "Proxy management is only available on Linux"
 }
 
 proxystatus() {
-    echo "ℹ️  代理管理功能仅在 Linux 环境中可用"
+    _yellow "Proxy management is only available on Linux"
 }
 {{- end }}
-
-{{- /* 注意：远程环境的代理函数在 remote.sh 中定义，不在这里定义占位函数 */ -}}

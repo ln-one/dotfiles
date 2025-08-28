@@ -1,10 +1,9 @@
 # ========================================
-# 桌面环境静态配置
+# Desktop Environment Static Configuration
 # ========================================
-# 完全静态的桌面环境配置，无运行时检测
-# 所有功能由中央功能配置决定
+# All features are controlled by central feature configuration
 
-# 桌面通知
+# Desktop Notification
 send_notification() {
     local title="$1"
     local message="$2"

@@ -43,16 +43,10 @@
 
 {{- if eq .environment "desktop" }}
 # 桌面环境：完整功能配置 (静态版本)
-{{ includeTemplate "environments/desktop-static.sh" . }}
+{{ includeTemplate "environments/desktop.sh" . }}
 {{- else if eq .environment "remote" }}
 # 远程环境：轻量化配置
 {{ includeTemplate "environments/remote.sh" . }}
-{{- else if eq .environment "container" }}
-# 容器环境：最小化配置
-{{ includeTemplate "environments/container.sh" . }}
-{{- else if eq .environment "wsl" }}
-# WSL环境：混合优化配置
-{{ includeTemplate "environments/wsl.sh" . }}
 {{- else }}
 # 默认环境：桌面配置
 {{ includeTemplate "environments/desktop.sh" . }}
