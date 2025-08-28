@@ -52,6 +52,13 @@ export LC_CTYPE="en_US.UTF-8"
   {{- end }}
 {{- end }}
 
+# Homebrew 环境 (延迟初始化)
+    {{- if eq .chezmoi.os "linux" }}
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    {{- else if eq .chezmoi.os "darwin" }}
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+    {{- end }}
+    
 # Platform-specific environment variables
 {{- if eq .chezmoi.os "linux" }}
   # Linux specific configuration

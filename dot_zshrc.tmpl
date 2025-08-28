@@ -1,12 +1,9 @@
 # ========================================
 # Zsh 配置文件 (Chezmoi 管理)
 # ========================================
-
 # 性能监控 (开发时使用)
 # zmodload zsh/zprof
 
-# 加载共享 Shell 配置 (包含所有功能模块)
-# 分层配置系统会自动加载：核心→平台→环境→用户
 {{ includeTemplate "shell-common.sh" . }}
 # Shell 性能优化
 {{ includeTemplate "core/zsh-performance-tweaks.sh" . }}
@@ -37,7 +34,7 @@ fi
 {{ includeTemplate "core/zsh-defer-init.sh" . }}
 
 # Evalcache 配置 - 缓存 eval 语句以加速启动 (完全静态版本)
-{{ includeTemplate "core/evalcache-config-static.sh" . }}
+{{ includeTemplate "init/zsh_init.sh" . }}
 
 {{- end }}
 
