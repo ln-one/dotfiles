@@ -1,14 +1,12 @@
 # Zim 框架模块配置文件
 # 此文件定义要加载的 Zim 模块
 # 注意：此文件不会在 Zsh 启动时被 source，仅用于配置 zimfw 插件管理器
-
 # zsh-defer 模块 - 必须最先加载以支持延迟执行
 zmodule romkatv/zsh-defer
 
 # 核心模块 - 提供基础的 Zsh 环境配置
 zmodule environment
 zmodule input
-zmodule utility
 
 zmodule git
 {{- if not (and (hasKey . "features") .features.enable_starship) }}

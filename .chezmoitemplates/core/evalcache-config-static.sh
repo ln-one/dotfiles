@@ -99,22 +99,7 @@ fi
     {{- end }}
     {{- end }}
     
-    {{- if .features.enable_fzf }}
-    # FZF 模糊搜索 (延迟初始化)
-    {{- if .features.enable_zsh_defer }}
-    {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
-    zsh-defer -a eval "$(fzf --zsh)"
-    {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
-    eval "$(fzf --bash)"
-    {{- end }}
-    {{- else }}
-    {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
-    eval "$(fzf --zsh)"
-    {{- else if eq (base .chezmoi.targetFile) ".bashrc" }}
-    eval "$(fzf --bash)"
-    {{- end }}
-    {{- end }}
-    {{- end }}
+    
     
     {{- if .features.enable_zoxide }}
     # Zoxide 智能目录跳转 (延迟初始化)

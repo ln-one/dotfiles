@@ -81,17 +81,7 @@ for local_path in "${local_paths[@]}"; do
     fi
 done
 
-# Local Aliases based on available tools (静态生成)
-# These aliases adapt to what's actually installed on the local machine
-{{- if .features.enable_eza }}
-alias ll="eza -la --git"
-alias tree="eza --tree"
-{{- else if .features.enable_exa }}
-alias ll="exa -la --git"
-alias tree="exa --tree"
-{{- else }}
-alias ll="ls -la"
-{{- end }}
+
 
 # Local Functions
 # Function to quickly navigate to local projects

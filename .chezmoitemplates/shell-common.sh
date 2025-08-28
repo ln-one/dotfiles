@@ -63,10 +63,6 @@ else
     compinit -C -d "$zcompdump"
 fi
 {{- end }}
-
-# 重新加载别名 (覆盖框架的默认设置)
-# 核心别名配置 (静态版本)
-{{ includeTemplate "core/aliases-static.sh" . }}
 {{- end }}
 
 # 初始化 zsh-defer (仅在zsh和启用 Zim 时，必须在 evalcache 之前)
@@ -155,9 +151,6 @@ fi
 
 # 提示符配置 (Starship) - 支持多种 shell (静态版本)
 {{ includeTemplate "core/starship-config.sh" . }}
-
-# FZF 模糊搜索配置 (完全静态版本)
-{{ includeTemplate "core/fzf-config-static.sh" . }}
 
 # 智能目录跳转 (zoxide) - 支持多种 shell (完全静态版本)
 {{ includeTemplate "core/zoxide-config-static.sh" . }}

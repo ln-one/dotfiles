@@ -36,38 +36,3 @@
 # my_custom_function() {
 #     echo "This is my custom function"
 # }
-
-# Environment-specific Overrides
-# These will only apply in specific environments
-case "${CHEZMOI_ENVIRONMENT:-desktop}" in
-    "desktop")
-        # Desktop-specific user overrides
-        # export DESKTOP_SPECIFIC_VAR="value"
-        ;;
-    "remote")
-        # Remote-specific user overrides
-        # export REMOTE_SPECIFIC_VAR="value"
-        ;;
-    "container")
-        # Container-specific user overrides
-        # export CONTAINER_SPECIFIC_VAR="value"
-        ;;
-    "wsl")
-        # WSL-specific user overrides
-        # export WSL_SPECIFIC_VAR="value"
-        ;;
-esac
-
-# Platform-specific Overrides
-{{- if eq .chezmoi.os "darwin" }}
-# macOS-specific user overrides
-# export MACOS_SPECIFIC_VAR="value"
-{{- else if eq .chezmoi.os "linux" }}
-# Linux-specific user overrides
-# export LINUX_SPECIFIC_VAR="value"
-{{- end }}
-
-# Load user's personal configuration if it exists
-if [[ -f "$HOME/.config/chezmoi/user-config.sh" ]]; then
-    source "$HOME/.config/chezmoi/user-config.sh"
-fi

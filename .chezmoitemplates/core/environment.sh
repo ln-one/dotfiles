@@ -48,13 +48,7 @@ export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
 {{- end }}
 {{- end }}
 
-{{- if or (stat "/opt/homebrew") (stat "/home/linuxbrew/.linuxbrew") }}
-export HOMEBREW_CELLAR="$HOMEBREW_PREFIX/Cellar"
-export HOMEBREW_REPOSITORY="$HOMEBREW_PREFIX"
-export PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH"
-export MANPATH="$HOMEBREW_PREFIX/share/man${MANPATH+:$MANPATH}:"
-export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
-{{- end }}
+
 
 # 平台特定环境变量
 {{- if eq .chezmoi.os "linux" }}
