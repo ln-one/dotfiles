@@ -136,7 +136,7 @@ proxyon() {
     fi
 
     _green "Server proxy enabled"
-    _cyan "Use 'proxystatus' to check status, 'proxyoff' to stop proxy"
+    _cyan "Use 'proxyoff' to stop proxy"
 }
 
 proxyoff() {
