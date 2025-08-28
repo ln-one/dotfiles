@@ -14,14 +14,6 @@ export LSCOLORS=ExFxCxDxBxegedabagacad
 {{- end }}
 export PAGER="less"
 
-# ========================================
-# 第0层：功能配置层 (Feature Configuration Layer)
-# ========================================
-# 中央功能配置 - 由chezmoi静态确定所有功能可用性
-# 优先级：最高 (决定所有后续层的行为)
-
-# 功能标志和静态配置
-{{ includeTemplate "config/features-static.sh" . }}
 
 # ========================================
 # 第1层：核心配置层 (Core Layer)
