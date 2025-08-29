@@ -12,3 +12,12 @@ services = ["ssh"]
 [data.environments.container]
 packages = ["curl", "git"]
 services = []
+
+[data.os.windows]
+packages = [
+  "scoop",
+  "git",
+  "neovim",
+  "starship",
+  "powershell"
+]

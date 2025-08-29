@@ -1,0 +1,7 @@
+# Main PowerShell Profile managed by chezmoi
+
+# Initialize Starship prompt
+Invoke-Expression (&starship init powershell)
+
+# Include custom PowerShell configurations
+{{ includeTemplate ".chezmoitemplates/shell/powershell/powershell_init.ps1" . | indent 0 }}

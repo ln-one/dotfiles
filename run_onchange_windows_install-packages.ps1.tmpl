@@ -1,0 +1,9 @@
+{{- if eq .chezmoi.os "windows" -}}
+#!/usr/bin/env pwsh
+# Installs packages using winget, runs only on Windows.
+{{- $packageData := include ".chezmoitemplates/config/environment-packages.toml" | fromToml -}}
+# Winget packages to ensure are installed:
+{{ range $packageData.data.os.windows.packages -}}
+scoop install {{ . }}
+{{ end -}}
+{{- end -}}
