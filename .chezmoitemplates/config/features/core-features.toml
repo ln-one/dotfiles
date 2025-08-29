@@ -1,24 +1,24 @@
   enable_ai_tools = true
   enable_proxy = true
   {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") }}
-  enable_1password = false  # 远程环境禁用 1Password
+  enable_1password = false
   {{- else }}
-  enable_1password = true   # 本地环境启用 1Password
+  enable_1password = true
   {{- end }}
-  enable_oh_my_zsh = false  # 禁用 Oh My Zsh
-  enable_zim = true         # 启用 Zim 框架
+  enable_oh_my_zsh = false
+  enable_zim = true
   {{- if lookPath "starship" }}
-  enable_starship = true    # 启用 Starship 提示符
+  enable_starship = true
   {{- else }}
-  enable_starship = false   # 启用 Starship 提示符 (未安装)
+  enable_starship = false
   {{- end }}
   {{- if stat (joinPath .chezmoi.homeDir ".evalcache/evalcache.plugin.zsh") }}
-  enable_evalcache = true   # 启用 evalcache 缓存以加速 shell 启动
+  enable_evalcache = true
   {{- else }}
-  enable_evalcache = false  # 启用 evalcache 缓存以加速 shell 启动 (未安装)
+  enable_evalcache = false
   {{- end }}
   {{- if stat (joinPath .chezmoi.homeDir ".zim/modules/zsh-defer") }}
-  enable_zsh_defer = true   # zsh-defer 延迟加载
+  enable_zsh_defer = true
   {{- else }}
-  enable_zsh_defer = false  # zsh-defer 延迟加载 (未安装)
+  enable_zsh_defer = false
   {{- end }}

@@ -1,7 +1,7 @@
-# Clash 配置文件解析
-# 从 Clash 配置中提取端口信息并生成代理配置
+# Clash config file parsing
+# Extract port info from Clash config and generate proxy config
 
-# 使用 Clash {{ .config_type }} 配置文件 ({{ if eq .config_type "subscription" }}远程环境{{ else }}Desktop环境{{ end }})
+# Use Clash {{ .config_type }} config file ({{ if eq .config_type "subscription" }}remote environment{{ else }}desktop environment{{ end }})
 enabled = true
 source = "{{ .config_type }}"
 {{- if eq .config_type "subscription" }}

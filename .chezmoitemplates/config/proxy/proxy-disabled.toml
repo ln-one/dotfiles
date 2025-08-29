@@ -1,7 +1,7 @@
-# 禁用代理配置
-# 用于不支持代理或未配置代理的环境
+# Disabled proxy config
+# Used for environments without proxy support or configuration
 
-# 没有找到代理配置 - 提供默认空值
+# No proxy config found - provide default empty values
 enabled = false
 http_proxy = ""
 https_proxy = ""

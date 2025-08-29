@@ -1,9 +1,9 @@
-# Clash 代理配置检测
-# 处理 Clash 配置文件的检测和端口解析
+# Clash proxy config detection
+# Handle Clash config file detection and port parsing
 
 {{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "windows") }}
   {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") (env "SSH_TTY") }}
-    {{- /* 远程环境：优先检查 subscription.yaml，然后回退到 config.yaml */ -}}
+    # Remote environment: check subscription.yaml first, fallback to config.yaml
     {{- $subscription_config := joinPath .chezmoi.homeDir ".config/clash/subscription.yaml" }}
     {{- $clash_config := joinPath .chezmoi.homeDir ".config/clash/config.yaml" }}
     {{- if stat $subscription_config }}
@@ -16,7 +16,7 @@
 {{ includeTemplate "config/proxy/proxy-default.toml" . }}
     {{- end }}
   {{- else }}
-    {{- /* Desktop环境：保持现有逻辑 */ -}}
+    # Desktop environment: keep existing logic
     {{- $clash_config := joinPath .chezmoi.homeDir ".config/clash/config.yaml" }}
     {{- if stat $clash_config }}
       {{- $clash := include $clash_config | fromYaml }}

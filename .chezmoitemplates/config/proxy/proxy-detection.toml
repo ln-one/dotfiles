@@ -1,12 +1,12 @@
-# 代理配置检测模板
-# 将复杂的代理检测逻辑从主配置文件中分离出来
+# Proxy config detection template
+# Separate complex proxy detection logic from main config
 
 {{- $http_proxy := env "http_proxy" | default (env "HTTP_PROXY") }}
 {{- $https_proxy := env "https_proxy" | default (env "HTTPS_PROXY") }}
 {{- $socks_proxy := env "socks_proxy" | default (env "SOCKS_PROXY") }}
 
 {{- if or (and $http_proxy (ne $http_proxy "")) (and $https_proxy (ne $https_proxy "")) (and $socks_proxy (ne $socks_proxy "")) }}
-# 使用环境变量中的代理配置
+# Use proxy config from environment variables
 enabled = true
 source = "environment"
 http_proxy = "{{ $http_proxy | default "" }}"

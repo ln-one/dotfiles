@@ -1,15 +1,17 @@
-  {{- if lookPath "gsettings" }}
-  enable_gsettings = true   # GNOME gsettings 配置
-  {{- else }}
-  enable_gsettings = false  # GNOME gsettings 配置 (未安装)
-  {{- end }}
-  {{- if lookPath "fcitx5" }}
-  enable_fcitx5 = true      # fcitx5 输入法
-  {{- else }}
-  enable_fcitx5 = false     # fcitx5 输入法 (未安装)
-  {{- end }}
-  {{- if lookPath "dropbox" }}
-  enable_dropbox = true     # Dropbox 同步工具
-  {{- else }}
-  enable_dropbox = false    # Dropbox 同步工具 (未安装)
-  {{- end }}
+{{- if lookPath "gsettings" }}
+enable_gsettings = true   # GNOME gsettings config
+{{- else }}
+enable_gsettings = false  # GNOME gsettings config (not installed)
+{{- end }}
+
+{{- if lookPath "fcitx5" }}
+enable_fcitx5 = true      # fcitx5 input method
+{{- else }}
+enable_fcitx5 = false     # fcitx5 input method (not installed)
+{{- end }}
+
+{{- if lookPath "dropbox" }}
+enable_dropbox = true     # Dropbox sync tool
+{{- else }}
+enable_dropbox = false    # Dropbox sync tool (not installed)
+{{- end }}

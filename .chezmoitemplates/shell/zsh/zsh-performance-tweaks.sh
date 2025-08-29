@@ -1,18 +1,17 @@
 # ========================================
-# Zsh 性能优化脚本
+# Zsh Performance Tweaks
 # ========================================
-# 进一步优化 zsh 启动性能
-# 仅在 zsh 中执行
+# Further optimize zsh startup performance
+# Execute only in zsh
 
-{{- if .features.enable_oh_my_zsh }}
 
-# 确保只在 zsh 中执行
+# Ensure execution only in zsh
 if [ -n "$ZSH_VERSION" ]; then
-    # 设置更大的历史文件，但限制内存中的历史
+    # Increase history file size, limit in-memory history
     HISTSIZE=50000
     SAVEHIST=10000
 
-    # 优化历史记录
+    # History options
     setopt HIST_EXPIRE_DUPS_FIRST
     setopt HIST_IGNORE_DUPS
     setopt HIST_IGNORE_ALL_DUPS
@@ -21,13 +20,13 @@ if [ -n "$ZSH_VERSION" ]; then
     setopt HIST_REDUCE_BLANKS
     setopt HIST_VERIFY
 
-    # 异步加载优化 (针对 Starship 提示符)
-    # Starship 本身已经很快，无需额外的即时提示配置
+    # Asynchronous loading optimization (for Starship prompt)
+    # Starship is fast enough, no extra instant prompt config needed
 
-    # 延迟加载非关键功能
+    # Delay loading of non-critical functions
     autoload -Uz add-zsh-hook
 
-    # 预编译常用脚本
+    # Precompile common zsh config files
     _compile_zsh_files() {
         local file
         for file in ~/.zshrc ~/.zshenv ~/.zprofile ~/.zlogin ~/.zlogout; do
@@ -39,8 +38,6 @@ if [ -n "$ZSH_VERSION" ]; then
         done
     }
 
-    # 在后台编译文件，不阻塞启动
+    # Compile in background, non-blocking
     add-zsh-hook precmd _compile_zsh_files
 fi
-
-{{- end }}

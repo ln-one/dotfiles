@@ -1,193 +1,229 @@
-  {{- if lookPath "fzf" }}
-  enable_fzf = true         # 启用 fzf 模糊搜索
-  enable_fzf_new = true     # 启用新版 fzf (0.48.0+) 集成方式
-  {{- else }}
-  enable_fzf = false        # 启用 fzf 模糊搜索 (未安装)
-  enable_fzf_new = false    # 启用新版 fzf (0.48.0+) 集成方式
-  {{- end }}
-  {{- if or (stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "share/forgit/forgit.plugin.zsh")) (stat (joinPath .chezmoi.homeDir ".forgit/forgit.plugin.zsh")) }}
-  enable_forgit = true      # 启用 forgit Git的fzf增强工具
-  {{- else }}
-  enable_forgit = false     # 启用 forgit Git的fzf增强工具 (未安装)
-  {{- end }}
-  {{- if lookPath "fd" }}
-  enable_fd = true          # 启用 fd 文件搜索工具
-  {{- else }}
-  enable_fd = false         # 启用 fd 文件搜索工具 (未安装)
-  {{- end }}
-  {{- if lookPath "eza" }}
-  enable_eza = true         # 启用 eza 现代化 ls 替代品
-  {{- else }}
-  enable_eza = false        # 启用 eza 现代化 ls 替代品 (未安装)
-  {{- end }}
-  {{- if lookPath "exa" }}
-  enable_exa = true         # 启用 exa 现代化 ls 替代品
-  {{- else }}
-  enable_exa = false        # 启用 exa 现代化 ls 替代品 (未安装)
-  {{- end }}
-  {{- if lookPath "zoxide" }}
-  enable_zoxide = true      # 启用 zoxide 智能目录跳转
-  {{- else }}
-  enable_zoxide = false     # 启用 zoxide 智能目录跳转 (未安装)
-  {{- end }}
-  {{- if lookPath "atool" }}
-  enable_atool = true       # 启用 atool 压缩文件工具
-  {{- else }}
-  enable_atool = false      # 启用 atool 压缩文件工具 (未安装)
-  {{- end }}
-  {{- if lookPath "bat" }}
-  enable_bat = true         # 启用 bat 语法高亮工具
-  {{- else }}
-  enable_bat = false        # 启用 bat 语法高亮工具 (未安装)
-  {{- end }}
-# 开发环境管理 (基于实际安装情况)
-  {{- if lookPath "git" }}
-  enable_git = true         # 启用 Git 版本控制工具
-  {{- else }}
-  enable_git = false        # 启用 Git 版本控制工具 (未安装)
-  {{- end }}
-  {{- if lookPath "pyenv" }}
-  enable_pyenv = true       # Python 版本管理
-  {{- else }}
-  enable_pyenv = false      # Python 版本管理 (未安装)
-  {{- end }}
-  {{- if lookPath "rbenv" }}
-  enable_rbenv = true       # Ruby 版本管理
-  {{- else }}
-  enable_rbenv = false      # Ruby 版本管理 (未安装)
-  {{- end }}
-  {{- if lookPath "fnm" }}
-  enable_fnm = true         # Node.js 版本管理
-  {{- else }}
-  enable_fnm = false        # Node.js 版本管理 (未安装)
-  {{- end }}
-  {{- if lookPath "mise" }}
-  enable_mise = true        # 通用工具版本管理
-  {{- else }}
-  enable_mise = false       # 通用工具版本管理 (未安装)
-  {{- end }}
-  {{- if or (lookPath "conda") (stat (joinPath .chezmoi.homeDir "miniconda3")) (stat (joinPath .chezmoi.homeDir "anaconda3")) }}
-  enable_conda = true       # Conda 环境管理
-  {{- else }}
-  enable_conda = false      # Conda 环境管理 (未安装)
-  {{- end }}
-  
-  # 开发语言支持
-  enable_node = true
-  enable_python = true
-  enable_go = false
-  enable_rust = false
-  
-  # 容器和虚拟化 (基于实际安装情况)
-  {{- if lookPath "docker" }}
-  enable_docker = true
-  {{- else }}
-  enable_docker = false     # Docker (未安装)
-  {{- end }}
-  {{- if lookPath "kubectl" }}
-  enable_kubectl = true     # Kubernetes CLI
-  {{- else }}
-  enable_kubectl = false    # Kubernetes CLI (未安装)
-  {{- end }}
-  
-  # 系统工具 (基于实际安装情况)
-  {{- if lookPath "ssh" }}
-  enable_ssh = true         # SSH 工具支持
-  {{- else }}
-  enable_ssh = false        # SSH 工具支持 (未安装)
-  {{- end }}
-  {{- if lookPath "curl" }}
-  enable_curl = true        # curl HTTP 客户端
-  {{- else }}
-  enable_curl = false       # curl HTTP 客户端 (未安装)
-  {{- end }}
-  {{- if lookPath "wget" }}
-  enable_wget = true        # wget 下载工具
-  {{- else }}
-  enable_wget = false       # wget 下载工具 (未安装)
-  {{- end }}
-  # 编辑器工具 (基于实际安装情况)
-  {{- if lookPath "code" }}
-  enable_vscode = true      # Visual Studio Code
-  {{- else }}
-  enable_vscode = false     # Visual Studio Code (未安装)
-  {{- end }}
-  {{- if lookPath "vim" }}
-  enable_vim = true         # Vim 编辑器
-  {{- else }}
-  enable_vim = false        # Vim 编辑器 (未安装)
-  {{- end }}
-  {{- if lookPath "nvim" }}
-  enable_nvim = true        # Neovim 编辑器
-  {{- else }}
-  enable_nvim = false       # Neovim 编辑器 (未安装)
-  {{- end }}
-  {{- if lookPath "nano" }}
-  enable_nano = true        # Nano 编辑器
-  {{- else }}
-  enable_nano = false       # Nano 编辑器 (未安装)
-  {{- end }}
-  {{- if lookPath "vi" }}
-  enable_vi = true          # Vi 编辑器
-  {{- else }}
-  enable_vi = false         # Vi 编辑器 (未安装)
-  {{- end }}
+{{- if lookPath "fzf" }}
+enable_fzf = true
+enable_fzf_new = true
+{{- else }}
+enable_fzf = false
+enable_fzf_new = false
+{{- end }}
 
-  # 系统监控工具 (基于实际安装情况)
-  {{- if lookPath "htop" }}
-  enable_htop = true        # htop 进程监控
-  {{- else }}
-  enable_htop = false       # htop 进程监控 (未安装)
-  {{- end }}
-  {{- if lookPath "top" }}
-  enable_top = true         # top 进程监控
-  {{- else }}
-  enable_top = false        # top 进程监控 (未安装)
-  {{- end }}
-  {{- if lookPath "free" }}
-  enable_free = true        # free 内存监控
-  {{- else }}
-  enable_free = false       # free 内存监控 (未安装)
-  {{- end }}
-  {{- if lookPath "ps" }}
-  enable_ps = true          # ps 进程列表
-  {{- else }}
-  enable_ps = false         # ps 进程列表 (未安装)
-  {{- end }}
-  {{- if lookPath "netstat" }}
-  enable_netstat = true     # netstat 网络状态
-  {{- else }}
-  enable_netstat = false    # netstat 网络状态 (未安装)
-  {{- end }}
-  {{- if lookPath "ss" }}
-  enable_ss = true          # ss 网络套接字
-  {{- else }}
-  enable_ss = false         # ss 网络套接字 (未安装)
-  {{- end }}
+{{- if or (stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "share/forgit/forgit.plugin.zsh")) (stat (joinPath .chezmoi.homeDir ".forgit/forgit.plugin.zsh")) }}
+enable_forgit = true
+{{- else }}
+enable_forgit = false
+{{- end }}
 
-  # 开发环境工具 (基于实际安装情况)
-  {{- if lookPath "python3" }}
-  enable_python3 = true     # Python 3
-  {{- else }}
-  enable_python3 = false    # Python 3 (未安装)
-  {{- end }}
-  {{- if lookPath "python" }}
-  enable_python2 = true     # Python 2
-  {{- else }}
-  enable_python2 = false    # Python 2 (未安装)
-  {{- end }}
-  {{- if lookPath "tmux" }}
-  enable_tmux = true        # tmux 终端复用器
-  {{- else }}
-  enable_tmux = false       # tmux 终端复用器 (未安装)
-  {{- end }}
-  {{- if lookPath "grep" }}
-  enable_grep = true        # grep 文本搜索
-  {{- else }}
-  enable_grep = false       # grep 文本搜索 (未安装)
-  {{- end }}
-  {{- if lookPath "awk" }}
-  enable_awk = true         # awk 文本处理
-  {{- else }}
-  enable_awk = false        # awk 文本处理 (未安装)
-  {{- end }}
+{{- if lookPath "fd" }}
+enable_fd = true
+{{- else }}
+enable_fd = false
+{{- end }}
+
+{{- if lookPath "eza" }}
+enable_eza = true
+{{- else }}
+enable_eza = false
+{{- end }}
+
+{{- if lookPath "exa" }}
+enable_exa = true
+{{- else }}
+enable_exa = false
+{{- end }}
+
+{{- if lookPath "zoxide" }}
+enable_zoxide = true
+{{- else }}
+enable_zoxide = false
+{{- end }}
+
+{{- if lookPath "atool" }}
+enable_atool = true
+{{- else }}
+enable_atool = false
+{{- end }}
+
+{{- if lookPath "bat" }}
+enable_bat = true
+{{- else }}
+enable_bat = false
+{{- end }}
+
+# Development environment management (based on actual installation)
+{{- if lookPath "git" }}
+enable_git = true
+{{- else }}
+enable_git = false
+{{- end }}
+
+{{- if lookPath "pyenv" }}
+enable_pyenv = true
+{{- else }}
+enable_pyenv = false
+{{- end }}
+
+{{- if lookPath "rbenv" }}
+enable_rbenv = true
+{{- else }}
+enable_rbenv = false
+{{- end }}
+
+{{- if lookPath "fnm" }}
+enable_fnm = true
+{{- else }}
+enable_fnm = false
+{{- end }}
+
+{{- if lookPath "mise" }}
+enable_mise = true
+{{- else }}
+enable_mise = false
+{{- end }}
+
+{{- if or (lookPath "conda") (stat (joinPath .chezmoi.homeDir "miniconda3")) (stat (joinPath .chezmoi.homeDir "anaconda3")) }}
+enable_conda = true
+{{- else }}
+enable_conda = false
+{{- end }}
+
+# Programming language support
+enable_node = true
+enable_python = true
+enable_go = false
+enable_rust = false
+
+# Container and virtualization (based on actual installation)
+{{- if lookPath "docker" }}
+enable_docker = true
+{{- else }}
+enable_docker = false
+{{- end }}
+
+{{- if lookPath "kubectl" }}
+enable_kubectl = true
+{{- else }}
+enable_kubectl = false
+{{- end }}
+
+# System tools (based on actual installation)
+{{- if lookPath "ssh" }}
+enable_ssh = true
+{{- else }}
+enable_ssh = false
+{{- end }}
+
+{{- if lookPath "curl" }}
+enable_curl = true
+{{- else }}
+enable_curl = false
+{{- end }}
+
+{{- if lookPath "wget" }}
+enable_wget = true
+{{- else }}
+enable_wget = false
+{{- end }}
+
+# Editor tools (based on actual installation)
+{{- if lookPath "code" }}
+enable_vscode = true
+{{- else }}
+enable_vscode = false
+{{- end }}
+
+{{- if lookPath "vim" }}
+enable_vim = true
+{{- else }}
+enable_vim = false
+{{- end }}
+
+{{- if lookPath "nvim" }}
+enable_nvim = true
+{{- else }}
+enable_nvim = false
+{{- end }}
+
+{{- if lookPath "nano" }}
+enable_nano = true
+{{- else }}
+enable_nano = false
+{{- end }}
+
+{{- if lookPath "vi" }}
+enable_vi = true
+{{- else }}
+enable_vi = false
+{{- end }}
+
+# System monitoring tools (based on actual installation)
+{{- if lookPath "htop" }}
+enable_htop = true
+{{- else }}
+enable_htop = false
+{{- end }}
+
+{{- if lookPath "top" }}
+enable_top = true
+{{- else }}
+enable_top = false
+{{- end }}
+
+{{- if lookPath "free" }}
+enable_free = true
+{{- else }}
+enable_free = false
+{{- end }}
+
+{{- if lookPath "ps" }}
+enable_ps = true
+{{- else }}
+enable_ps = false
+{{- end }}
+
+{{- if lookPath "netstat" }}
+enable_netstat = true
+{{- else }}
+enable_netstat = false
+{{- end }}
+
+{{- if lookPath "ss" }}
+enable_ss = true
+{{- else }}
+enable_ss = false
+{{- end }}
+
+# Development environment tools (based on actual installation)
+{{- if lookPath "python3" }}
+enable_python3 = true
+{{- else }}
+enable_python3 = false
+{{- end }}
+
+{{- if lookPath "python" }}
+enable_python2 = true
+{{- else }}
+enable_python2 = false
+{{- end }}
+
+{{- if lookPath "tmux" }}
+enable_tmux = true
+{{- else }}
+enable_tmux = false
+{{- end }}
+
+{{- if lookPath "grep" }}
+enable_grep = true
+{{- else }}
+enable_grep = false
+{{- end }}
+
+{{- if lookPath "awk" }}
+enable_awk = true
+{{- else }}
+enable_awk = false
+{{- end }}
+
+{{- if lookPath "thefuck" }}
+enable_fuck = true
+{{- else }}
+enable_fuck = false
+{{- end }}

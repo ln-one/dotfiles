@@ -1,7 +1,6 @@
-# 默认代理配置（远程环境回退）
-# 当没有找到代理配置文件时使用
+# Default proxy config (fallback for remote environment)
+# Used when no proxy config file is found
 
-# 远程环境：没有找到代理配置文件 - 使用默认端口
 enabled = false
 source = "default"
 config_file = "subscription.yaml"

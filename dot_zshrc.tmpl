@@ -6,39 +6,9 @@
 # zmodload zsh/zprof
 
 {{ includeTemplate "shell-common.sh" . }}
-
-# Shell performance tweaks
 {{ includeTemplate "shell/zsh/zsh-performance-tweaks.sh" . }}
-
-# Shell-specific configuration (only loaded in this shell)
-{{- if eq (base .chezmoi.targetFile) ".zshrc" }}
-
-# Zsh-specific configuration
-
-# Zsh framework config - select framework based on feature flag
-{{- if .features.enable_zim }}
 {{ includeTemplate "shell/zsh/zim-config.sh" . }}
-{{- else }}
-# No framework mode - only load basic Zsh config
-autoload -Uz compinit
-# Optimize completion loading - check once per day
-local zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
-if [[ $zcompdump(#qNmh+24) ]]; then
-    compinit -d "$zcompdump"
-else
-    compinit -C -d "$zcompdump"
-fi
-{{- end }}
-{{- end }}
-
-# Initialize zsh-defer (only in zsh and with Zim enabled, must be before evalcache)
-{{- if and .features.enable_zim (eq (base .chezmoi.targetFile) ".zshrc") }}
-{{ includeTemplate "shell/zsh/zsh-defer-init.sh" . }}
-
-# Evalcache config - cache eval statements for faster startup (static version)
 {{ includeTemplate "shell/zsh/zsh_init.sh" . }}
-
-{{- end }}
 
 # Performance monitoring result (for development)
 # zprof
