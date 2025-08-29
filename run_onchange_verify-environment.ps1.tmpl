@@ -1,0 +1,152 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Windows Environment Verification Script
+# Verifies that all required tools and configurations are working properly
+
+Write-Host "Verifying Windows development environment..." -ForegroundColor Green
+
+# Core tools verification
+$tools = @(
+    @{Name="git"; Description="Git Version Control"},
+    @{Name="starship"; Description="Starship Prompt"},
+    @{Name="fzf"; Description="FZF Fuzzy Finder"},
+    @{Name="rg"; Description="Ripgrep Text Search"},
+    @{Name="bat"; Description="Bat Syntax Highlighter"},
+    @{Name="fd"; Description="Fd File Finder"},
+    @{Name="eza"; Description="Eza Modern ls"},
+    @{Name="zoxide"; Description="Zoxide Smart cd"},
+    @{Name="nvim"; Description="Neovim Editor"}{{- if .features.enable_1password }},
+    @{Name="op"; Description="1Password CLI"}{{- end }}
+)
+
+Write-Host "Checking core tools..." -ForegroundColor Yellow
+$missingTools = @()
+foreach ($tool in $tools) {
+    if (Get-Command $tool.Name -ErrorAction SilentlyContinue) {
+        $version = & $tool.Name --version 2>$null | Select-Object -First 1
+        Write-Host "  [OK] $($tool.Description)`: $version" -ForegroundColor Green
+    } else {
+        Write-Host "  [MISSING] $($tool.Description)`: Not found" -ForegroundColor Red
+        $missingTools += $tool.Name
+    }
+}
+
+# PowerShell modules verification
+Write-Host "Checking PowerShell modules..." -ForegroundColor Yellow
+$modules = @("PSReadLine", "PSFzf", "Terminal-Icons")
+foreach ($module in $modules) {
+    if (Get-Module -ListAvailable -Name $module) {
+        $version = (Get-Module -ListAvailable -Name $module | Select-Object -First 1).Version
+        Write-Host "  [OK] $module`: $version" -ForegroundColor Green
+    } else {
+        Write-Host "  [MISSING] $module`: Not installed" -ForegroundColor Red
+    }
+}
+
+{{- if .features.enable_1password }}
+# 1Password verification
+Write-Host "Checking 1Password integration..." -ForegroundColor Yellow
+if (Get-Command op -ErrorAction SilentlyContinue) {
+    try {
+        $accounts = op account list --format=json 2>$null | ConvertFrom-Json
+        if ($accounts) {
+            Write-Host "  [OK] 1Password CLI: Authenticated" -ForegroundColor Green
+            foreach ($account in $accounts) {
+                Write-Host "    - Account: $($account.user_name)@$($account.domain)" -ForegroundColor Cyan
+            }
+        } else {
+            Write-Host "  [WARN] 1Password CLI: Not authenticated (run 'op signin')" -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Host "  [WARN] 1Password CLI: Authentication required" -ForegroundColor Yellow
+    }
+    
+    # Check SSH Agent
+    $sshAgentSock = "$env:USERPROFILE\AppData\Local\1Password\agent.sock"
+    if (Test-Path $sshAgentSock) {
+        Write-Host "  [OK] 1Password SSH Agent: Available" -ForegroundColor Green
+    } else {
+        Write-Host "  [WARN] 1Password SSH Agent: Not found (enable in 1Password settings)" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "  [MISSING] 1Password CLI: Not installed" -ForegroundColor Red
+}
+{{- end }}
+
+# Git configuration verification
+Write-Host "Checking Git configuration..." -ForegroundColor Yellow
+try {
+    $gitUser = git config user.name
+    $gitEmail = git config user.email
+    $gitSigningKey = git config user.signingkey
+    
+    Write-Host "  [OK] Git User: $gitUser <$gitEmail>" -ForegroundColor Green
+    
+    if ($gitSigningKey) {
+        Write-Host "  [OK] Git Signing Key: Configured" -ForegroundColor Green
+    } else {
+        Write-Host "  [WARN] Git Signing Key: Not configured" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "  [ERROR] Git: Configuration error" -ForegroundColor Red
+}
+
+# Environment variables verification
+Write-Host "Checking environment variables..." -ForegroundColor Yellow
+$envVars = @("EDITOR", "VISUAL", "PAGER")
+foreach ($var in $envVars) {
+    $value = [Environment]::GetEnvironmentVariable($var)
+    if ($value) {
+        Write-Host "  [OK] ${var}: $value" -ForegroundColor Green
+    } else {
+        Write-Host "  [WARN] ${var}: Not set" -ForegroundColor Yellow
+    }
+}
+
+# Font verification
+Write-Host "Checking Nerd Fonts..." -ForegroundColor Yellow
+$fontPaths = @(
+    "$env:LOCALAPPDATA\Microsoft\Windows\Fonts",
+    "$env:WINDIR\Fonts"
+)
+
+$nerdFonts = @()
+foreach ($fontPath in $fontPaths) {
+    if (Test-Path $fontPath) {
+        $fonts = Get-ChildItem -Path $fontPath -Filter "*Nerd*" -ErrorAction SilentlyContinue
+        $nerdFonts += $fonts
+    }
+}
+
+if ($nerdFonts.Count -gt 0) {
+    Write-Host "  [OK] Nerd Fonts: $($nerdFonts.Count) fonts found" -ForegroundColor Green
+} else {
+    Write-Host "  [WARN] Nerd Fonts: No Nerd Fonts found" -ForegroundColor Yellow
+    Write-Host "    Install fonts for proper icon display" -ForegroundColor Cyan
+}
+
+# Summary
+Write-Host ""
+Write-Host "Environment verification complete!" -ForegroundColor Green
+
+if ($missingTools.Count -gt 0) {
+    Write-Host "Missing tools: $($missingTools -join ', ')" -ForegroundColor Red
+    Write-Host "Run the installation script to install missing tools" -ForegroundColor Cyan
+} else {
+    Write-Host "All core tools are available!" -ForegroundColor Green
+}
+
+{{- if .features.enable_1password }}
+Write-Host ""
+Write-Host "1Password Setup Instructions:" -ForegroundColor Cyan
+Write-Host "1. Install 1Password desktop app from https://1password.com/downloads/" -ForegroundColor White
+Write-Host "2. Enable 1Password CLI in Settings > Developer" -ForegroundColor White
+Write-Host "3. Enable SSH Agent in Settings > Developer > SSH Agent" -ForegroundColor White
+Write-Host "4. Run 'op signin' to authenticate" -ForegroundColor White
+{{- end }}
+
+Write-Host ""
+Write-Host "Terminal Configuration:" -ForegroundColor Cyan
+Write-Host "Configure your terminal to use a Nerd Font for proper icon display:" -ForegroundColor White
+Write-Host "- Windows Terminal: Settings > Profiles > Font face > 'JetBrains Mono NL'" -ForegroundColor White
+Write-Host "- VS Code Terminal: Settings > Terminal > Font Family > 'JetBrains Mono NL'" -ForegroundColor White
+{{- end -}}

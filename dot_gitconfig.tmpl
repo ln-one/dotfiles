@@ -35,5 +35,11 @@
 	defaultBranch = main
 
 [gpg "ssh"]
+{{- if eq .chezmoi.os "windows" }}
+	program = "C:/Users/{{ env "USERNAME" }}/AppData/Local/Microsoft/WindowsApps/op-ssh-sign.exe"
+{{- else if eq .chezmoi.os "darwin" }}
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+{{- else }}
 	program = /opt/1Password/op-ssh-sign
+{{- end }}
 	allowedSignersFile = ~/.ssh/allowed_signers

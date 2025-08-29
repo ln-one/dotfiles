@@ -1,0 +1,9 @@
+  # Windows-specific features
+  enable_wsl = false
+  enable_windows_terminal = true
+  enable_powershell_modules = true
+  enable_winget = true
+  
+  # Development tools
+  enable_git_for_windows = true
+  enable_windows_subsystem = false

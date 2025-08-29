@@ -1,7 +1,21 @@
 # Main PowerShell Profile managed by chezmoi
 
-# Initialize Starship prompt
-Invoke-Expression (&starship init powershell)
+# Refresh PATH to ensure newly installed tools are available
+$env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
+
+# Initialize Starship prompt (only if available)
+if (Get-Command starship -ErrorAction SilentlyContinue) {
+    Invoke-Expression (&starship init powershell)
+} else {
+    # Fallback prompt if starship is not available
+    function prompt {
+        $currentPath = (Get-Location).Path.Replace($env:USERPROFILE, "~")
+        Write-Host "PS " -NoNewline -ForegroundColor Green
+        Write-Host $currentPath -NoNewline -ForegroundColor Blue
+        Write-Host ">" -NoNewline -ForegroundColor Green
+        return " "
+    }
+}
 
 # Include custom PowerShell configurations
 {{ includeTemplate ".chezmoitemplates/shell/powershell/powershell_init.ps1" . | indent 0 }}
