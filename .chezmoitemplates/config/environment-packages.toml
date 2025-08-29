@@ -19,5 +19,7 @@ packages = [
   "git",
   "neovim",
   "starship",
-  "powershell"
+  "powershell",
+  "fzf",
+  "zoxide"
 ]
