@@ -1,20 +1,13 @@
-# PowerShell initialization script
+# ========================================
+# Third-party Tools Initialization
+# ========================================
 
-# Source aliases
-. '{{ .chezmoi.sourceDir }}/.chezmoitemplates/shell/powershell/aliases.ps1'
-
-# Source environment variables and functions (if they exist)
-$envFile = '{{ .chezmoi.homeDir }}/.config/powershell/environment.ps1'
-if (Test-Path $envFile) {
-    . $envFile
+# Import Terminal-Icons if available
+if (Get-Module -ListAvailable -Name Terminal-Icons) {
+    Import-Module Terminal-Icons -ErrorAction SilentlyContinue
 }
 
-$functionsFile = '{{ .chezmoi.homeDir }}/.config/powershell/functions.ps1'
-if (Test-Path $functionsFile) {
-    . $functionsFile
-}
-
-# PSReadLine Configuration (ensure module is available)
+# PSReadLine Configuration
 if (Get-Module -ListAvailable -Name PSReadLine) {
     # Set common options
     Set-PSReadLineOption -EditMode Windows
@@ -22,30 +15,41 @@ if (Get-Module -ListAvailable -Name PSReadLine) {
     Set-PSReadLineOption -PredictionViewStyle InlineView
     Set-PSReadLineOption -BellStyle None
     
-    # 设置预测文本颜色为灰色
+    # Set prediction text color to gray
     Set-PSReadLineOption -Colors @{
         InlinePrediction = '#8A8A8A'
     }
 
-    # 右箭头键接受预测建议
+    # Right arrow key accepts prediction suggestion
     Set-PSReadLineKeyHandler -Key RightArrow -Function AcceptSuggestion
     
-    # Ctrl+右箭头键接受下一个单词
+    # Ctrl+Right arrow key accepts next word
     Set-PSReadLineKeyHandler -Key Ctrl+RightArrow -Function AcceptNextSuggestionWord
     
-    # Tab 键用于菜单补全
+    # Tab key for menu completion
     Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
     
-    # 上下箭头键用于历史搜索
+    # Up/Down arrow keys for history search
     Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
     Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
     
-    # Ctrl+R 用于反向历史搜索
+    # Ctrl+R for reverse history search
     Set-PSReadLineKeyHandler -Key Ctrl+r -Function ReverseSearchHistory
 }
 
-# Refresh PATH to ensure newly installed tools are available
-$env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
+# Initialize Starship prompt (only if available)
+if (Get-Command starship -ErrorAction SilentlyContinue) {
+    Invoke-Expression (&starship init powershell)
+} else {
+    # Fallback prompt if starship is not available
+    function prompt {
+        $currentPath = (Get-Location).Path.Replace($env:USERPROFILE, "~")
+        Write-Host "PS " -NoNewline -ForegroundColor Green
+        Write-Host $currentPath -NoNewline -ForegroundColor Blue
+        Write-Host ">" -NoNewline -ForegroundColor Green
+        return " "
+    }
+}
 
 # Initialize zoxide (smarter cd)
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
@@ -61,4 +65,3 @@ if ((Get-Command fzf -ErrorAction SilentlyContinue) -and (Get-Module -ListAvaila
         Write-Warning "Failed to initialize PSFzf: $_"
     }
 }
-
