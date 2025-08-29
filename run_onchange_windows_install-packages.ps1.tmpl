@@ -6,4 +6,17 @@
 {{ range $packageData.data.os.windows.packages -}}
 scoop install {{ . }}
 {{ end -}}
+
+# PowerShell modules to ensure are installed:
+$psModules = @(
+    "PSFzf"
+)
+foreach ($module in $psModules) {
+    if (-not (Get-Module -ListAvailable -Name $module)) {
+        Write-Host "Installing PowerShell module: $module"
+        Install-Module -Name $module -Scope CurrentUser -Repository PSGallery -Force
+    } else {
+        Write-Host "PowerShell module already installed: $module"
+    }
+}
 {{- end -}}

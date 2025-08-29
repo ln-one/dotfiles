@@ -24,3 +24,11 @@ if (Get-Module -ListAvailable -Name PSReadLine) {
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init powershell) -join "`n" })
 }
+
+# Initialize FZF keybindings
+if (Get-Module -ListAvailable -Name PSFzf) {
+    Import-Module PSFzf
+}
+
+Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+

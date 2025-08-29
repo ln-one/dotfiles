@@ -1,3 +1,12 @@
 # Force PowerShell profiles to be treated as templates
-/dot_config/powershell/Microsoft.PowerShell_profile.ps1.tmpl template
-/home_Documents/PowerShell/Microsoft.PowerShell_profile.ps1.tmpl template
+{{- if eq .chezmoi.os "windows" }}
+    /home_Documents/PowerShell/Microsoft.PowerShell_profile.ps1.tmpl template
+{{- end }}
+
+
+{{- if ne .chezmoi.os "windows" }}
+    /dot_config/powershell/Microsoft.PowerShell_profile.ps1.tmpl template
+{{- end }}
+  
+
+

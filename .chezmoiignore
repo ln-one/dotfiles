@@ -66,3 +66,6 @@ verify-*.sh
 .local/share/applications/
 {{- end }}
 {{- end }}
+{{- if ne .chezmoi.os "windows" }}
+home_Documents/
+{{- end }}
