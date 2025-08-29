@@ -34,6 +34,11 @@
 [init]
 	defaultBranch = main
 
+{{- if eq .chezmoi.os "windows" }}
+[core]
+	sshCommand = "C:/Windows/System32/OpenSSH/ssh.exe"
+{{- end }}
+
 [gpg "ssh"]
 {{- if eq .chezmoi.os "windows" }}
 	program = "C:/Users/{{ env "USERNAME" }}/AppData/Local/Microsoft/WindowsApps/op-ssh-sign.exe"

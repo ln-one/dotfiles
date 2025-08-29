@@ -12,12 +12,12 @@ $env:LANG = "en_US.UTF-8"
 {{- if .features.enable_1password }}
 # 1Password CLI and SSH Agent integration
 if (Get-Command op -ErrorAction SilentlyContinue) {
-    # 1Password SSH Agent socket path on Windows
-    $sshAgentSock = "$env:USERPROFILE\AppData\Local\1Password\agent.sock"
-    
-    if (Test-Path $sshAgentSock) {
-        $env:SSH_AUTH_SOCK = $sshAgentSock
+    # Test if 1Password SSH agent is available (don't override SSH_AUTH_SOCK)
+    try {
+        $null = ssh-add -l 2>$null
         Write-Host "1Password SSH Agent configured" -ForegroundColor Green
+    } catch {
+        Write-Warning "1Password SSH Agent not available. Make sure SSH agent is enabled in 1Password settings."
     }
     
     # Load 1Password secrets if available

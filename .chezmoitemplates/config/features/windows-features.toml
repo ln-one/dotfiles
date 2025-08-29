@@ -1,9 +1,24 @@
   # Windows-specific features
+  {{- if lookPath "wsl" }}
+  enable_wsl = true
+  {{- else }}
   enable_wsl = false
+  {{- end }}
+  
   enable_windows_terminal = true
   enable_powershell_modules = true
+  
+  {{- if lookPath "winget" }}
   enable_winget = true
+  {{- else }}
+  enable_winget = false
+  {{- end }}
   
   # Development tools
+  {{- if lookPath "git" }}
   enable_git_for_windows = true
+  {{- else }}
+  enable_git_for_windows = false
+  {{- end }}
+  
   enable_windows_subsystem = false
