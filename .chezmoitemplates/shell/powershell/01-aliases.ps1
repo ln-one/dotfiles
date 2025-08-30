@@ -7,6 +7,8 @@ function .. { Set-Location .. }
 function ... { Set-Location ../.. }
 function .... { Set-Location ../../.. }
 
+Set-alias 'sudo' 'gsudo'
+
 {{- if .features.enable_eza }}
 # Enhanced directory listing with eza
 Remove-Alias -Name ls -Force -ErrorAction SilentlyContinue
