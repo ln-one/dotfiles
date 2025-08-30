@@ -67,5 +67,12 @@ verify-*.sh
 {{- end }}
 {{- end }}
 {{- if ne .chezmoi.os "windows" }}
-home_Documents/
+private_Documents/
+{{- end }}
+{{- if eq .chezmoi.os "windows" }}
+.bashrc
+Brewfile
+.zshrc
+.zshenv
+.zimrc
 {{- end }}
