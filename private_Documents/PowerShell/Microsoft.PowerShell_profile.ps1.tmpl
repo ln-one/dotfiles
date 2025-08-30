@@ -1,0 +1,7 @@
+# ========================================
+# PowerShell Profile - Main Entry Point
+# Managed by chezmoi - loads modular configuration
+# ========================================
+
+# Load the shared profile configuration
+{{ includeTemplate ".chezmoitemplates/shell/powershell/shared_profile.ps1" . | indent 0 }}

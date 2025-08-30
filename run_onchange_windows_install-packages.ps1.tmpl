@@ -1,22 +1,105 @@
 {{- if eq .chezmoi.os "windows" -}}
-#!/usr/bin/env pwsh
-# Installs packages using winget, runs only on Windows.
-{{- $packageData := include ".chezmoitemplates/config/environment-packages.toml" | fromToml -}}
-# Winget packages to ensure are installed:
-{{ range $packageData.data.os.windows.packages -}}
-scoop install {{ . }}
-{{ end -}}
+# Windows Package Installation Script
+# Installs all tools and dependencies required by PowerShell configuration
 
-# PowerShell modules to ensure are installed:
-$psModules = @(
-    "PSFzf"
+Write-Host "Starting Windows development environment setup..." -ForegroundColor Green
+
+# Core tools (installed via winget)
+$wingetPackages = @(
+    @{Id="Git.Git"; Name="Git"},
+    @{Id="Starship.Starship"; Name="Starship Prompt"},
+    @{Id="junegunn.fzf"; Name="FZF Fuzzy Finder"},
+    @{Id="BurntSushi.ripgrep.MSVC"; Name="Ripgrep Text Search"},
+    @{Id="sharkdp.bat"; Name="Bat Syntax Highlighter"},
+    @{Id="sharkdp.fd"; Name="Fd File Finder"},
+    @{Id="eza-community.eza"; Name="Eza Modern ls"},
+    @{Id="ajeetdsouza.zoxide"; Name="Zoxide Smart cd"},
+    @{Id="Neovim.Neovim"; Name="Neovim Editor"}{{- if .features.enable_1password }},
+    @{Id="AgileBits.1Password.CLI"; Name="1Password CLI"}{{- end }}
 )
-foreach ($module in $psModules) {
-    if (-not (Get-Module -ListAvailable -Name $module)) {
-        Write-Host "Installing PowerShell module: $module"
-        Install-Module -Name $module -Scope CurrentUser -Repository PSGallery -Force
-    } else {
-        Write-Host "PowerShell module already installed: $module"
+
+# Nerd Fonts for icon support
+$nerdFonts = @(
+    @{Id="DEVCOM.JetBrainsMonoNerdFont"; Name="JetBrains Mono Nerd Font"},
+    @{Id="DEVCOM.CascadiaCodeNerdFont"; Name="Cascadia Code Nerd Font"},
+    @{Id="DEVCOM.FiraCodeNerdFont"; Name="Fira Code Nerd Font"}
+)
+
+Write-Host "Installing core tools..." -ForegroundColor Yellow
+foreach ($pkg in $wingetPackages) {
+    try {
+        Write-Host "  Installing $($pkg.Name)..." -ForegroundColor Cyan
+        winget install --id $pkg.Id --silent --accept-package-agreements --accept-source-agreements --disable-interactivity
+        Write-Host "  Success: $($pkg.Name) installed" -ForegroundColor Green
+    } catch {
+        Write-Warning "Failed to install $($pkg.Name): $_"
     }
 }
+
+Write-Host "Installing Nerd Fonts for icon support..." -ForegroundColor Yellow
+foreach ($font in $nerdFonts) {
+    try {
+        Write-Host "  Installing $($font.Name)..." -ForegroundColor Cyan
+        winget install --id $font.Id --silent --accept-package-agreements --accept-source-agreements --disable-interactivity
+        Write-Host "  Success: $($font.Name) installed" -ForegroundColor Green
+    } catch {
+        Write-Warning "Failed to install $($font.Name): $_"
+    }
+}
+
+# Refresh environment variables to make newly installed tools available
+Write-Host "Refreshing environment variables..." -ForegroundColor Yellow
+$env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
+
+# PowerShell modules
+$psModules = @(
+    @{Name="PSFzf"; Description="FZF PowerShell Integration"},
+    @{Name="Terminal-Icons"; Description="Terminal Icons Support"},
+    @{Name="PSReadLine"; Description="Command Line Editing Enhancement"}
+)
+
+Write-Host "Installing PowerShell modules..." -ForegroundColor Yellow
+foreach ($module in $psModules) {
+    try {
+        if (-not (Get-Module -ListAvailable -Name $module.Name)) {
+            Write-Host "  Installing $($module.Description)..." -ForegroundColor Cyan
+            Install-Module -Name $module.Name -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -SkipPublisherCheck
+            Write-Host "  Success: $($module.Name) installed" -ForegroundColor Green
+        } else {
+            Write-Host "  Skip: $($module.Name) already installed" -ForegroundColor Gray
+        }
+    } catch {
+        Write-Warning "Failed to install module $($module.Name): $_"
+    }
+}
+
+# Verify installation
+Write-Host "Verifying installation..." -ForegroundColor Yellow
+$tools = @("git", "starship", "fzf", "rg", "bat", "fd", "eza", "zoxide", "nvim"{{- if .features.enable_1password }}, "op"{{- end }})
+foreach ($tool in $tools) {
+    if (Get-Command $tool -ErrorAction SilentlyContinue) {
+        Write-Host "  OK: $tool available" -ForegroundColor Green
+    } else {
+        Write-Host "  WARN: $tool not available (may need terminal restart)" -ForegroundColor Red
+    }
+}
+
+# Reload PowerShell profile to apply changes immediately
+Write-Host "Reloading PowerShell profile..." -ForegroundColor Yellow
+if (Test-Path $PROFILE) {
+    try {
+        . $PROFILE
+        Write-Host "  Success: Profile reloaded" -ForegroundColor Green
+    } catch {
+        Write-Warning "Failed to reload profile: $_"
+    }
+}
+
+Write-Host "Windows development environment setup complete!" -ForegroundColor Green
+Write-Host "All tools should now be available in current session" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "IMPORTANT: To see icons properly, configure your terminal to use a Nerd Font:" -ForegroundColor Yellow
+Write-Host "  - Windows Terminal: Settings > Profiles > Font face > 'JetBrains Mono NL'" -ForegroundColor Cyan
+Write-Host "  - PowerShell ISE: Options > Fonts and Colors > Font > 'JetBrains Mono NL'" -ForegroundColor Cyan
+Write-Host "  - VS Code Terminal: Settings > Terminal > Font Family > 'JetBrains Mono NL'" -ForegroundColor Cyan
 {{- end -}}

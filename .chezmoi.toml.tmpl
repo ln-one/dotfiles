@@ -23,7 +23,7 @@
 
 # ========== User Info ==========
 [data.user]
-  name = "{{ .chezmoi.username }}"
+  name = "ln-one"
   email = "ln1.opensource@gmail.com"  # User should customize
 
 # ========== Preferences ==========
@@ -82,7 +82,7 @@
   autoPush = false
 
 # ========== Secrets ==========
-{{- $op_available := and (or (lookPath "op") (stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/op")) (stat "/usr/bin/op")) (not (or (env "SSH_CONNECTION") (env "SSH_CLIENT"))) }}
+{{- $op_available := and (or (lookPath "op") (stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/op")) (stat "/usr/bin/op") (stat (joinPath (env "LOCALAPPDATA") "Microsoft/WinGet/Packages/AgileBits.1Password.CLI_Microsoft.Winget.Source_8wekyb3d8bbwe/op.exe")) (stat (joinPath (env "USERPROFILE") "AppData/Local/Microsoft/WindowsApps/op.exe"))) (not (or (env "SSH_CONNECTION") (env "SSH_CLIENT"))) }}
 {{- $is_remote := or (env "SSH_CONNECTION") (env "SSH_CLIENT") }}
 {{- if and (hasKey . "features") .features.enable_1password $op_available (not $is_remote) }}
   {{ includeTemplate "config/secrets/secrets-1password.toml" . }}

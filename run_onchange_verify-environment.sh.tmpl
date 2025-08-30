@@ -1,58 +1,58 @@
 #!/bin/bash
-# 环境变量验证脚本
-# 由 Chezmoi 管理，在配置变更时运行以验证环境设置
+# Environment variable verification script
+# Managed by Chezmoi, runs on config changes to verify environment setup
 
 set -euo pipefail
 
-echo "🔍 验证 Homebrew 环境配置..."
+echo "Verifying Homebrew environment configuration..."
 
-# 获取 Homebrew 前缀
+# Get Homebrew prefix
 {{- if eq .chezmoi.os "darwin" }}
 HOMEBREW_PREFIX="/opt/homebrew"
 {{- else if eq .chezmoi.os "linux" }}
 HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
 {{- end }}
 
-# 验证 Homebrew 安装和路径
+# Verify Homebrew installation and path
 echo ""
-echo "🍺 Homebrew 配置检查:"
+echo "Homebrew configuration check:"
 if [[ -x "$HOMEBREW_PREFIX/bin/brew" ]]; then
-    echo "  ✅ Homebrew 已安装: $HOMEBREW_PREFIX"
+    echo "  Homebrew is installed: $HOMEBREW_PREFIX"
     
-    # 验证 Homebrew 在 PATH 中
+    # Verify Homebrew is in PATH
     if [[ ":$PATH:" == *":$HOMEBREW_PREFIX/bin:"* ]]; then
-        echo "  ✅ Homebrew bin 已在 PATH 中"
+        echo "  Homebrew bin is in PATH"
     else
-        echo "  ⚠️  Homebrew bin 不在 PATH 中"
+        echo "  Warning: Homebrew bin is not in PATH"
     fi
     
-    # 验证 Homebrew 环境变量
+    # Verify Homebrew environment variable
     if [[ "${HOMEBREW_PREFIX:-}" == "$HOMEBREW_PREFIX" ]]; then
-        echo "  ✅ HOMEBREW_PREFIX 已设置"
+        echo "  HOMEBREW_PREFIX is set"
     else
-        echo "  ⚠️  HOMEBREW_PREFIX 未正确设置"
+        echo "  Warning: HOMEBREW_PREFIX is not set correctly"
     fi
 else
-    echo "  ❌ Homebrew 未安装或不可用: $HOMEBREW_PREFIX"
-    echo "     请先安装 Homebrew: https://brew.sh"
+    echo "  Homebrew is not installed or unavailable: $HOMEBREW_PREFIX"
+    echo "     Please install Homebrew: https://brew.sh"
     exit 1
 fi
 
-# 验证核心工具 (通过 Homebrew 安装)
+# Verify core tools (installed via Homebrew)
 echo ""
-echo "🔧 核心工具验证:"
+echo "Core tools verification:"
 check_homebrew_tool() {
     local tool_name="$1"
     local tool_path="$HOMEBREW_PREFIX/bin/$tool_name"
     
     if [[ -x "$tool_path" ]]; then
-        echo "  ✅ $tool_name 可用 ($tool_path)"
+        echo "  $tool_name is available ($tool_path)"
     else
-        echo "  ⚠️  $tool_name 不可用，请运行: brew install $tool_name"
+        echo "  Warning: $tool_name is not available, please run: brew install $tool_name"
     fi
 }
 
-# 检查常用工具
+# Check common tools
 check_homebrew_tool "git"
 check_homebrew_tool "curl"
 check_homebrew_tool "bat"
@@ -60,36 +60,36 @@ check_homebrew_tool "fd"
 check_homebrew_tool "eza"
 check_homebrew_tool "ripgrep"
 
-# 验证编辑器 (假设通过 Homebrew 安装)
+# Verify editor (assumed installed via Homebrew)
 echo ""
-echo "✏️  编辑器配置:"
+echo "Editor configuration:"
 EDITOR_NAME="{{ .preferences.editor }}"
 if [[ -x "$HOMEBREW_PREFIX/bin/$EDITOR_NAME" ]] || command -v "$EDITOR_NAME" >/dev/null 2>&1; then
-    echo "  ✅ 编辑器 $EDITOR_NAME 可用"
+    echo "  Editor $EDITOR_NAME is available"
 else
-    echo "  ⚠️  编辑器 $EDITOR_NAME 不可用，请运行: brew install $EDITOR_NAME"
+    echo "  Warning: Editor $EDITOR_NAME is not available, please run: brew install $EDITOR_NAME"
 fi
 
 {{- if and (hasKey . "features") .features.enable_1password }}
-# 验证 1Password CLI (如果启用)
+# Verify 1Password CLI (if enabled)
 if [[ -x "$HOMEBREW_PREFIX/bin/op" ]]; then
-    echo "  ✅ 1Password CLI 可用"
+    echo "  1Password CLI is available"
 else
-    echo "  ⚠️  1Password CLI 不可用，请运行: brew install 1password-cli"
+    echo "  Warning: 1Password CLI is not available, please run: brew install 1password-cli"
 fi
 {{- end }}
 
 echo ""
-echo "🎉 Homebrew 环境验证完成"
+echo "Homebrew environment verification complete"
 
-# 生成配置摘要
+# Generate configuration summary
 echo ""
-echo "📋 配置摘要:"
-echo "  Homebrew 前缀: $HOMEBREW_PREFIX"
-echo "  平台: {{ .chezmoi.os }}/{{ .chezmoi.arch }}"
-echo "  编辑器: {{ .preferences.editor }}"
+echo "Configuration summary:"
+echo "  Homebrew prefix: $HOMEBREW_PREFIX"
+echo "  Platform: {{ .chezmoi.os }}/{{ .chezmoi.arch }}"
+echo "  Editor: {{ .preferences.editor }}"
 
-# 提示用户如果有工具缺失
+# Advise user if tools are missing
 echo ""
-echo "💡 如果有工具缺失，请运行以下命令安装:"
+echo "If any tools are missing, please run the following command to install:"
 echo "   brew bundle install --file=Brewfile"
