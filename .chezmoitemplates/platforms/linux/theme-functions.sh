@@ -8,13 +8,8 @@
 THEME_DIR="${THEME_DIR:-$HOME/.Theme/WhiteSur-gtk-theme}"
 THEME_SCRIPT="$DOTFILES_DIR/scripts/tools/theme-manager.sh"
 
-# Color helpers
-_red()   { printf '\033[0;31m%s\033[0m\n' "$*"; }
-_green() { printf '\033[0;32m%s\033[0m\n' "$*"; }
-_yellow(){ printf '\033[0;33m%s\033[0m\n' "$*"; }
-_blue()  { printf '\033[0;34m%s\033[0m\n' "$*"; }
-_cyan()  { printf '\033[0;36m%s\033[0m\n' "$*"; }
-_bold()  { printf '\033[1m%s\033[0m\n' "$*"; }
+# Load shared color helpers
+{{- includeTemplate "core/colors.sh" . }}
 
 # Switch to dark theme (WhiteSur Dark)
 dark() {
