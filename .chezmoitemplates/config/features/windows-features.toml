@@ -21,4 +21,10 @@
   enable_git_for_windows = false
   {{- end }}
   
-  enable_windows_subsystem = false
+enable_terminal_icons = true
+
+enable_psreadline = true
+
+enable_psfzf = true
+
+enable_posh_git = true

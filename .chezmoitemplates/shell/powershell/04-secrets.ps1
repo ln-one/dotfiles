@@ -8,7 +8,6 @@ if (Get-Command op -ErrorAction SilentlyContinue) {
     # Test if 1Password SSH agent is available
     try {
         $null = ssh-add -l 2>$null
-        Write-Host "1Password SSH Agent configured" -ForegroundColor Green
     } catch {
         Write-Warning "1Password SSH Agent not available. Make sure SSH agent is enabled in 1Password settings."
     }
@@ -17,7 +16,6 @@ if (Get-Command op -ErrorAction SilentlyContinue) {
     $secretsFile = "$env:USERPROFILE\.secrets.ps1"
     if (Test-Path $secretsFile) {
         . $secretsFile
-        Write-Host "1Password secrets loaded" -ForegroundColor Green
     }
 } else {
     Write-Host "1Password CLI not available, using fallback configuration" -ForegroundColor Yellow
@@ -26,7 +24,6 @@ if (Get-Command op -ErrorAction SilentlyContinue) {
 {{- if .features.enable_ai_tools }}
 # AI tools configuration
 if ($env:OPENAI_API_KEY) {
-    Write-Host "OpenAI API configured" -ForegroundColor Green
 }
 {{- end }}
 {{- else }}
