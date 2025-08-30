@@ -1,24 +1,24 @@
-  enable_ai_tools = true
-  enable_proxy = true
-  {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") }}
-  enable_1password = false
-  {{- else }}
-  enable_1password = true
-  {{- end }}
-  enable_oh_my_zsh = false
-  enable_zim = true
-  {{- if lookPath "starship" }}
-  enable_starship = true
-  {{- else }}
-  enable_starship = false
-  {{- end }}
-  {{- if stat (joinPath .chezmoi.homeDir ".evalcache/evalcache.plugin.zsh") }}
-  enable_evalcache = true
-  {{- else }}
-  enable_evalcache = false
-  {{- end }}
-  {{- if stat (joinPath .chezmoi.homeDir ".zim/modules/zsh-defer") }}
-  enable_zsh_defer = true
-  {{- else }}
-  enable_zsh_defer = false
-  {{- end }}
+enable_ai_tools = true
+enable_proxy = true
+{{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") }}
+enable_1password = false
+{{- else }}
+enable_1password = true
+{{- end }}
+enable_oh_my_zsh = false
+enable_zim = true
+{{- if lookPath "starship" }}
+enable_starship = true
+{{- else }}
+enable_starship = false
+{{- end }}
+{{- if stat (joinPath .chezmoi.homeDir ".evalcache/evalcache.plugin.zsh") }}
+enable_evalcache = true
+{{- else }}
+enable_evalcache = false
+{{- end }}
+{{- if stat (joinPath .chezmoi.homeDir ".zim/modules/zsh-defer") }}
+enable_zsh_defer = true
+{{- else }}
+enable_zsh_defer = false
+{{- end }}

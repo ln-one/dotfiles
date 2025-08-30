@@ -1,11 +1,10 @@
 # ========================================
-# Chezmoi Main Configuration (Simplified)
-# ----------------------------------------
-# - Dynamically generates config based on platform/environment
-# - Complex logic is split into separate template files
+# Chezmoi Main Configuration
 # ========================================
+# Dynamically generates config based on platform/environment
+# Complex logic is split into separate template files
 
-# ========== Environment Detection ==========
+# Environment Detection
 [data]
   # Detect environment type (prefer SSH)
   {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") (env "SSH_TTY") }}
@@ -21,19 +20,19 @@
   # Use Homebrew as package manager
   package_manager = "brew"
 
-# ========== User Info ==========
+# User Information
 [data.user]
   name = "ln-one"
   email = "ln1.opensource@gmail.com"  # User should customize
 
-# ========== Preferences ==========
+# User Preferences
 [data.preferences]
   shell = "zsh"
   editor = "nvim"
   theme = "dark"
   ls_tool = "eza"  # Options: eza, exa, ls
 
-# ========== Features ==========
+# Feature Configuration
 [data.features]
   {{ includeTemplate "config/features/core-features.toml" . }}
   {{ includeTemplate "config/features/dev-features.toml" . }}
@@ -47,33 +46,32 @@
     {{ includeTemplate "config/features/windows-features.toml" . }}
   {{- end }}
 
-# ========== Proxy ==========
+# Proxy Configuration
 [data.proxy]
   {{ includeTemplate "config/proxy/proxy-detection.toml" . }}
 
-# ========== Packages ==========
+# Package Configuration
 [data.packages]
   # Core tools (Homebrew standard names)
   brew = [
     "git", "curl", "wget", "fzf", "ripgrep", "fd", "bat", "eza", "zoxide"
   ]
-  # No apt mapping, managed by Homebrew
 
   # Essential tools (by priority group)
   essential = ["git", "curl", "wget", "unzip"]
   modern_cli = ["eza", "bat", "fd", "ripgrep", "fzf", "jq", "zoxide"]
   development = ["neovim", "tmux", "htop", "tree"]
 
-# ========== Paths ==========
+# Path Configuration
 [data.paths]
   dotfiles = "{{ .chezmoi.sourceDir }}"
   projects = "{{ .chezmoi.homeDir }}/Projects"
   config = "{{ .chezmoi.homeDir }}/.config"
 
-# ========== Environment-specific ==========
+# Environment-specific Configuration
 {{ includeTemplate "config/environment-packages.toml" . }}
 
-# ========== Chezmoi Behavior ==========
+# Chezmoi Behavior
 [edit]
   command = "{{ if stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/code") }}{{ joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/code" }}{{ else if stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/nvim") }}{{ joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/nvim" }}{{ else }}vi{{ end }}"
 
@@ -81,7 +79,7 @@
   autoCommit = true
   autoPush = false
 
-# ========== Secrets ==========
+# Secrets Configuration
 {{- $op_available := and (or (lookPath "op") (stat (joinPath (env "HOMEBREW_PREFIX" | default "/opt/homebrew") "bin/op")) (stat "/usr/bin/op") (stat (joinPath (env "LOCALAPPDATA") "Microsoft/WinGet/Packages/AgileBits.1Password.CLI_Microsoft.Winget.Source_8wekyb3d8bbwe/op.exe")) (stat (joinPath (env "USERPROFILE") "AppData/Local/Microsoft/WindowsApps/op.exe"))) (not (or (env "SSH_CONNECTION") (env "SSH_CLIENT"))) }}
 {{- $is_remote := or (env "SSH_CONNECTION") (env "SSH_CLIENT") }}
 {{- if and (hasKey . "features") .features.enable_1password $op_available (not $is_remote) }}

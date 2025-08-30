@@ -1,5 +1,7 @@
-# Default proxy config (fallback for remote environment)
-# Used when no proxy config file is found
+# ========================================
+# Default Proxy Configuration
+# ========================================
+# Fallback for remote environment when no proxy config file is found
 
 enabled = false
 source = "default"

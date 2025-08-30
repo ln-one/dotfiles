@@ -1,6 +1,8 @@
-# ===============================
+# ========================================
+# SSH Configuration
+# ========================================
+
 # Personal server Aliyun (1Password keys)
-# ===============================
 Host aliyun  
     HostName "{{ .secrets.aliyun_server_url }}"
     User "{{ .secrets.aliyun_server_username }}"
@@ -11,9 +13,7 @@ Host aliyun
     IdentityAgent ~/.1password/agent.sock
 {{- end }}
 
-# ===============================
 # GitHub (1Password keys)
-# ===============================
 Host github.com
     HostName ssh.github.com
     User git
@@ -30,9 +30,7 @@ Host github.com
     {{- end }}
 {{- end }}
 
-# ===============================
 # YubiKey-only hosts
-# ===============================
 Host secure-server yubikey-*
 {{- if eq .chezmoi.os "windows" }}
     IdentityAgent \\.\pipe\openssh-ssh-agent
@@ -40,9 +38,7 @@ Host secure-server yubikey-*
     IdentityAgent $SSH_AUTH_SOCK  # Will point to YubiKey agent dynamically
 {{- end }}
 
-# ===============================
 # Default for all other hosts
-# ===============================
 Host *
 {{- if eq .chezmoi.os "windows" }}
     # Let SSH use the default agent (1Password manages this automatically)

@@ -48,7 +48,7 @@ enable_bat = true
 enable_bat = false
 {{- end }}
 
-# Development environment management (based on actual installation)
+# Development Environment Management
 {{- if lookPath "git" }}
 enable_git = true
 {{- else }}
@@ -85,13 +85,13 @@ enable_conda = true
 enable_conda = false
 {{- end }}
 
-# Programming language support
+# Programming Language Support
 enable_node = true
 enable_python = true
 enable_go = false
 enable_rust = false
 
-# Container and virtualization (based on actual installation)
+# Container and Virtualization
 {{- if lookPath "docker" }}
 enable_docker = true
 {{- else }}
@@ -104,7 +104,7 @@ enable_kubectl = true
 enable_kubectl = false
 {{- end }}
 
-# System tools (based on actual installation)
+# System Tools
 {{- if lookPath "ssh" }}
 enable_ssh = true
 {{- else }}
@@ -123,7 +123,7 @@ enable_wget = true
 enable_wget = false
 {{- end }}
 
-# Editor tools (based on actual installation)
+# Editor Tools
 {{- if lookPath "code" }}
 enable_vscode = true
 {{- else }}
@@ -154,7 +154,7 @@ enable_vi = true
 enable_vi = false
 {{- end }}
 
-# System monitoring tools (based on actual installation)
+# System Monitoring Tools
 {{- if lookPath "htop" }}
 enable_htop = true
 {{- else }}
@@ -191,7 +191,7 @@ enable_ss = true
 enable_ss = false
 {{- end }}
 
-# Development environment tools (based on actual installation)
+# Development Environment Tools
 {{- if lookPath "python3" }}
 enable_python3 = true
 {{- else }}

@@ -1,4 +1,6 @@
-# Environment variable configuration template
+# ========================================
+# Environment Variables Configuration
+# ========================================
 # Managed by Chezmoi, dynamically generated based on platform and user config
 
 # Basic color and pager configuration
@@ -19,11 +21,12 @@ export LOCAL_BIN="{{ .chezmoi.homeDir }}/.local/bin"
 export EDITOR="{{ .preferences.editor }}"
 export VISUAL="{{ .preferences.editor }}"
 
-# Language and locale configuration (Requirements: 2.4)
+# Language and locale configuration
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 export LC_CTYPE="en_US.UTF-8"
 
+# 1Password SSH Agent integration
 # 1Password SSH Agent integration
 {{- if .features.enable_1password }}
   {{- if eq .chezmoi.os "darwin" }}
@@ -34,7 +37,7 @@ export LC_CTYPE="en_US.UTF-8"
   if [ -S "$SSH_AGENT_SOCK" ]; then
     export SSH_AUTH_SOCK="$SSH_AGENT_SOCK"
     {{- if .features.enable_ssh }}
-      # Silently check SSH Agent status (static generation)
+      # Silently check SSH Agent status
       ssh-add -l >/dev/null 2>&1 || true
     {{- end }}
   fi
@@ -52,22 +55,20 @@ export LC_CTYPE="en_US.UTF-8"
   {{- end }}
 {{- end }}
 
-# Homebrew environment (deferred initialization)
+# Homebrew environment initialization
 {{- if eq .chezmoi.os "linux" }}
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 {{- else if eq .chezmoi.os "darwin" }}
 eval "$(/opt/homebrew/bin/brew shellenv)"
 {{- end }}
 
+# Starship prompt configuration
 {{- if .features.enable_starship }}
-
-# Set Starship config file path
 export STARSHIP_CONFIG="$HOME/.config/starship.toml"
 
 {{- if eq .environment "remote" }}
-# Remote environment optimization: disable some time-consuming modules
+# Remote environment optimization
 export STARSHIP_CACHE="$HOME/.cache/starship"
-# Create cache directory
 mkdir -p "$HOME/.cache/starship"
 {{- end }}
 {{- end }}

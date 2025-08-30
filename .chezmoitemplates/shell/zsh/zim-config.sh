@@ -1,3 +1,6 @@
+# ========================================
+# Zim Framework Configuration
+# ========================================
 # Only execute Zim config in zsh
 if [[ -n "${ZSH_VERSION}" ]]; then
     export ZIM_HOME="${ZDOTDIR:-${HOME}}/.zim"

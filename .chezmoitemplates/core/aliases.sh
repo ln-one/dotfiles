@@ -1,18 +1,18 @@
 # ========================================
-# Common Aliases (Fully Static Version)
+# Common Aliases
 # ========================================
 # Static aliases based on feature flags, no runtime detection
 
 {{- $ls_tool := .preferences.ls_tool | default "ls" }}
 {{- if eq $ls_tool "eza" }}
-# Eza aliases (static config)
+# Eza aliases
 alias ls='eza --color=auto --icons'
 alias ll='eza -alF --color=auto --icons --git'
 alias la='eza -a --color=auto --icons'
 alias l='eza -F --color=auto --icons'
 alias tree='eza --tree --color=auto --icons'
 {{- else if eq $ls_tool "exa" }}
-# Exa aliases (static config)
+# Exa aliases
 alias ls='exa --color=auto --icons'
 alias ll='exa -alF --color=auto --icons --git'
 alias la='exa -a --color=auto --icons'
@@ -54,11 +54,7 @@ alias df='df -h'
 alias psg='ps aux | grep -v grep | grep -i -e VSZ -e'
 alias psgrep='ps aux | grep -v grep | grep'
 
-# ========================================
 # Network and System
-# ========================================
-
-# Network
 alias ping='ping -c 5'
 alias ports='netstat -tulanp'
 
@@ -71,9 +67,7 @@ alias meminfo='vm_stat'
 alias cpuinfo='sysctl -n machdep.cpu.brand_string'
 {{- end }}
 
-# ========================================
-# Development
-# ========================================
+# Development Tools
 
 # Docker shortcuts (based on feature flag)
 {{- if eq .environment "desktop" }}
@@ -85,9 +79,7 @@ alias dex='docker exec -it'
 alias dlog='docker logs -f'
 {{- end }}
 
-# ========================================
 # Quick Actions
-# ========================================
 
 # Clear screen
 alias c='clear'
@@ -97,9 +89,7 @@ alias cls='clear'
 alias h='history'
 alias hg='history | grep'
 
-# ========================================
 # Platform-specific Aliases
-# ========================================
 
 {{- if eq .chezmoi.os "darwin" }}
 # macOS specific aliases

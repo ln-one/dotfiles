@@ -1,4 +1,6 @@
-# Clash config file parsing
+# ========================================
+# Clash Configuration Parser
+# ========================================
 # Extract port info from Clash config and generate proxy config
 
 # Use Clash {{ .config_type }} config file ({{ if eq .config_type "subscription" }}remote environment{{ else }}desktop environment{{ end }})

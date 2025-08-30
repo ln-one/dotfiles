@@ -1,29 +1,43 @@
 #!/bin/bash
+# ========================================
+# Sample External Configuration
+# ========================================
+# Copy this file to one of the following locations:
+# - /etc/chezmoi/config.sh (system-wide)
+# - ~/.config/chezmoi/config.sh (user-specific)
+# - ~/.chezmoi.local.sh (user home)
+# - ./.chezmoi.local.sh (project-specific)
 
+# User Information
 export GIT_USER_NAME="Your Name"
 export GIT_USER_EMAIL="your.email@example.com"
 
+# Application Preferences
 export PREFERRED_EDITOR="code"
 export PREFERRED_SHELL="zsh"
 export PREFERRED_TERMINAL="ghostty"
 export PREFERRED_BROWSER="firefox"
 
+# Proxy Configuration
 export PROXY_ENABLED=true
 export PROXY_HOST="127.0.0.1"
 export PROXY_HTTP_PORT=7890
 export PROXY_SOCKS_PORT=7891
 
+# Directory Configuration
 export LOCAL_PROJECTS_DIR="$HOME/projects"
 export LOCAL_WORK_DIR="$HOME/work"
 export LOCAL_NODE_VERSION="20"
 export LOCAL_PYTHON_VERSION="3.11"
 export LOCAL_GO_VERSION="1.21"
 
+# Feature Toggles
 export ENABLE_AI_TOOLS=true
 export ENABLE_DOCKER=true
 export ENABLE_KUBERNETES=false
 export ENABLE_THEME_SWITCHING=true
 
+# Custom Aliases
 alias myproject="cd $LOCAL_PROJECTS_DIR/my-important-project"
 alias work="cd $LOCAL_WORK_DIR"
 alias deploy="./scripts/deploy.sh"
@@ -34,6 +48,7 @@ alias gcb="git checkout -b"
 alias gp="git push"
 alias gl="git pull"
 
+# Custom Functions
 proj() {
     if [[ $# -eq 0 ]]; then
         cd "$LOCAL_PROJECTS_DIR"
@@ -58,6 +73,7 @@ docker-cleanup() {
     docker network prune -f
 }
 
+# Environment-specific Configuration
 case "${CHEZMOI_ENVIRONMENT:-desktop}" in
     "desktop")
         export ENABLE_GUI_TOOLS=true
@@ -76,6 +92,7 @@ case "${CHEZMOI_ENVIRONMENT:-desktop}" in
         ;;
 esac
 
+# Platform-specific Configuration
 case "${CHEZMOI_PLATFORM:-linux}" in
     "darwin")
         export PREFERRED_PACKAGE_MANAGER="brew"
@@ -87,6 +104,7 @@ case "${CHEZMOI_PLATFORM:-linux}" in
         ;;
 esac
 
+# Custom PATH Configuration
 custom_paths=(
     "$HOME/.local/bin"
     "$HOME/bin"
@@ -101,6 +119,7 @@ for custom_path in "${custom_paths[@]}"; do
     fi
 done
 
+# Load Additional Configuration Files
 if [[ -f "$HOME/.config/chezmoi/machine-specific.sh" ]]; then
     source "$HOME/.config/chezmoi/machine-specific.sh"
 fi

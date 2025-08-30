@@ -1,5 +1,9 @@
+# ========================================
+# SSH Allowed Signers Configuration
+# ========================================
+
 {{- if .features.enable_1password }}
 {{ .secrets.git_user_email }} {{ .secrets.git_signing_key }}
 {{- else }}
-#Design by yourself
+# Configure manually when 1Password is not available
 {{- end }}

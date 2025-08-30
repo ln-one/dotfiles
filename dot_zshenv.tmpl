@@ -1,6 +1,6 @@
 {{- if ne .chezmoi.os "windows" }}
 # ========================================
-# Zsh environment configuration (managed by Chezmoi)
+# Zsh Environment Configuration
 # ========================================
 # This file is loaded in all Zsh sessions
 # Used to set environment variables and basic configuration
@@ -18,7 +18,7 @@ export ZIM_HOME="${ZDOTDIR:-${HOME}}/.zim"
 export ZSH_DISABLE_COMPFIX=true
 
 {{- if and (hasKey . "features") .features.enable_fzf }}
-# fzf related environment variable (set early for other tools)
+# fzf environment variable (set early for other tools)
 export FZF_BASE="${HOME}/.fzf"
 {{- end }}
 

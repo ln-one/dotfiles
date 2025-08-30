@@ -1,6 +1,7 @@
-# Brewfile - Homebrew package management configuration
+# ========================================
+# Brewfile - Homebrew Package Configuration
+# ========================================
 # Managed by Chezmoi template for cross-platform tool installation
-# Requirements: 4.1, 4.2, 8.1
 
 # Core development tools
 brew "git"              # Version control
@@ -11,21 +12,19 @@ brew "tree"             # Directory tree display
 
 # Modern CLI tools (replacements for traditional tools)
 brew "eza"              # Modern ls replacement (active exa fork)
-brew "bat"              # Modern cat replacement (always use bat, not batcat)
-brew "fd"               # Modern find replacement (always use fd, not fd-find)
+brew "bat"              # Modern cat replacement
+brew "fd"               # Modern find replacement
 brew "ripgrep"          # Modern grep replacement
 brew "fzf"              # Fuzzy finder
 brew "zoxide"           # Smart directory jumper
 brew "jq"               # JSON processor
-brew "atool"            # Unified archive tool (replaces custom extract function)
+brew "atool"            # Unified archive tool
 
 # 1Password CLI (macOS only via Homebrew)
 {{- if and (hasKey . "features") .features.enable_1password (eq .chezmoi.os "darwin") }}
 tap "1password/tap"
 cask "1password/tap/1password-cli"
 {{- end }}
-
-# Note: On Linux, 1Password CLI must be installed via apt repository
 
 # Shell and terminal tools
 brew "zsh"              # Modern shell (default on macOS)
@@ -37,7 +36,7 @@ brew "starship"         # Cross-shell prompt
 {{- if and (hasKey . "features") .features.enable_node }}
 brew "fnm"              # Fast Node.js version manager
 {{- end }}
-brew "forgit"           # fzf-enhanced Git tool (replaces custom git functions)
+brew "forgit"           # fzf-enhanced Git tool
 
 # Editors and development tools
 brew "neovim"           # Modern Vim
@@ -118,8 +117,3 @@ brew "docker"           # Docker (Linux)
 brew "docker-compose"   # Docker Compose
 {{- end }}
 {{- end }}
-
-# Note: The following tools require special installation, not via Homebrew:
-# - evalcache: install via git clone to ~/.evalcache
-# - zim: install via curl script
-# Installation logic for these tools is kept in the relevant config templates

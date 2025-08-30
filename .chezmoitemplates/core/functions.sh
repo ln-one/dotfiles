@@ -1,7 +1,6 @@
 # ========================================
 # Basic Utility Functions
 # ========================================
-# Basic utility function module
 
 # Create directory and enter it
 mkcd() {
@@ -13,9 +12,9 @@ mkcd() {
     echo "Created and entered directory: $1"
 }
 
-# Extract various archive files - uses available tools
+# Extract various archive files
 {{- if .features.enable_atool }}
-# Use atool - advanced archive handling
+# Use atool for advanced archive handling
 alias extract='atool --extract --subdir'
 alias compress='apack'
 {{- else }}
@@ -42,7 +41,7 @@ extract() {
 }
 {{- end }}
 
-# System info (simplified) - only defined in non-remote environments
+# System info (only defined in non-remote environments)
 {{- if ne .environment "remote" }}
 sysinfo() {
     echo "=== System Information ==="

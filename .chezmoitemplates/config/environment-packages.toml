@@ -1,4 +1,6 @@
-# Environment-specific package config
+# ========================================
+# Environment-specific Package Configuration
+# ========================================
 # Define required packages for different environments
 
 [data.environments.desktop]

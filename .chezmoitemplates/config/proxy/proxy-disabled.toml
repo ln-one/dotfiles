@@ -1,7 +1,7 @@
-# Disabled proxy config
+# ========================================
+# Disabled Proxy Configuration
+# ========================================
 # Used for environments without proxy support or configuration
-
-# No proxy config found - provide default empty values
 enabled = false
 http_proxy = ""
 https_proxy = ""

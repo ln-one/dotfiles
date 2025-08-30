@@ -4,7 +4,7 @@
 
 {{- if .features.enable_fzf }}
 
-# 1. Plugin loading
+# Plugin loading
 # forgit - Git fzf enhancement
 {{- if eq (base .chezmoi.targetFile) ".zshrc" }}
   {{- if and .features.enable_git .features.enable_forgit }}
@@ -33,7 +33,7 @@
   {{- end }}
 {{- end }}
 
-# 2. fzf environment variables and behavior
+# fzf environment variables and behavior
 export FZF_DEFAULT_OPTS="
   --height 40%
   --layout=reverse
@@ -55,7 +55,7 @@ export FZF_DEFAULT_OPTS="
   --color=border:#4b5263,separator:#4b5263,scrollbar:#4b5263
 "
 
-# 3. File/directory search command
+# File/directory search command
 {{- if or (stat "/opt/homebrew") (stat "/home/linuxbrew/.linuxbrew") }}
   export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --strip-cwd-prefix'
   export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
@@ -65,7 +65,7 @@ export FZF_DEFAULT_OPTS="
   export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 {{- end }}
 
-# 4. Preview behavior
+# Preview behavior
 {{- if or (stat "/opt/homebrew") (stat "/home/linuxbrew/.linuxbrew") }}
   export FZF_CTRL_T_OPTS="
     --preview '([[ -f {} ]] && (bat --style=numbers --color=always --line-range :500 {} 2>/dev/null || cat {} 2>/dev/null || echo {})) || ([[ -d {} ]] && (eza --tree --level=2 --color=always {} 2>/dev/null || tree -C -L 2 {} 2>/dev/null || ls -la {} 2>/dev/null))'
@@ -94,7 +94,7 @@ export FZF_DEFAULT_OPTS="
   "
 {{- end }}
 
-# 5. History command search
+# History command search
 export FZF_CTRL_R_OPTS="
   --preview 'echo {}'
   --preview-window='down:3:wrap'

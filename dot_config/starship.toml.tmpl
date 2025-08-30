@@ -1,22 +1,21 @@
 # ========================================
-# Starship 提示符配置 (Chezmoi 管理)
+# Starship Prompt Configuration
 # ========================================
-# 使用 Starship 官方预设的现代化配置
-# 针对 {{ .environment }} 环境优化
+# Modern configuration optimized for {{ .environment }} environment
 
 {{- if .features.enable_starship }}
 
-# 使用 Starship 默认配置，只禁用提示符前的空行
+# Use Starship default configuration with minimal customization
 add_newline = false
 
-# 禁用 Node.js 版本显示
+# Disable Node.js version display
 [nodejs]
 disabled = true
 
-# 禁用 Python 版本显示
+# Disable Python version display
 [python]
 disabled = true
 
 {{- else }}
-# Starship 功能已禁用
+# Starship feature disabled
 {{- end }}

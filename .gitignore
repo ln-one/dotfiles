@@ -2,26 +2,22 @@
 # Chezmoi Configuration .gitignore
 # ========================================
 
-# ========================================
-# Chezmoi 特定文件
-# ========================================
-# Chezmoi 状态和缓存
+# Chezmoi specific files
+# Chezmoi state and cache
 .chezmoi/
 .chezmoistate.boltdb
 
-# 本地配置文件 (包含敏感信息)
+# Local configuration files (containing sensitive information)
 .chezmoidata.yaml
 .chezmoidata.json
 .chezmoidata.toml
 
-# 本地覆盖配置
+# Local override configurations
 *.local
 *_local.*
 
-# ========================================
-# 敏感信息和密钥
-# ========================================
-# 密钥文件
+# Sensitive information and keys
+# Key files
 .secrets
 secrets.*
 *.key
@@ -29,24 +25,22 @@ secrets.*
 *.p12
 *.pfx
 vscode
-# 环境变量文件
+# Environment variable files
 .env
 .env.local
 .env.*.local
 
-# SSH 密钥
+# SSH keys
 id_rsa*
 id_ed25519*
 id_ecdsa*
 *.pub
 
-# GPG 密钥
+# GPG keys
 *.gpg
 *.asc
 
-# ========================================
-# 系统和编辑器文件
-# ========================================
+# System and editor files
 # macOS
 .DS_Store
 .DS_Store?
@@ -66,7 +60,7 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
-# 编辑器和 IDE
+# Editors and IDEs
 .vscode/
 .idea/
 *.swp
@@ -75,34 +69,30 @@ $RECYCLE.BIN/
 .vim/
 .nvim/
 
-# Kiro IDE (保留 specs 目录，忽略其他配置)
+# Kiro IDE (keep specs directory, ignore other configs)
 .kiro/settings/
 .kiro/cache/
 .kiro/logs/
 
-# ========================================
-# 临时和测试文件
-# ========================================
-# 临时文件
+# Temporary and test files
+# Temporary files
 *.tmp
 *.temp
 *.bak
 *.backup
 *.orig
 
-# 测试输出
+# Test output
 /tmp/
 test-output/
 *.test
 coverage.*
 
-# 日志文件
+# Log files
 *.log
 logs/
 
-# ========================================
-# 构建和依赖
-# ========================================
+# Build and dependencies
 # Node.js
 node_modules/
 npm-debug.log*
@@ -145,9 +135,7 @@ go.work
 target/
 Cargo.lock
 
-# ========================================
-# 特定应用配置 (可能包含敏感信息)
-# ========================================
+# Specific application configs (may contain sensitive info)
 # 1Password
 *.1pif
 *.1pux
@@ -165,39 +153,35 @@ kubeconfig*
 .terraform/
 .terraform.lock.hcl
 
-# ========================================
-# 项目特定忽略
-# ========================================
-# 原始 dotfiles 目录 (保留作为迁移参考，但不追踪)
+# Project specific ignores
+# Original dotfiles directory (keep as migration reference, but don't track)
 dotfiles/
 
-# 测试生成的文件
+# Test generated files
 /test-*.sh.output
 /tmp/test-*
 
-# 本地开发配置
+# Local development configs
 local-config/
 dev-config/
 
-# 备份文件
+# Backup files
 *.backup.*
 backup-*/
 
-# 个人笔记和草稿
+# Personal notes and drafts
 notes/
 drafts/
 TODO.md
 NOTES.md
 
-# ========================================
-# 注释说明
-# ========================================
-# 此 .gitignore 文件用于 Chezmoi 配置管理项目
+# Documentation
+# This .gitignore file is for Chezmoi configuration management project
 # 
-# 主要保护：
-# 1. 敏感信息 (密钥、密码、个人数据)
-# 2. 本地配置覆盖
-# 3. 系统生成的临时文件
-# 4. 编辑器和 IDE 配置
+# Main protections:
+# 1. Sensitive information (keys, passwords, personal data)
+# 2. Local configuration overrides
+# 3. System generated temporary files
+# 4. Editor and IDE configurations
 # 
-# 如需添加特定忽略规则，请在项目根目录创建 .gitignore.local
+# To add specific ignore rules, create .gitignore.local in project root

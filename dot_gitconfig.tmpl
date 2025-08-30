@@ -1,13 +1,13 @@
 {{- if and (hasKey . "features") .features.enable_1password (lookPath "op") }}
 [user]
-	email = "{{ .secrets.git_user_email }}"
-	signingkey = "{{ .secrets.git_signing_key }}"
-	name = "{{ .user.name }}"
+  email = "{{ .secrets.git_user_email }}"
+  signingkey = "{{ .secrets.git_signing_key }}"
+  name = "{{ .user.name }}"
 {{- else }}
 [user]
-	email = "{{ .user.email }}"
-	signingkey = ""
-	name = "{{ .user.name }}"
+  email = "{{ .user.email }}"
+  signingkey = ""
+  name = "{{ .user.name }}"
 {{- end }}
 
 [commit]

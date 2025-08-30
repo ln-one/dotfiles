@@ -1,1 +1,4 @@
-# Helper functions for winget or other Windows-specific tasks
+# ========================================
+# Windows Package Management Helpers
+# ========================================
+# Helper functions for winget and Windows-specific tasks

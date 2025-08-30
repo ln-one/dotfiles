@@ -2,13 +2,13 @@
 # Chezmoi Layered Configuration Loader
 # ========================================
 
-# 1. Core Layer: Common base features for all environments (lowest priority)
+# Core Layer: Common base features for all environments (lowest priority)
 {{ includeTemplate "core/environment.sh" . }}
 {{ includeTemplate "core/aliases.sh" . }}
 {{ includeTemplate "core/functions.sh" . }}
 {{ includeTemplate "core/fzf.sh" . }}
 
-# 2. Platform Layer: OS-specific configuration and tools (medium priority)
+# Platform Layer: OS-specific configuration and tools (medium priority)
 {{- if eq .chezmoi.os "linux" }}
 {{ includeTemplate "platforms/linux/proxy-functions.sh" . }}
 {{ includeTemplate "platforms/linux/theme-functions.sh" . }}
@@ -16,7 +16,7 @@
 {{ includeTemplate "platforms/darwin/macos-specific.sh" . }}
 {{- end }}
 
-# 3. Environment Layer: Environment-specific configuration (higher priority)
+# Environment Layer: Environment-specific configuration (higher priority)
 {{- if eq .environment "desktop" }}
 {{ includeTemplate "environments/desktop.sh" . }}
 {{- else if eq .environment "remote" }}
@@ -25,7 +25,7 @@
 {{ includeTemplate "environments/desktop.sh" . }}
 {{- end }}
 
-# 4. User Layer: User overrides (highest priority)
+# User Layer: User overrides (highest priority)
 {{- if stat (joinPath .chezmoi.sourceDir ".chezmoitemplates/local/user-overrides.sh") }}
 {{ includeTemplate "local/user-overrides.sh" . }}
 {{- end }}

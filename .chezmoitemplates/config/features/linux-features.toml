@@ -1,17 +1,17 @@
 {{- if lookPath "gsettings" }}
 enable_gsettings = true   # GNOME gsettings config
 {{- else }}
-enable_gsettings = false  # GNOME gsettings config (not installed)
+enable_gsettings = false
 {{- end }}
 
 {{- if lookPath "fcitx5" }}
 enable_fcitx5 = true      # fcitx5 input method
 {{- else }}
-enable_fcitx5 = false     # fcitx5 input method (not installed)
+enable_fcitx5 = false
 {{- end }}
 
 {{- if lookPath "dropbox" }}
 enable_dropbox = true     # Dropbox sync tool
 {{- else }}
-enable_dropbox = false    # Dropbox sync tool (not installed)
+enable_dropbox = false
 {{- end }}
