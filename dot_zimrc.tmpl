@@ -1,38 +1,40 @@
-# Zim 框架模块配置文件
-# 此文件定义要加载的 Zim 模块
-# 注意：此文件不会在 Zsh 启动时被 source，仅用于配置 zimfw 插件管理器
-# zsh-defer 模块 - 必须最先加载以支持延迟执行
+{{- if ne .chezmoi.os "windows" }}
+# Zim framework module configuration
+# This file defines Zim modules to load
+# Note: This file is not sourced at Zsh startup, only used for zimfw plugin manager
+
+# zsh-defer module - must be loaded first for deferred execution support
 zmodule romkatv/zsh-defer
 
-# 核心模块 - 提供基础的 Zsh 环境配置
+# Core modules - basic Zsh environment configuration
 zmodule environment
 zmodule input
 
 zmodule git
 {{- if not (and (hasKey . "features") .features.enable_starship) }}
-# 如果不使用 Starship 提示符，则使用 Zim 内置提示符模块
+# Use Zim built-in prompt modules if Starship is not enabled
 zmodule duration-info
 zmodule git-info
 zmodule asciiship
 {{- end }}
 
 {{- if and (hasKey . "features") .features.enable_fzf }}
-# fzf 模糊搜索集成 - 由自定义配置管理，不使用 Zim 模块以支持 defer
-# 注意: fzf 初始化在 fzf-config.sh 中处理（支持 zsh-defer）
+# fzf integration handled by custom config, not using Zim module (defer supported)
+# fzf initialization is handled in fzf-config.sh
 {{- end }}
 
-# 补全系统配置 - 延迟加载以加速启动
-# 注意: 补全系统初始化在 shell-common.sh 中通过 zsh-defer 处理
-# zsh-users/zsh-completions 提供额外的补全定义
+# Completion system configuration - deferred loading for faster startup
+# Completion system initialization is handled in shell-common.sh via zsh-defer
 zmodule zsh-users/zsh-completions --fpath src
-# completion 模块 - 通过 shell-common.sh 延迟加载，这里注释掉避免重复
+# The completion module is deferred in shell-common.sh, commented out here to avoid duplication
 # zmodule completion
 
-# 以下模块必须最后加载以确保正确的功能
-# 语法高亮模块 - 延迟加载以加速启动
-# 注意: 语法高亮初始化在 shell-common.sh 中通过 zsh-defer 处理
+# The following modules must be loaded last for correct functionality
+# Syntax highlighting module - deferred loading for faster startup
+# Syntax highlighting initialization is handled in shell-common.sh via zsh-defer
 # zmodule zsh-users/zsh-syntax-highlighting
-# 自动建议模块
+# Autosuggestions module
 zmodule zsh-users/zsh-autosuggestions
-# 历史子字符串搜索 - 支持按前缀搜索历史命令
+# History substring search - supports prefix search in history
 zmodule zsh-users/zsh-history-substring-search
+{{- end }}

@@ -1,3 +1,4 @@
+{{- if ne .chezmoi.os "windows" }}
 # ========================================
 # Zsh configuration file (managed by Chezmoi)
 # ========================================
@@ -12,3 +13,5 @@
 
 # Performance monitoring result (for development)
 # zprof
+
+{{- end }}

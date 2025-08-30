@@ -1,26 +1,26 @@
 #!/bin/bash
-# Homebrew 包安装脚本
-# 使用 Brewfile 安装和管理工具包
+# Homebrew package installation script
+# Use Brewfile to install and manage packages
 # Requirements: 4.1, 4.2, 8.1
 
 set -euo pipefail
 
-echo "🍺 安装 Homebrew 包..."
+echo "🍺 Installing Homebrew packages..."
 
-# Brewfile 路径
+# Brewfile path
 BREWFILE_PATH="{{ .chezmoi.homeDir }}/Brewfile"
 
-# 检查 Brewfile 是否存在，如果不存在则生成
+# Check if Brewfile exists, generate from template if not
 if [[ ! -f "$BREWFILE_PATH" ]]; then
-    echo "📝 Brewfile 不存在，正在从模板生成..."
+    echo "📝 Brewfile not found, generating from template..."
     chezmoi execute-template < "{{ .chezmoi.sourceDir }}/Brewfile.tmpl" > "$BREWFILE_PATH"
-    echo "✅ Brewfile 已生成: $BREWFILE_PATH"
+    echo "✅ Brewfile generated: $BREWFILE_PATH"
 fi
 
-echo "📋 使用 Brewfile: $BREWFILE_PATH"
+echo "📋 Using Brewfile: $BREWFILE_PATH"
 
-# 执行 brew bundle 安装
-echo "⚡ 执行 brew bundle install..."
+# Run brew bundle install
+echo "⚡ Running brew bundle install..."
 brew bundle install --file="$BREWFILE_PATH"
 
-echo "🎉 Homebrew 包安装完成!"
+echo "🎉 Homebrew package installation complete!"

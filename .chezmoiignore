@@ -1,22 +1,22 @@
-# Chezmoi 忽略文件配置
-# 这些文件不会被 Chezmoi 管理
+# Chezmoi ignore file configuration
+# These files will not be managed by Chezmoi
 
-# 临时文件
+# Temporary files
 *.tmp
 *.log
 *.swp
 *.swo
 *~
 
-# 系统文件
+# System files
 .DS_Store
 Thumbs.db
 
-# IDE 文件
+# IDE files
 .vscode/
 .idea/
 
-# 敏感文件 (应该用加密模板管理)
+# Sensitive files (should be managed with encrypted templates)
 .ssh/id_*
 .ssh/*.key
 .ssh/*.pem
@@ -31,15 +31,15 @@ Thumbs.db
 secrets.*
 .secrets
 
-# 缓存目录
+# Cache directories
 .cache/
 .npm/
 .yarn/
 
-# 旧配置系统 (仅作参考，不被 Chezmoi 管理)
+# Old config systems (reference only, not managed by Chezmoi)
 dotfiles/
 
-# 项目文件 (只应存在于源目录，不应复制到家目录)
+# Project files (should only exist in source dir, not copied to home)
 README.md
 docs/
 tests/
@@ -50,24 +50,27 @@ verify-*.sh
 .git/
 .gitignore
 .kiro/
-# Brewfile - 现在由 Chezmoi 管理
+# Brewfile - now managed by Chezmoi
 
-# 根据环境条件忽略
+# Ignore by environment condition
 {{- if (index . "environment") }}
 {{- if ne .environment "desktop" }}
-# 非桌面环境忽略GUI相关配置
+# Ignore GUI configs in non-desktop environments
 .config/firefox/
 .config/code/
 {{- end }}
 
 {{- if eq .environment "remote" }}
-# SSH远程环境忽略本地工具配置
+# Ignore local tool configs in SSH remote environments
 .config/docker/
 .local/share/applications/
 {{- end }}
 {{- end }}
 {{- if ne .chezmoi.os "windows" }}
 private_Documents/
+run_onchange_windows_install-packages.ps1.tmpl
+run_onchange_verify-environment.ps1.tmpl
+.chezmoitemplates/shell/powershell/
 {{- end }}
 {{- if eq .chezmoi.os "windows" }}
 .bashrc
@@ -75,4 +78,6 @@ Brewfile
 .zshrc
 .zshenv
 .zimrc
+run_onchange_install-brew-packages.sh.tmpl
+run_onchange_verify-environment.sh.tmpl
 {{- end }}
