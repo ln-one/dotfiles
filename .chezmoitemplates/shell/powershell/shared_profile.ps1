@@ -2,7 +2,7 @@
 # Main PowerShell Profile managed by chezmoi
 # Modular configuration inspired by zsh/bash structure
 # ========================================
-
+{{- if eq .chezmoi.os "windows" }}
 # Load configuration modules in order
 $moduleDir = "{{ .chezmoi.sourceDir }}\.chezmoitemplates\shell\powershell"
 
@@ -20,7 +20,7 @@ $moduleDir = "{{ .chezmoi.sourceDir }}\.chezmoitemplates\shell\powershell"
 
 # 04 - Secrets and 1Password integration
 {{ includeTemplate ".chezmoitemplates/shell/powershell/04-secrets.ps1" . | indent 0 }}
-
+{{- end }}
 
 
 

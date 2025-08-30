@@ -1,62 +1,61 @@
-# Brewfile - Homebrew 包管理配置
-# 通过 Chezmoi 模板管理跨平台工具安装
+# Brewfile - Homebrew package management configuration
+# Managed by Chezmoi template for cross-platform tool installation
 # Requirements: 4.1, 4.2, 8.1
 
-# 核心开发工具
-brew "git"              # 版本控制
-brew "curl"             # HTTP 客户端
-brew "wget"             # 文件下载工具
-brew "unzip"            # 压缩文件处理
-brew "tree"             # 目录树显示
+# Core development tools
+brew "git"              # Version control
+brew "curl"             # HTTP client
+brew "wget"             # File download tool
+brew "unzip"            # Archive handling
+brew "tree"             # Directory tree display
 
-# 现代化 CLI 工具 (替代传统工具)
-brew "eza"              # 现代化的 ls 替代品 (exa 的活跃分支)
-brew "bat"              # 现代化的 cat 替代品 (统一使用 bat，不再使用 batcat)
-brew "fd"               # 现代化的 find 替代品 (统一使用 fd，不再使用 fd-find)
-brew "ripgrep"          # 现代化的 grep 替代品
-brew "fzf"              # 模糊搜索工具
-brew "zoxide"           # 智能目录跳转工具
-brew "jq"               # JSON 处理工具
-brew "atool"            # 统一压缩文件处理工具 (替代自定义extract函数)
+# Modern CLI tools (replacements for traditional tools)
+brew "eza"              # Modern ls replacement (active exa fork)
+brew "bat"              # Modern cat replacement (always use bat, not batcat)
+brew "fd"               # Modern find replacement (always use fd, not fd-find)
+brew "ripgrep"          # Modern grep replacement
+brew "fzf"              # Fuzzy finder
+brew "zoxide"           # Smart directory jumper
+brew "jq"               # JSON processor
+brew "atool"            # Unified archive tool (replaces custom extract function)
 
-# 1Password CLI (仅 macOS 通过 Homebrew)
+# 1Password CLI (macOS only via Homebrew)
 {{- if and (hasKey . "features") .features.enable_1password (eq .chezmoi.os "darwin") }}
 tap "1password/tap"
-cask "1password/tap/1password-cli"  # macOS 通过 Homebrew tap 安装
+cask "1password/tap/1password-cli"
 {{- end }}
 
-# 注意: Linux 上的 1Password CLI 必须通过 apt 仓库安装
-# 这是一个例外情况，不能通过 Homebrew 统一管理
+# Note: On Linux, 1Password CLI must be installed via apt repository
 
-# Shell 和终端工具
-brew "zsh"              # 现代 Shell (macOS 默认)
-brew "bash"             # 现代 Bash (macOS 自带版本较老)
-brew "tmux"             # 终端复用器
-brew "starship"         # 跨 Shell 提示符
+# Shell and terminal tools
+brew "zsh"              # Modern shell (default on macOS)
+brew "bash"             # Modern Bash (macOS ships old version)
+brew "tmux"             # Terminal multiplexer
+brew "starship"         # Cross-shell prompt
 
-# 版本管理和性能优化工具
+# Version management and performance tools
 {{- if and (hasKey . "features") .features.enable_node }}
-brew "fnm"              # 快速 Node.js 版本管理器
+brew "fnm"              # Fast Node.js version manager
 {{- end }}
-brew "forgit"           # Git的fzf增强工具 (替代自定义git函数)
+brew "forgit"           # fzf-enhanced Git tool (replaces custom git functions)
 
-# 编辑器和开发工具
-brew "neovim"           # 现代化的 Vim
-brew "htop"             # 系统监控工具
+# Editors and development tools
+brew "neovim"           # Modern Vim
+brew "htop"             # System monitor
 
 {{- if eq .chezmoi.os "darwin" }}
-# macOS 特定工具
+# macOS specific tools
 brew "mas"              # Mac App Store CLI
-brew "mackup"           # macOS 应用配置备份
+brew "mackup"           # macOS app config backup
 
-# macOS 应用程序 (通过 Homebrew Cask)
+# macOS applications (via Homebrew Cask)
 cask "visual-studio-code"
 cask "iterm2"
 cask "docker"
 cask "1password"
 cask "1password-cli"
 
-# Nerd Fonts (通过 Homebrew Cask)
+# Nerd Fonts (via Homebrew Cask)
 {{- if and (hasKey . "features") .features.enable_nerd_fonts }}
 cask "font-fira-code-nerd-font"
 cask "font-hack-nerd-font"
@@ -65,24 +64,23 @@ cask "font-meslo-lg-nerd-font"
 {{- end }}
 
 {{- else if eq .chezmoi.os "linux" }}
-# Linux 特定工具
-# 注意: gcc 和 make 应通过系统包管理器安装 (apt install build-essential)
-
+# Linux specific tools
+# Note: gcc and make should be installed via system package manager (apt install build-essential)
 {{- end }}
 
 {{- if and (hasKey . "features") .features.enable_ai_tools }}
-# AI 开发工具 (可选)
+# AI development tools (optional)
 brew "gh"               # GitHub CLI
 brew "glab"             # GitLab CLI
 {{- end }}
 
 {{- if and (hasKey . "features") .features.enable_proxy }}
-# 代理和网络工具 (可选)
-brew "proxychains-ng"   # 代理链工具
+# Proxy and networking tools (optional)
+brew "proxychains-ng"   # Proxychains tool
 {{- end }}
 
 {{- if eq .environment "desktop" }}
-# 桌面环境工具
+# Desktop environment tools
 {{- if eq .chezmoi.os "darwin" }}
 cask "firefox"
 cask "google-chrome"
@@ -90,30 +88,30 @@ cask "slack"
 cask "zoom"
 {{- end }}
 {{- else if eq .environment "server" }}
-# 服务器环境工具
-brew "fail2ban"         # 安全工具 (如果可用)
+# Server environment tools
+brew "fail2ban"         # Security tool (if available)
 {{- end }}
 
-# 开发语言和运行时管理
+# Programming languages and runtime management
 {{- if and (hasKey . "features") .features.enable_node }}
 brew "node"             # Node.js
-brew "npm"              # Node 包管理器
+brew "npm"              # Node package manager
 {{- end }}
 
 {{- if and (hasKey . "features") .features.enable_python }}
 brew "python@3.11"      # Python 3.11
-brew "pipx"             # Python 应用安装器
+brew "pipx"             # Python app installer
 {{- end }}
 
 {{- if and (hasKey . "features") .features.enable_go }}
-brew "go"               # Go 语言
+brew "go"               # Go language
 {{- end }}
 
 {{- if and (hasKey . "features") .features.enable_rust }}
-brew "rust"             # Rust 语言
+brew "rust"             # Rust language
 {{- end }}
 
-# 容器和虚拟化工具
+# Container and virtualization tools
 {{- if and (hasKey . "features") .features.enable_docker }}
 {{- if eq .chezmoi.os "linux" }}
 brew "docker"           # Docker (Linux)
@@ -121,7 +119,7 @@ brew "docker-compose"   # Docker Compose
 {{- end }}
 {{- end }}
 
-# 注意: 以下工具需要特殊安装方式，不通过 Homebrew:
-# - evalcache: 通过 git clone 安装到 ~/.evalcache
-# - zim: 通过 curl 安装脚本安装
-# 这些工具的安装逻辑保留在相应的配置模板中
+# Note: The following tools require special installation, not via Homebrew:
+# - evalcache: install via git clone to ~/.evalcache
+# - zim: install via curl script
+# Installation logic for these tools is kept in the relevant config templates
