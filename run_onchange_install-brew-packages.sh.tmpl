@@ -6,22 +6,33 @@
 
 set -euo pipefail
 
-echo "🍺 Installing Homebrew packages..."
+echo "Installing Homebrew packages..."
 
 # Brewfile path
 BREWFILE_PATH="{{ .chezmoi.homeDir }}/Brewfile"
 
 # Check if Brewfile exists, generate from template if not
 if [[ ! -f "$BREWFILE_PATH" ]]; then
-    echo "📝 Brewfile not found, generating from template..."
+    echo "Brewfile not found, generating from template..."
     chezmoi execute-template < "{{ .chezmoi.sourceDir }}/Brewfile.tmpl" > "$BREWFILE_PATH"
-    echo "✅ Brewfile generated: $BREWFILE_PATH"
+    echo "Brewfile generated: $BREWFILE_PATH"
 fi
 
-echo "📋 Using Brewfile: $BREWFILE_PATH"
+echo "Using Brewfile: $BREWFILE_PATH"
 
 # Run brew bundle install
-echo "⚡ Running brew bundle install..."
+echo "Running brew bundle install..."
 brew bundle install --file="$BREWFILE_PATH"
 
-echo "🎉 Homebrew package installation complete!"
+echo "Homebrew package installation complete!"
+
+# Setup evalcache
+EVALCACHE_DIR="{{ .chezmoi.homeDir }}/.evalcache"
+if [[ ! -d "$EVALCACHE_DIR" ]]; then
+    echo "Setting up evalcache..."
+    mkdir -p "$EVALCACHE_DIR"
+    git clone https://github.com/mroth/evalcache "$EVALCACHE_DIR"
+    echo "evalcache installed at $EVALCACHE_DIR"
+else
+    echo "evalcache is already installed"
+fi
