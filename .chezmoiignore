@@ -71,6 +71,8 @@ private_Documents/
 run_onchange_windows_install-packages.ps1.tmpl
 run_onchange_verify-environment.ps1.tmpl
 .chezmoitemplates/shell/powershell/
+dot_secrets.ps1.tmpl
+.secrets.ps1
 {{- end }}
 {{- if eq .chezmoi.os "windows" }}
 .bashrc
