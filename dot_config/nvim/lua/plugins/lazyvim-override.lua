@@ -1,10 +1,10 @@
 return {
-  -- 完全禁用 LazyVim 的 colorscheme 处理
+  -- 覆盖 LazyVim 的 colorscheme 设置
   {
     "LazyVim/LazyVim",
     opts = {
-      -- 设置为 nil 来禁用自动 colorscheme 设置
-      colorscheme = nil,
+      -- 直接指定使用 catppuccin-macchiato 主题
+      colorscheme = "catppuccin-macchiato",
     },
   },
 }
