@@ -9,6 +9,8 @@ Host aliyun
 {{- if eq .chezmoi.os "windows" }}
     # Let SSH use the default agent (1Password manages this automatically)
     # IdentityAgent \\.\pipe\1password-ssh-agent
+{{- else if eq .chezmoi.os "darwin" }}
+    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 {{- else }}
     IdentityAgent ~/.1password/agent.sock
 {{- end }}
@@ -21,6 +23,8 @@ Host github.com
 {{- if eq .chezmoi.os "windows" }}
     # Let SSH use the default agent (1Password manages this automatically)
     # IdentityAgent \\.\pipe\1password-ssh-agent
+{{- else if eq .chezmoi.os "darwin" }}
+    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 {{- else }}
     IdentityAgent ~/.1password/agent.sock
 {{- end }}
@@ -43,6 +47,8 @@ Host *
 {{- if eq .chezmoi.os "windows" }}
     # Let SSH use the default agent (1Password manages this automatically)
     # IdentityAgent \\.\pipe\1password-ssh-agent
+{{- else if eq .chezmoi.os "darwin" }}
+    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 {{- else }}
     IdentityAgent ~/.1password/agent.sock
 {{- end }}

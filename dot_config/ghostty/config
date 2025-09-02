@@ -57,6 +57,5 @@ mouse-hide-while-typing = true
 mouse-scroll-multiplier = 2
 
 
-
-command = /usr/bin/zsh
+command = /bin/zsh
 shell-integration = zsh

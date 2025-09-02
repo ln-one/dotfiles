@@ -49,17 +49,13 @@ brew "mackup"           # macOS app config backup
 
 # macOS applications (via Homebrew Cask)
 cask "visual-studio-code"
-cask "iterm2"
 cask "docker"
 cask "1password"
 cask "1password-cli"
 
 # Nerd Fonts (via Homebrew Cask)
-{{- if and (hasKey . "features") .features.enable_nerd_fonts }}
-cask "font-fira-code-nerd-font"
-cask "font-hack-nerd-font"
+{{- if and (hasKey . "features") (hasKey .features "enable_nerd_fonts") .features.enable_nerd_fonts }}
 cask "font-jetbrains-mono-nerd-font"
-cask "font-meslo-lg-nerd-font"
 {{- end }}
 
 {{- else if eq .chezmoi.os "linux" }}
@@ -82,9 +78,6 @@ brew "proxychains-ng"   # Proxychains tool
 # Desktop environment tools
 {{- if eq .chezmoi.os "darwin" }}
 cask "firefox"
-cask "google-chrome"
-cask "slack"
-cask "zoom"
 {{- end }}
 {{- else if eq .environment "server" }}
 # Server environment tools
@@ -94,7 +87,6 @@ brew "fail2ban"         # Security tool (if available)
 # Programming languages and runtime management
 {{- if and (hasKey . "features") .features.enable_node }}
 brew "node"             # Node.js
-brew "npm"              # Node package manager
 {{- end }}
 
 {{- if and (hasKey . "features") .features.enable_python }}
