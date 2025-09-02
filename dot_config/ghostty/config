@@ -56,6 +56,15 @@ window-padding-balance = true
 mouse-hide-while-typing = true
 mouse-scroll-multiplier = 2
 
+font-size = 14
 
 command = /bin/zsh
 shell-integration = zsh
+
+font-family = JetBrainsMonoNL Nerd Font Mono
+
+font-family-bold = JetBrainsMonoNL NFM Bold
+font-family-italic = JetBrainsMonoNL NFM Italic
+font-family-bold-italic = JetBrainsMonoNL NFM Bold Italic
+
+font-synthetic-style = bold,italic,bold-italic
