@@ -97,6 +97,15 @@ mkdir -p "$HOME/.cache/starship"
   export OPENAI_API_BASE="${OPENAI_API_BASE:-}"
 {{- end }}
 
+{{- if eq .chezmoi.os "darwin" }}
+  # MySQL client configuration (keg-only formula)
+  if [ -d "/opt/homebrew/opt/mysql-client/bin" ]; then
+    export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
+    export LDFLAGS="-L/opt/homebrew/opt/mysql-client/lib $LDFLAGS"
+    export CPPFLAGS="-I/opt/homebrew/opt/mysql-client/include $CPPFLAGS"
+  fi
+{{- end }}
+
 {{- if and .features.enable_proxy .proxy.enabled }}
   # Proxy configuration
   {{- $http_proxy := .proxy.http_proxy | default "" }}
