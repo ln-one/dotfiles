@@ -28,8 +28,7 @@ Thumbs.db
 *.pem
 *.p12
 *.pfx
-secrets.*
-.secrets
+# .secrets - now managed by chezmoi template
 
 # Cache directories
 .cache/
