@@ -27,7 +27,6 @@ export LC_ALL="en_US.UTF-8"
 export LC_CTYPE="en_US.UTF-8"
 
 # 1Password SSH Agent integration
-# 1Password SSH Agent integration
 {{- if .features.enable_1password }}
   {{- if eq .chezmoi.os "darwin" }}
     SSH_AGENT_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
@@ -40,6 +39,11 @@ export LC_CTYPE="en_US.UTF-8"
       # Silently check SSH Agent status
       ssh-add -l >/dev/null 2>&1 || true
     {{- end }}
+  fi
+  
+  # 1Password CLI plugins integration
+  if [ -f "$HOME/.config/op/plugins.sh" ]; then
+    . "$HOME/.config/op/plugins.sh"
   fi
 {{- end }}
 
