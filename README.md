@@ -2,7 +2,7 @@
 
 A dotfiles management system built with [Chezmoi](https://www.chezmoi.io/) that provides consistent development environments across macOS, Linux, and Windows. Features automatic environment detection and modular configuration.
 
-## Features
+## Features   
 
 ### Environment Detection
 - Automatic environment classification: Desktop, Remote (SSH), WSL, Container
