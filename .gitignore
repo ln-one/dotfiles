@@ -185,3 +185,4 @@ NOTES.md
 # 4. Editor and IDE configurations
 # 
 # To add specific ignore rules, create .gitignore.local in project root
+.chezmoitemplates/config/secrets/secrets-fallback.toml

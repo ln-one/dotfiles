@@ -3,7 +3,7 @@ enable_proxy = true
 {{- if or (env "SSH_CONNECTION") (env "SSH_CLIENT") }}
 enable_1password = false
 {{- else }}
-enable_1password = true
+enable_1password = false
 {{- end }}
 enable_oh_my_zsh = false
 enable_zim = true

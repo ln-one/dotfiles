@@ -6,6 +6,7 @@
 Host aliyun  
     HostName "{{ .secrets.aliyun_server_url }}"
     User "{{ .secrets.aliyun_server_username }}"
+{{- if .features.enable_1password }}
 {{- if eq .chezmoi.os "windows" }}
     # Let SSH use the default agent (1Password manages this automatically)
     # IdentityAgent \\.\pipe\1password-ssh-agent
@@ -14,12 +15,13 @@ Host aliyun
 {{- else }}
     IdentityAgent ~/.1password/agent.sock
 {{- end }}
-
+{{- end }}
 # GitHub (1Password keys)
 Host github.com
     HostName ssh.github.com
     User git
     Port 443
+{{- if .features.enable_1password }}
 {{- if eq .chezmoi.os "windows" }}
     # Let SSH use the default agent (1Password manages this automatically)
     # IdentityAgent \\.\pipe\1password-ssh-agent
@@ -27,6 +29,7 @@ Host github.com
     IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 {{- else }}
     IdentityAgent ~/.1password/agent.sock
+{{- end }}
 {{- end }}
 {{- if and .features.enable_proxy .proxy.enabled }}
     {{- if hasKey .proxy "socks_port" }}
@@ -43,6 +46,7 @@ Host secure-server yubikey-*
 {{- end }}
 
 # Default for all other hosts
+{{- if .features.enable_1password }}
 Host *
 {{- if eq .chezmoi.os "windows" }}
     # Let SSH use the default agent (1Password manages this automatically)
@@ -51,4 +55,5 @@ Host *
     IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 {{- else }}
     IdentityAgent ~/.1password/agent.sock
+{{- end }}
 {{- end }}

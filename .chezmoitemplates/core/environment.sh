@@ -26,9 +26,9 @@ export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 export LC_CTYPE="en_US.UTF-8"
 
-# 1Password SSH Agent integration
 {{- if .features.enable_1password }}
   {{- if eq .chezmoi.os "darwin" }}
+# 1Password SSH Agent integration
     SSH_AGENT_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
   {{- else if eq .chezmoi.os "linux" }}
     SSH_AGENT_SOCK="$HOME/.1password/agent.sock"
