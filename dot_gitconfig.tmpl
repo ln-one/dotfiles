@@ -5,8 +5,8 @@
   name = "{{ .user.name }}"
 {{- else }}
 [user]
-  email = "{{ .user.email }}"
-  signingkey = ""
+  email = "{{ .secrets.git_user_email }}"
+  signingkey = "{{ .secrets.git_signing_key }}"
   name = "{{ .user.name }}"
 {{- end }}
 
