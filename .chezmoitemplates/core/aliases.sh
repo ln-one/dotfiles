@@ -93,6 +93,7 @@ alias hg='history | grep'
 
 {{- if eq .chezmoi.os "darwin" }}
 # macOS specific aliases
+alias icloud='cd ~/Library/Mobile\ Documents/com~apple~CloudDocs'
 alias finder='open -a Finder .'
 alias preview='open -a Preview'
 alias flushdns='sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder'
