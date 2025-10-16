@@ -102,7 +102,6 @@ fi
             {{- if .features.enable_pyenv }}
                 zsh-defer -a _evalcache pyenv init --path
                 zsh-defer -a _evalcache pyenv init -
-                zsh-defer -a _evalcache pyenv virtualenv-init -
             {{- end }}
             
             {{- if .features.enable_fuck }}
@@ -129,7 +128,6 @@ fi
             {{- if .features.enable_pyenv }}
                 _evalcache pyenv init --path
                 _evalcache pyenv init -
-                _evalcache pyenv virtualenv-init -
             {{- end }}
 
             {{- if .features.enable_rbenv }}

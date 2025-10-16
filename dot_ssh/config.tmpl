@@ -53,7 +53,13 @@ Host *
     # IdentityAgent \\.\pipe\1password-ssh-agent
 {{- else if eq .chezmoi.os "darwin" }}
     IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+    AddKeysToAgent yes
+    UseKeychain yes
 {{- else }}
     IdentityAgent ~/.1password/agent.sock
 {{- end }}
+{{- else if eq .chezmoi.os "darwin" }}
+Host *
+    AddKeysToAgent yes
+    UseKeychain yes
 {{- end }}

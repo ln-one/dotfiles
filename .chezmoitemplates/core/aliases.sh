@@ -98,7 +98,7 @@ alias preview='open -a Preview'
 alias flushdns='sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder'
 alias showfiles='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder /System/Library/CoreServices/Finder.app'
 alias hidefiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app'
-
+alias python="python3"
 {{- else if eq .chezmoi.os "linux" }}
 # Linux specific aliases
 alias service='sudo systemctl'
